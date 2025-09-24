@@ -110,19 +110,6 @@ export default function AddProductDialog({ isOpen, onOpenChange, onProductAdded 
                         )}
                     />
                     <FormField
-                        control={form.control}
-                        name="unitPrice"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Unit Price</FormLabel>
-                            <FormControl>
-                            <Input type="number" placeholder="5000000" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                        )}
-                    />
-                    <FormField
                       control={form.control}
                       name="unit"
                       render={({ field }) => (
@@ -142,6 +129,19 @@ export default function AddProductDialog({ isOpen, onOpenChange, onProductAdded 
                           <FormMessage />
                         </FormItem>
                       )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="unitPrice"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Unit Price</FormLabel>
+                            <FormControl>
+                            <Input type="number" placeholder="5000000" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                        )}
                     />
                      <DialogFooter>
                         <Button type="button" variant="outline" onClick={() => handleOpenChange(false)} disabled={isSaving}>
