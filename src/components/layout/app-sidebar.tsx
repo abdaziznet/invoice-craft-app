@@ -53,7 +53,7 @@ export default function AppSidebar() {
               </Link>
             )}
         </SidebarHeader>
-        <SidebarContent className="flex-1">
+        <SidebarContent>
           <SidebarMenu>
             {navItems.map((item) => (
               <SidebarMenuItem key={item.href}>
@@ -71,6 +71,7 @@ export default function AppSidebar() {
             ))}
           </SidebarMenu>
         </SidebarContent>
+        <SidebarContent className="flex-1" />
         <SidebarContent>
           <SidebarMenu>
             <SidebarMenuItem>
