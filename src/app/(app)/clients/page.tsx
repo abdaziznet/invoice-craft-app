@@ -19,31 +19,29 @@ export default function ClientsPage() {
   const [isAddDialogOpen, setIsAddDialogOpen] = React.useState(false);
   const router = useRouter();
 
-  React.useEffect(() => {
-    async function fetchClients() {
-      const clientsData = await getClients();
-      setClients(clientsData as Client[]);
-    }
-    fetchClients();
+  const fetchClients = React.useCallback(async () => {
+    const clientsData = await getClients();
+    setClients(clientsData as Client[]);
   }, []);
+
+  React.useEffect(() => {
+    fetchClients();
+  }, [fetchClients]);
   
   const handleClientAdded = () => {
-    async function fetchClients() {
-      const clientsData = await getClients();
-      setClients(clientsData as Client[]);
-    }
     fetchClients();
     router.refresh();
   };
 
   const handleClientUpdated = () => {
-    async function fetchClients() {
-        const clientsData = await getClients();
-        setClients(clientsData as Client[]);
-    }
     fetchClients();
     router.refresh();
   };
+
+  const handleClientDeleted = () => {
+    fetchClients();
+    router.refresh();
+  }
 
 
   return (
@@ -60,7 +58,11 @@ export default function ClientsPage() {
       </div>
       <Card>
         <CardContent className="p-6">
-          <ClientTable clients={clients} onClientUpdated={handleClientUpdated} />
+          <ClientTable 
+            clients={clients} 
+            onClientUpdated={handleClientUpdated}
+            onClientDeleted={handleClientDeleted}
+          />
         </CardContent>
       </Card>
       <AddClientDialog

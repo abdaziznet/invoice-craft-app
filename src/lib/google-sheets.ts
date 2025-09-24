@@ -115,6 +115,55 @@ export async function updateClient(clientId: string, clientData: Partial<Omit<Cl
     }
 }
 
+export async function deleteClients(clientIds: string[]) {
+    try {
+        const sheetTitle = 'Clients';
+        const sheetResponse = await sheets.spreadsheets.get({ spreadsheetId });
+        const sheet = sheetResponse.data.sheets?.find(s => s.properties?.title === sheetTitle);
+        const sheetId = sheet?.properties?.sheetId;
+
+        if (sheetId === undefined) {
+            throw new Error(`Sheet "${sheetTitle}" not found.`);
+        }
+
+        const data = await getSheetData('Clients!A:A');
+        if (!data) {
+            throw new Error('Could not fetch clients data.');
+        }
+
+        const requests = [];
+        // Iterate backwards to avoid index shifting issues
+        for (let i = data.length - 1; i >= 1; i--) {
+            const rowId = data[i][0];
+            if (clientIds.includes(rowId)) {
+                requests.push({
+                    deleteDimension: {
+                        range: {
+                            sheetId: sheetId,
+                            dimension: 'ROWS',
+                            startIndex: i,
+                            endIndex: i + 1,
+                        },
+                    },
+                });
+            }
+        }
+
+        if (requests.length > 0) {
+            await sheets.spreadsheets.batchUpdate({
+                spreadsheetId,
+                requestBody: {
+                    requests,
+                },
+            });
+        }
+
+    } catch (error) {
+        console.error('Error deleting clients:', error);
+        throw new Error('Could not delete clients in Google Sheets.');
+    }
+}
+
 
 export async function getProducts() {
   const data = await getSheetData('Products!A:D');
