@@ -1,3 +1,4 @@
+
 'use server';
 import { google } from 'googleapis';
 import { JWT } from 'google-auth-library';
@@ -167,8 +168,9 @@ export async function deleteClients(clientIds: string[]) {
 
 export async function getProducts() {
   const data = await getSheetData('Products!A:D');
-  const products = mapToObjects(data);
-  return products.map(p => ({...p, unitPrice: parseFloat(p.unitPrice) }));
+  const products = mapToObjects(data) as Product[];
+  const uniqueProducts = Array.from(new Map(products.map(p => [p.id, p])).values());
+  return uniqueProducts.map(p => ({...p, unitPrice: parseFloat(p.unitPrice as any) }));
 }
 
 export async function createProduct(productData: Omit<Product, 'id'>) {
@@ -214,9 +216,12 @@ export async function updateProduct(productId: string, productData: Partial<Omit
         }
 
         const originalData = productsData[productRowIndex];
-        const updatedRow = headers.map((header: string, index: number) => {
-            return productData[header as keyof typeof productData] ?? originalData[index];
-        });
+        const updatedRow = [
+            originalData[0], // id
+            productData.name ?? originalData[headers.indexOf('name')],
+            productData.unit ?? originalData[headers.indexOf('unit')],
+            productData.unitPrice ?? originalData[headers.indexOf('unitPrice')],
+        ];
 
         await sheets.spreadsheets.values.update({
             spreadsheetId,
