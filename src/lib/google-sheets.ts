@@ -78,6 +78,43 @@ export async function createClient(clientData: Omit<Client, 'id'>) {
     }
 }
 
+export async function updateClient(clientId: string, clientData: Partial<Omit<Client, 'id'>>) {
+    try {
+        const clientsData = await getSheetData('Clients!A:E');
+        if (!clientsData) {
+            throw new Error('Could not fetch clients data.');
+        }
+
+        const headers = clientsData[0];
+        const clientRowIndex = clientsData.findIndex(row => row[0] === clientId);
+
+        if (clientRowIndex === -1) {
+            throw new Error('Client not found.');
+        }
+
+        const updatedRow = headers.map((header: string) => {
+            if (header in clientData) {
+                return clientData[header as keyof typeof clientData];
+            }
+            return clientsData[clientRowIndex][headers.indexOf(header)];
+        });
+
+
+        await sheets.spreadsheets.values.update({
+            spreadsheetId,
+            range: `Clients!A${clientRowIndex + 1}:${String.fromCharCode(65 + headers.length - 1)}${clientRowIndex + 1}`,
+            valueInputOption: 'USER_ENTERED',
+            requestBody: {
+                values: [updatedRow],
+            },
+        });
+
+    } catch (error) {
+        console.error('Error updating client:', error);
+        throw new Error('Could not update client in Google Sheets.');
+    }
+}
+
 
 export async function getProducts() {
   const data = await getSheetData('Products!A:D');

@@ -16,7 +16,7 @@ import { useRouter } from 'next/navigation';
 
 export default function ClientsPage() {
   const [clients, setClients] = React.useState<Client[]>([]);
-  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+  const [isAddDialogOpen, setIsAddDialogOpen] = React.useState(false);
   const router = useRouter();
 
   React.useEffect(() => {
@@ -36,6 +36,15 @@ export default function ClientsPage() {
     router.refresh();
   };
 
+  const handleClientUpdated = () => {
+    async function fetchClients() {
+        const clientsData = await getClients();
+        setClients(clientsData as Client[]);
+    }
+    fetchClients();
+    router.refresh();
+  };
+
 
   return (
     <div>
@@ -44,19 +53,19 @@ export default function ClientsPage() {
           <h1 className="text-2xl font-semibold md:text-3xl">Clients</h1>
           <p className="text-muted-foreground">Manage your client database.</p>
         </div>
-        <Button onClick={() => setIsDialogOpen(true)}>
+        <Button onClick={() => setIsAddDialogOpen(true)}>
           <PlusCircle className="mr-2 h-4 w-4" />
           Add New Client
         </Button>
       </div>
       <Card>
         <CardContent className="p-6">
-          <ClientTable clients={clients} />
+          <ClientTable clients={clients} onClientUpdated={handleClientUpdated} />
         </CardContent>
       </Card>
       <AddClientDialog
-        isOpen={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
+        isOpen={isAddDialogOpen}
+        onOpenChange={setIsAddDialogOpen}
         onClientAdded={handleClientAdded}
       />
     </div>
