@@ -3,29 +3,43 @@
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { formatCurrency } from '@/lib/utils';
+import type { Invoice } from '@/lib/types';
+import { parseISO, getMonth } from 'date-fns';
 
+type RevenueChartProps = {
+  invoices: Invoice[];
+};
 
-const data = [
-  { name: 'Jan', total: Math.floor(Math.random() * 5000000) + 1000000 },
-  { name: 'Feb', total: Math.floor(Math.random() * 5000000) + 1000000 },
-  { name: 'Mar', total: Math.floor(Math.random() * 5000000) + 1000000 },
-  { name: 'Apr', total: Math.floor(Math.random() * 5000000) + 1000000 },
-  { name: 'May', total: Math.floor(Math.random() * 5000000) + 1000000 },
-  { name: 'Jun', total: Math.floor(Math.random() * 5000000) + 1000000 },
-  { name: 'Jul', total: Math.floor(Math.random() * 5000000) + 1000000 },
-  { name: 'Aug', total: Math.floor(Math.random() * 5000000) + 1000000 },
-  { name: 'Sep', total: Math.floor(Math.random() * 5000000) + 1000000 },
-  { name: 'Oct', total: Math.floor(Math.random() * 5000000) + 1000000 },
-  { name: 'Nov', total: Math.floor(Math.random() * 5000000) + 1000000 },
-  { name: 'Dec', total: Math.floor(Math.random() * 5000000) + 1000000 },
-];
+export default function RevenueChart({ invoices }: RevenueChartProps) {
+  const monthlyRevenue = Array.from({ length: 12 }, () => 0);
 
-export default function RevenueChart() {
+  invoices.forEach(invoice => {
+    if (invoice.status === 'Paid') {
+      const month = getMonth(parseISO(invoice.createdAt));
+      monthlyRevenue[month] += invoice.total;
+    }
+  });
+
+  const data = [
+    { name: 'Jan', total: monthlyRevenue[0] },
+    { name: 'Feb', total: monthlyRevenue[1] },
+    { name: 'Mar', total: monthlyRevenue[2] },
+    { name: 'Apr', total: monthlyRevenue[3] },
+    { name: 'May', total: monthlyRevenue[4] },
+    { name: 'Jun', total: monthlyRevenue[5] },
+    { name: 'Jul', total: monthlyRevenue[6] },
+    { name: 'Aug', total: monthlyRevenue[7] },
+    { name: 'Sep', total: monthlyRevenue[8] },
+    { name: 'Oct', total: monthlyRevenue[9] },
+    { name: 'Nov', total: monthlyRevenue[10] },
+    { name: 'Dec', total: monthlyRevenue[11] },
+  ];
+
   return (
     <Card className="lg:col-span-4">
       <CardHeader>
         <CardTitle>Monthly Revenue</CardTitle>
-        <CardDescription>An overview of your income this year.</CardDescription>
+        <CardDescription>An overview of your income this year based on paid invoices.</CardDescription>
       </CardHeader>
       <CardContent className="pl-2">
         <ResponsiveContainer width="100%" height={350}>

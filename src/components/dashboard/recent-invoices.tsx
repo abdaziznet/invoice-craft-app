@@ -14,12 +14,18 @@ import {
   AvatarImage,
 } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { invoices } from '@/lib/data';
 import { formatCurrency } from '@/lib/utils';
-import { cn } from '@/lib/utils';
+import type { Invoice, InvoiceStatus } from '@/lib/types';
+import { parseISO, compareDesc } from 'date-fns';
 
-export default function RecentInvoices() {
-  const recentInvoices = invoices.slice(0, 5);
+type RecentInvoicesProps = {
+  invoices: Invoice[];
+};
+
+export default function RecentInvoices({ invoices }: RecentInvoicesProps) {
+  const recentInvoices = invoices
+    .sort((a, b) => compareDesc(parseISO(a.createdAt), parseISO(b.createdAt)))
+    .slice(0, 5);
 
   const getInitials = (name: string) => {
     const names = name.split(' ');
@@ -29,7 +35,7 @@ export default function RecentInvoices() {
     return name.substring(0, 2);
   }
 
-  const getBadgeVariant = (status: 'Paid' | 'Unpaid' | 'Overdue'): 'default' | 'secondary' | 'destructive' => {
+  const getBadgeVariant = (status: InvoiceStatus): 'default' | 'secondary' | 'destructive' => {
     switch (status) {
       case 'Paid':
         return 'default';

@@ -4,8 +4,11 @@ import { PlusCircle } from 'lucide-react';
 import StatsCards from '@/components/dashboard/stats-cards';
 import RevenueChart from '@/components/dashboard/revenue-chart';
 import RecentInvoices from '@/components/dashboard/recent-invoices';
+import { getInvoices } from '@/lib/google-sheets';
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const invoices = await getInvoices();
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -17,10 +20,10 @@ export default function DashboardPage() {
           </Link>
         </Button>
       </div>
-      <StatsCards />
+      <StatsCards invoices={invoices} />
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
-        <RevenueChart />
-        <RecentInvoices />
+        <RevenueChart invoices={invoices} />
+        <RecentInvoices invoices={invoices} />
       </div>
     </div>
   );
