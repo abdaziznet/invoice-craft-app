@@ -1,4 +1,5 @@
 import { PlusCircle } from 'lucide-react';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -19,9 +20,11 @@ export default async function ClientsPage() {
           <h1 className="text-2xl font-semibold md:text-3xl">Clients</h1>
           <p className="text-muted-foreground">Manage your client database.</p>
         </div>
-        <Button>
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Add New Client
+        <Button asChild>
+          <Link href="/clients/new">
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Add New Client
+          </Link>
         </Button>
       </div>
       <Card>

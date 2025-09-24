@@ -1,8 +1,7 @@
-
 'use server';
 import { google } from 'googleapis';
 import { JWT } from 'google-auth-library';
-import type { Invoice, InvoiceItem } from './types';
+import type { Client, Invoice, InvoiceItem } from './types';
 
 const spreadsheetId = process.env.GOOGLE_SHEET_ID;
 
@@ -49,6 +48,36 @@ export async function getClients() {
   const data = await getSheetData('Clients!A:E');
   return mapToObjects(data);
 }
+
+export async function createClient(clientData: Omit<Client, 'id'>) {
+    try {
+        const clientsData = (await getSheetData('Clients!A:A')) || [['id']];
+        const newClientId = `cli-${clientsData.length}`;
+
+        const newClientRow = [
+            newClientId,
+            clientData.name,
+            clientData.email,
+            clientData.address,
+            clientData.phone,
+        ];
+
+        await sheets.spreadsheets.values.append({
+            spreadsheetId,
+            range: 'Clients!A:E',
+            valueInputOption: 'USER_ENTERED',
+            requestBody: {
+                values: [newClientRow],
+            },
+        });
+
+        return { id: newClientId };
+    } catch (error) {
+        console.error('Error creating client:', error);
+        throw new Error('Could not create client in Google Sheets.');
+    }
+}
+
 
 export async function getProducts() {
   const data = await getSheetData('Products!A:D');
