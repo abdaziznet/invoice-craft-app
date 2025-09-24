@@ -158,7 +158,7 @@ export default function EditClientDialog({ client, isOpen, onOpenChange, onClien
                             />
                             </FormControl>
                             <FormMessage />
-                        </Form-Item>
+                        </FormItem>
                         )}
                     />
                      <DialogFooter>
