@@ -118,7 +118,7 @@ export default function ProductTable({ products, onProductUpdated, onProductDele
                 />
               </TableHead>
               <TableHead>Name</TableHead>
-              <TableHead>Description</TableHead>
+              <TableHead>Unit</TableHead>
               <TableHead className="text-right">Unit Price</TableHead>
               <TableHead className="text-right w-[50px]">Actions</TableHead>
             </TableRow>
@@ -137,7 +137,7 @@ export default function ProductTable({ products, onProductUpdated, onProductDele
                   />
                 </TableCell>
                 <TableCell className="font-medium">{product.name}</TableCell>
-                <TableCell className="text-muted-foreground">{product.description}</TableCell>
+                <TableCell className="text-muted-foreground">{product.unit}</TableCell>
                 <TableCell className="text-right">{formatCurrency(product.unitPrice)}</TableCell>
                 <TableCell className="text-right">
                   <DropdownMenu>

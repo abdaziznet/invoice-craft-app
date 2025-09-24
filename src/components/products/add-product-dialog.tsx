@@ -22,16 +22,16 @@ import {
     DialogFooter,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { createProduct } from '@/lib/google-sheets';
 import Spinner from '@/components/ui/spinner';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
 const productSchema = z.object({
   name: z.string().min(1, 'Name is required.'),
-  description: z.string().optional(),
   unitPrice: z.coerce.number().min(0, 'Price must be a positive number.'),
+  unit: z.enum(['pcs', 'boxes']),
 });
 
 type ProductFormValues = z.infer<typeof productSchema>;
@@ -50,8 +50,8 @@ export default function AddProductDialog({ isOpen, onOpenChange, onProductAdded 
     resolver: zodResolver(productSchema),
     defaultValues: {
       name: '',
-      description: '',
       unitPrice: 0,
+      unit: 'pcs',
     },
   });
   
@@ -111,22 +111,6 @@ export default function AddProductDialog({ isOpen, onOpenChange, onProductAdded 
                     />
                     <FormField
                         control={form.control}
-                        name="description"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Description</FormLabel>
-                            <FormControl>
-                                <Textarea
-                                    placeholder="e.g., 10-page responsive website"
-                                    {...field}
-                                />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
                         name="unitPrice"
                         render={({ field }) => (
                         <FormItem>
@@ -137,6 +121,27 @@ export default function AddProductDialog({ isOpen, onOpenChange, onProductAdded 
                             <FormMessage />
                         </FormItem>
                         )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="unit"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Unit</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select a unit" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="pcs">pcs</SelectItem>
+                              <SelectItem value="boxes">boxes</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
                      <DialogFooter>
                         <Button type="button" variant="outline" onClick={() => handleOpenChange(false)} disabled={isSaving}>

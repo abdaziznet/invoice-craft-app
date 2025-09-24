@@ -179,8 +179,8 @@ export async function createProduct(productData: Omit<Product, 'id'>) {
         const newProductRow = [
             newProductId,
             productData.name,
-            productData.description,
             productData.unitPrice,
+            productData.unit,
         ];
 
         await sheets.spreadsheets.values.append({

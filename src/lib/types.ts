@@ -9,8 +9,8 @@ export type Client = {
 export type Product = {
   id: string;
   name: string;
-  description: string;
   unitPrice: number;
+  unit: 'pcs' | 'boxes';
 };
 
 export type InvoiceItem = {
