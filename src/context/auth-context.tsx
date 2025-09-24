@@ -15,6 +15,7 @@ import {
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase/client';
 import { useRouter } from 'next/navigation';
+import { useToast } from '@/hooks/use-toast';
 
 export interface AuthContextType {
   user: User | null;
@@ -34,6 +35,7 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const { toast } = useToast();
 
   const isWhitelisted = user?.email === WHITELISTED_EMAIL;
 
@@ -50,8 +52,20 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
     try {
       await signInWithPopup(auth, provider);
       router.push('/dashboard');
-    } catch (error) {
-      console.error('Error signing in with Google:', error);
+    } catch (error: any) {
+      if (error.code === 'auth/popup-closed-by-user') {
+        toast({
+          title: 'Sign-in cancelled',
+          description: 'You closed the sign-in window before completing the process.',
+        });
+      } else {
+        console.error('Error signing in with Google:', error);
+        toast({
+          variant: 'destructive',
+          title: 'Authentication Error',
+          description: 'An error occurred during sign-in. Please try again.',
+        });
+      }
     }
   };
 
