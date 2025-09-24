@@ -9,10 +9,11 @@ import {
 } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import InvoiceTable from '@/components/invoices/invoice-table';
-import { invoices } from '@/lib/data';
+import { getInvoices } from '@/lib/google-sheets';
 import type { InvoiceStatus } from '@/lib/types';
 
-export default function InvoicesPage() {
+export default async function InvoicesPage() {
+  const invoices = await getInvoices();
   const statusFilters: InvoiceStatus[] = ['Paid', 'Unpaid', 'Overdue'];
   const allInvoices = invoices;
   const unpaidInvoices = invoices.filter((inv) => inv.status === 'Unpaid');

@@ -8,9 +8,10 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import ClientTable from '@/components/clients/client-table';
-import { clients } from '@/lib/data';
+import { getClients } from '@/lib/google-sheets';
 
-export default function ClientsPage() {
+export default async function ClientsPage() {
+  const clients = await getClients();
   return (
     <div>
       <div className="flex items-center justify-between mb-6">

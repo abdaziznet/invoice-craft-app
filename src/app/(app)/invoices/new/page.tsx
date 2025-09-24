@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -47,9 +46,11 @@ import {
   ArrowLeft,
 } from 'lucide-react';
 import { cn, formatCurrency } from '@/lib/utils';
-import { clients, products } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
+import { getClients, getProducts } from '@/lib/google-sheets';
+import type { Client, Product } from '@/lib/types';
+
 
 const lineItemSchema = z.object({
   productId: z.string().min(1, 'Product is required.'),
@@ -71,6 +72,18 @@ type InvoiceFormValues = z.infer<typeof invoiceSchema>;
 export default function NewInvoicePage() {
   const router = useRouter();
   const { toast } = useToast();
+  const [clients, setClients] = React.useState<Client[]>([]);
+  const [products, setProducts] = React.useState<Product[]>([]);
+
+  React.useEffect(() => {
+    async function fetchData() {
+      const clientsData = await getClients();
+      const productsData = await getProducts();
+      setClients(clientsData as Client[]);
+      setProducts(productsData as Product[]);
+    }
+    fetchData();
+  }, []);
 
   const form = useForm<InvoiceFormValues>({
     resolver: zodResolver(invoiceSchema),

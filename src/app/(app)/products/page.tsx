@@ -8,9 +8,10 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import ProductTable from '@/components/products/product-table';
-import { products } from '@/lib/data';
+import { getProducts } from '@/lib/google-sheets';
 
-export default function ProductsPage() {
+export default async function ProductsPage() {
+  const products = await getProducts();
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
