@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { PlusCircle } from 'lucide-react';
 import StatsCards from '@/components/dashboard/stats-cards';
@@ -9,9 +10,11 @@ export default function DashboardPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <h1 className="text-2xl font-semibold md:text-3xl">Dashboard</h1>
-        <Button>
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Create New Invoice
+        <Button asChild>
+          <Link href="/invoices/new">
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Create New Invoice
+          </Link>
         </Button>
       </div>
       <StatsCards />
