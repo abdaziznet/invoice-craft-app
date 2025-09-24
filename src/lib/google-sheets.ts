@@ -179,8 +179,8 @@ export async function createProduct(productData: Omit<Product, 'id'>) {
         const newProductRow = [
             newProductId,
             productData.name,
-            productData.unitPrice,
             productData.unit,
+            productData.unitPrice,
         ];
 
         await sheets.spreadsheets.values.append({
@@ -213,13 +213,10 @@ export async function updateProduct(productId: string, productData: Partial<Omit
             throw new Error('Product not found.');
         }
 
-        const updatedRow = headers.map((header: string) => {
-            if (header in productData) {
-                return productData[header as keyof typeof productData];
-            }
-            return productsData[productRowIndex][headers.indexOf(header)];
+        const originalData = productsData[productRowIndex];
+        const updatedRow = headers.map((header: string, index: number) => {
+            return productData[header as keyof typeof productData] ?? originalData[index];
         });
-
 
         await sheets.spreadsheets.values.update({
             spreadsheetId,
@@ -376,3 +373,5 @@ export async function createInvoice(invoiceData: Omit<Invoice, 'id' | 'invoiceNu
     throw new Error('Could not create invoice in Google Sheets.');
   }
 }
+
+    
