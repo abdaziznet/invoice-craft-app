@@ -2,8 +2,17 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { PanelLeft, Search, LogOut } from 'lucide-react';
-
+import { usePathname } from 'next/navigation';
+import {
+  PanelLeft,
+  Search,
+  LogOut,
+  FileText,
+  LayoutDashboard,
+  Package,
+  Settings,
+  Users,
+} from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,18 +32,23 @@ import {
 } from '@/components/ui/sheet';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { useAuth } from '@/hooks/use-auth';
+import { cn } from '@/lib/utils';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 const navItems = [
-  { href: '/dashboard', label: 'Dashboard' },
-  { href: '/invoices', label: 'Invoices' },
-  { href: '/clients', label: 'Clients' },
-  { href: '/products', label: 'Products' },
-  { href: '/settings', label: 'Settings' },
+  { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+  { href: '/invoices', icon: FileText, label: 'Invoices' },
+  { href: '/clients', icon: Users, label: 'Clients' },
+  { href: '/products', icon: Package, label: 'Products' },
 ];
+
+const settingsItem = { href: '/settings', icon: Settings, label: 'Settings' };
 
 export default function Header() {
   const { user, signOut } = useAuth();
-  
+  const pathname = usePathname();
+  const logo = PlaceHolderImages.find((img) => img.id === 'logo');
+
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
       <Sheet>
@@ -46,21 +60,74 @@ export default function Header() {
         </SheetTrigger>
         <SheetContent side="left" className="sm:max-w-xs">
           <SheetHeader>
-            <SheetTitle>Menu</SheetTitle>
+            <SheetTitle>
+              {logo && (
+                <Link
+                  href="/dashboard"
+                  className="flex items-center gap-2 font-semibold"
+                >
+                  <Image
+                    src={logo.imageUrl}
+                    width={32}
+                    height={32}
+                    alt="InvoiceCraft Logo"
+                    className="rounded-full"
+                    data-ai-hint={logo.imageHint}
+                  />
+                  <span>InvoiceCraft</span>
+                </Link>
+              )}
+            </SheetTitle>
           </SheetHeader>
           <nav className="grid gap-6 text-lg font-medium mt-4">
-            {navItems.map(item => (
-                <Link
+            {[...navItems, settingsItem].map((item) => (
+              <Link
                 key={item.href}
                 href={item.href}
                 className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
               >
+                <item.icon className="h-5 w-5" />
                 {item.label}
               </Link>
             ))}
           </nav>
         </SheetContent>
       </Sheet>
+      <div className="hidden items-center gap-6 md:flex">
+        {logo && (
+          <Link
+            href="/dashboard"
+            className="flex items-center gap-2 font-semibold"
+          >
+            <Image
+              src={logo.imageUrl}
+              width={32}
+              height={32}
+              alt="InvoiceCraft Logo"
+              className="rounded-full"
+              data-ai-hint={logo.imageHint}
+            />
+            <span className="font-bold text-lg">
+              Invoice<span className="text-primary">Craft</span>
+            </span>
+          </Link>
+        )}
+        <nav className="flex items-center gap-4 text-sm font-medium">
+          {navItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                'text-muted-foreground transition-colors hover:text-foreground',
+                pathname.startsWith(item.href) && 'text-foreground'
+              )}
+            >
+              {item.label}
+            </Link>
+          ))}
+        </nav>
+      </div>
+
       <div className="relative ml-auto flex-1 md:grow-0">
         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
         <Input
@@ -87,9 +154,16 @@ export default function Header() {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuLabel>{user?.displayName || 'My Account'}</DropdownMenuLabel>
+          <DropdownMenuLabel>
+            {user?.displayName || 'My Account'}
+          </DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>Settings</DropdownMenuItem>
+          <Link href="/settings">
+            <DropdownMenuItem>
+              <Settings className="mr-2 h-4 w-4" />
+              Settings
+            </DropdownMenuItem>
+          </Link>
           <DropdownMenuItem>Support</DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={signOut}>
