@@ -1,0 +1,33 @@
+import { PlusCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import ClientTable from '@/components/clients/client-table';
+import { clients } from '@/lib/data';
+
+export default function ClientsPage() {
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-semibold md:text-3xl">Clients</h1>
+          <p className="text-muted-foreground">Manage your client database.</p>
+        </div>
+        <Button>
+          <PlusCircle className="mr-2 h-4 w-4" />
+          Add New Client
+        </Button>
+      </div>
+      <Card>
+        <CardContent className="p-6">
+          <ClientTable clients={clients} />
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
