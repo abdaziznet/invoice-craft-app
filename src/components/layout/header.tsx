@@ -21,7 +21,6 @@ import {
 } from '@/components/ui/sheet';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { useAuth } from '@/hooks/use-auth';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard' },
@@ -33,8 +32,7 @@ const navItems = [
 
 export default function Header() {
   const { user, signOut } = useAuth();
-  const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar-1');
-
+  
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
       <Sheet>
@@ -75,12 +73,11 @@ export default function Header() {
             className="overflow-hidden rounded-full"
           >
             <Image
-              src={userAvatar?.imageUrl || '/placeholder-user.jpg'}
+              src={user?.photoURL || '/placeholder-user.jpg'}
               width={36}
               height={36}
               alt="Avatar"
               className="overflow-hidden rounded-full"
-              data-ai-hint={userAvatar?.imageHint}
             />
           </Button>
         </DropdownMenuTrigger>
