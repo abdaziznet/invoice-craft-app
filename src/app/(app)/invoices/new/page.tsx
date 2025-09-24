@@ -48,8 +48,9 @@ import {
 import { cn, formatCurrency } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
-import { getClients, getProducts } from '@/lib/google-sheets';
-import type { Client, Product } from '@/lib/types';
+import { getClients, getProducts, createInvoice } from '@/lib/google-sheets';
+import type { Client, Product, InvoiceStatus } from '@/lib/types';
+import Spinner from '@/components/ui/spinner';
 
 
 const lineItemSchema = z.object({
@@ -63,6 +64,7 @@ const invoiceSchema = z.object({
   clientId: z.string().min(1, 'Client is required.'),
   invoiceDate: z.date({ required_error: 'Invoice date is required.' }),
   dueDate: z.date({ required_error: 'Due date is required.' }),
+  status: z.enum(['Paid', 'Unpaid', 'Overdue']),
   lineItems: z.array(lineItemSchema).min(1, 'At least one item is required.'),
   notes: z.string().optional(),
 });
@@ -74,6 +76,7 @@ export default function NewInvoicePage() {
   const { toast } = useToast();
   const [clients, setClients] = React.useState<Client[]>([]);
   const [products, setProducts] = React.useState<Product[]>([]);
+  const [isSaving, setIsSaving] = React.useState(false);
 
   React.useEffect(() => {
     async function fetchData() {
@@ -89,6 +92,7 @@ export default function NewInvoicePage() {
     resolver: zodResolver(invoiceSchema),
     defaultValues: {
       invoiceDate: new Date(),
+      status: 'Unpaid',
       lineItems: [
         {
           productId: '',
@@ -114,13 +118,44 @@ export default function NewInvoicePage() {
   const tax = subtotal * 0.11;
   const total = subtotal + tax;
 
-  const onSubmit = (data: InvoiceFormValues) => {
-    console.log(data);
-    toast({
-      title: 'Invoice Created',
-      description: 'The new invoice has been successfully saved.',
-    });
-    router.push('/invoices');
+  const onSubmit = async (data: InvoiceFormValues) => {
+    setIsSaving(true);
+    try {
+      const invoicePayload = {
+          clientId: data.clientId,
+          subtotal: subtotal,
+          tax: 11,
+          discount: 0, // Not implemented in form yet
+          total: total,
+          status: data.status,
+          dueDate: format(data.dueDate, 'yyyy-MM-dd'),
+          notes: data.notes,
+          clientRelationship: '', // Will be populated by default in sheets service
+          paymentHistory: '', // Will be populated by default in sheets service
+          lineItems: data.lineItems.map(item => ({
+            productId: item.productId,
+            quantity: item.quantity,
+            total: item.total
+          }))
+      };
+      
+      await createInvoice(invoicePayload);
+      
+      toast({
+        title: 'Invoice Created',
+        description: 'The new invoice has been successfully saved.',
+      });
+      router.push('/invoices');
+    } catch (error) {
+      console.error(error);
+      toast({
+        variant: 'destructive',
+        title: 'Failed to Save Invoice',
+        description: 'An error occurred while saving the invoice. Please try again.',
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -145,7 +180,7 @@ export default function NewInvoicePage() {
               <CardTitle>Invoice Details</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <FormField
                   control={form.control}
                   name="clientId"
@@ -247,6 +282,28 @@ export default function NewInvoicePage() {
                           />
                         </PopoverContent>
                       </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="status"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Status</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select status" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Paid">Paid</SelectItem>
+                          <SelectItem value="Unpaid">Unpaid</SelectItem>
+                           <SelectItem value="Overdue">Overdue</SelectItem>
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -433,11 +490,12 @@ export default function NewInvoicePage() {
           </div>
 
           <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={() => router.push('/invoices')}>
+            <Button type="button" variant="outline" onClick={() => router.push('/invoices')} disabled={isSaving}>
               Cancel
             </Button>
-            <Button type="submit">
-              <Save className="mr-2 h-4 w-4" /> Save Invoice
+            <Button type="submit" disabled={isSaving}>
+              {isSaving ? <Spinner className="mr-2 h-4 w-4" /> : <Save className="mr-2 h-4 w-4" />}
+              Save Invoice
             </Button>
           </div>
         </form>

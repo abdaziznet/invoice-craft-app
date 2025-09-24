@@ -1,5 +1,8 @@
+
+'use server';
 import { google } from 'googleapis';
 import { JWT } from 'google-auth-library';
+import type { Invoice, InvoiceItem } from './types';
 
 const spreadsheetId = process.env.GOOGLE_SHEET_ID;
 
@@ -87,4 +90,60 @@ export async function getInvoices() {
             total: parseFloat(inv.total),
         }
     });
+}
+
+export async function createInvoice(invoiceData: Omit<Invoice, 'id' | 'invoiceNumber' | 'createdAt' | 'client' | 'items'> & { lineItems: Omit<InvoiceItem, 'id'|'product'>[], clientId: string}) {
+  try {
+    const invoicesData = (await getSheetData('Invoices!A:A')) || [['id']];
+    const invoiceItemsData = (await getSheetData('InvoiceItems!A:A')) || [['id']];
+
+    const newInvoiceId = `inv-${invoicesData.length}`;
+    const newInvoiceNumber = `${new Date().getFullYear()}-${String(invoicesData.length).padStart(3, '0')}`;
+
+    const newInvoiceRow = [
+        newInvoiceId,
+        newInvoiceNumber,
+        invoiceData.clientId,
+        invoiceData.subtotal,
+        invoiceData.tax,
+        invoiceData.discount,
+        invoiceData.total,
+        invoiceData.status,
+        invoiceData.dueDate,
+        new Date().toISOString().split('T')[0],
+        invoiceData.notes || '',
+        invoiceData.clientRelationship || 'New client',
+        invoiceData.paymentHistory || 'No payment history',
+    ];
+
+    await sheets.spreadsheets.values.append({
+      spreadsheetId,
+      range: 'Invoices!A:M',
+      valueInputOption: 'USER_ENTERED',
+      requestBody: {
+        values: [newInvoiceRow],
+      },
+    });
+
+    const newInvoiceItemsRows = invoiceData.lineItems.map((item, index) => {
+        const newItemId = `item-${invoiceItemsData.length + index}`;
+        return [newItemId, newInvoiceId, item.productId, item.quantity, item.total];
+    });
+
+    if (newInvoiceItemsRows.length > 0) {
+      await sheets.spreadsheets.values.append({
+        spreadsheetId,
+        range: 'InvoiceItems!A:E',
+        valueInputOption: 'USER_ENTERED',
+        requestBody: {
+          values: newInvoiceItemsRows,
+        },
+      });
+    }
+
+    return { id: newInvoiceId, number: newInvoiceNumber };
+  } catch (error) {
+    console.error('Error creating invoice:', error);
+    throw new Error('Could not create invoice in Google Sheets.');
+  }
 }
