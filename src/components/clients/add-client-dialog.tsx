@@ -31,7 +31,7 @@ import Spinner from '@/components/ui/spinner';
 const clientSchema = z.object({
   name: z.string().min(1, 'Name is required.'),
   email: z.string().email('Invalid email address.'),
-  phone: z.string().min(1, 'Phone number is required.'),
+  phone: z.string().regex(/^62\d+$/, { message: "Phone number must start with '62'." }),
   address: z.string().min(1, 'Address is required.'),
 });
 
@@ -131,7 +131,7 @@ export default function AddClientDialog({ isOpen, onOpenChange, onClientAdded }:
                         <FormItem>
                             <FormLabel>Phone Number</FormLabel>
                             <FormControl>
-                            <Input placeholder="+1 (234) 567-890" {...field} />
+                            <Input placeholder="6281234567890" {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
