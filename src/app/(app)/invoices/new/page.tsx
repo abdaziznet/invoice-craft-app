@@ -118,7 +118,7 @@ export default function NewInvoicePage() {
 
   const subtotal = React.useMemo(
     () => watchLineItems.reduce((acc, item) => acc + item.total, 0),
-    [watchLineItems]
+    [JSON.stringify(watchLineItems)]
   );
   const tax = React.useMemo(() => includeTax ? subtotal * 0.11 : 0, [subtotal, includeTax]);
   const total = subtotal + tax;
