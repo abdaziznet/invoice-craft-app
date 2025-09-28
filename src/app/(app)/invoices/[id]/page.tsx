@@ -2,7 +2,7 @@
 
 'use client';
 import { getInvoiceById } from '@/lib/google-sheets';
-import { notFound, useSearchParams } from 'next/navigation';
+import { notFound, useSearchParams, useParams } from 'next/navigation';
 import {
   Card,
   CardContent,
@@ -32,12 +32,6 @@ import { useEffect, useState } from 'react';
 import type { Invoice } from '@/lib/types';
 import Spinner from '@/components/ui/spinner';
 
-type InvoiceDetailPageProps = {
-  params: {
-    id: string;
-  };
-};
-
 const getStatusClass = (status: InvoiceStatus) => {
   switch (status) {
     case 'Paid':
@@ -51,19 +45,20 @@ const getStatusClass = (status: InvoiceStatus) => {
   }
 };
 
-export default function InvoiceDetailPage({
-  params,
-}: InvoiceDetailPageProps) {
+export default function InvoiceDetailPage() {
+  const params = useParams();
   const searchParams = useSearchParams();
   const isPrintMode = searchParams.get('print') === 'true';
 
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [loading, setLoading] = useState(true);
+  const { id } = params;
 
   useEffect(() => {
+    if (!id) return;
     async function fetchInvoice() {
       try {
-        const fetchedInvoice = await getInvoiceById(params.id);
+        const fetchedInvoice = await getInvoiceById(id as string);
         if (!fetchedInvoice) {
           notFound();
         } else {
@@ -77,7 +72,7 @@ export default function InvoiceDetailPage({
       }
     }
     fetchInvoice();
-  }, [params.id]);
+  }, [id]);
   
   useEffect(() => {
     if(isPrintMode && invoice) {
@@ -180,12 +175,12 @@ export default function InvoiceDetailPage({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Item</TableHead>
-                <TableHead className="w-[120px] text-center">Quantity</TableHead>
-                <TableHead className="w-[150px] text-right">
+                <TableHead className="bg-muted/50">Item</TableHead>
+                <TableHead className="w-[120px] text-center bg-muted/50">Quantity</TableHead>
+                <TableHead className="w-[150px] text-right bg-muted/50">
                   Unit Price
                 </TableHead>
-                <TableHead className="w-[150px] text-right">Total</TableHead>
+                <TableHead className="w-[150px] text-right bg-muted/50">Total</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

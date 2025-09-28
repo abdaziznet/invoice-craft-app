@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -91,6 +92,7 @@ export default function EditInvoicePage() {
   });
   
   React.useEffect(() => {
+    if (!id) return;
     async function fetchData() {
       try {
         const [invoiceData, clientsData, productsData] = await Promise.all([
@@ -552,4 +554,3 @@ export default function EditInvoicePage() {
     </div>
   );
 }
-
