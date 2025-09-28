@@ -102,6 +102,7 @@ export default function NewInvoicePage() {
           total: 0,
         },
       ],
+      notes: `1. Goods/services that have been paid for cannot be returned, unless there is an error on the part of the seller.\n2. Payment can be made in cash or by bank transfer according to the due date.`,
     },
   });
 
