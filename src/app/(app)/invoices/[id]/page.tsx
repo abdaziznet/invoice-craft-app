@@ -25,6 +25,7 @@ import Link from 'next/link';
 import { ArrowLeft, Printer } from 'lucide-react';
 import type { InvoiceStatus } from '@/lib/types';
 import { format } from 'date-fns';
+import InvoiceActions from '@/components/invoices/invoice-actions';
 
 type InvoiceDetailPageProps = {
   params: {
@@ -56,7 +57,7 @@ export default async function InvoiceDetailPage({
 
   return (
     <div className="space-y-6">
-       <div className="flex items-center gap-4">
+       <div className="flex items-center gap-4 print-hidden">
         <Button variant="outline" size="icon" asChild>
           <Link href="/invoices">
             <ArrowLeft className="h-4 w-4" />
@@ -71,12 +72,7 @@ export default async function InvoiceDetailPage({
           </p>
         </div>
          <div className="ml-auto">
-            <Button variant="outline" onClick={() => {
-              if(typeof window !== 'undefined') window.print()
-            }}>
-              <Printer className="mr-2 h-4 w-4" />
-              Print / Export PDF
-            </Button>
+            <InvoiceActions />
         </div>
       </div>
       <Card className="max-w-4xl mx-auto p-4 sm:p-10 print:shadow-none print:border-none">
@@ -199,20 +195,6 @@ export default async function InvoiceDetailPage({
             Thank you for your business!
         </CardFooter>
       </Card>
-      <style jsx global>{`
-        @media print {
-          body {
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
-          }
-          main {
-            padding: 0 !important;
-          }
-          .print-hidden {
-             display: none;
-          }
-        }
-      `}</style>
     </div>
   );
 }

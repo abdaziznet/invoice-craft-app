@@ -78,3 +78,16 @@
     @apply bg-background text-foreground;
   }
 }
+
+@media print {
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  main {
+    padding: 0 !important;
+  }
+  .print-hidden {
+      display: none;
+  }
+}
