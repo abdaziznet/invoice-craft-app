@@ -387,6 +387,107 @@ export async function createInvoice(invoiceData: Omit<Invoice, 'id' | 'invoiceNu
   }
 }
 
+export async function updateInvoice(invoiceId: string, invoiceData: Omit<Invoice, 'id' | 'invoiceNumber' | 'createdAt' | 'client' | 'items' | 'lineItems'> & { lineItems: Omit<InvoiceItem, 'id'|'product'>[], clientId: string}) {
+    try {
+        const invoicesData = await getSheetData('Invoices!A:L');
+        if (!invoicesData) {
+            throw new Error('Could not fetch invoices data.');
+        }
+
+        const headers = invoicesData[0];
+        const invoiceRowIndex = invoicesData.findIndex(row => row[0] === invoiceId);
+
+        if (invoiceRowIndex === -1) {
+            throw new Error('Invoice not found.');
+        }
+
+        const originalData = invoicesData[invoiceRowIndex];
+        const updatedRow = [
+            originalData[0], // id
+            originalData[1], // invoiceNumber
+            invoiceData.clientId,
+            invoiceData.subtotal,
+            invoiceData.tax,
+            invoiceData.discount,
+            invoiceData.total,
+            invoiceData.status,
+            invoiceData.dueDate,
+            originalData[9], // createdAt
+            invoiceData.notes,
+            invoiceData.clientRelationship,
+            invoiceData.paymentHistory
+        ];
+        
+        await sheets.spreadsheets.values.update({
+            spreadsheetId,
+            range: `Invoices!A${invoiceRowIndex + 1}:${String.fromCharCode(65 + headers.length - 1)}${invoiceRowIndex + 1}`,
+            valueInputOption: 'USER_ENTERED',
+            requestBody: {
+                values: [updatedRow],
+            },
+        });
+
+        // First, clear old invoice items for this invoice
+        const invoiceItemsSheetTitle = 'InvoiceItems';
+        const sheetResponse = await sheets.spreadsheets.get({ spreadsheetId });
+        const invoiceItemsSheet = sheetResponse.data.sheets?.find(s => s.properties?.title === invoiceItemsSheetTitle);
+        const invoiceItemsSheetId = invoiceItemsSheet?.properties?.sheetId;
+
+        if (invoiceItemsSheetId === undefined) {
+            throw new Error(`Sheet "${invoiceItemsSheetTitle}" not found.`);
+        }
+        
+        const invoiceItemsData = await getSheetData('InvoiceItems!A:E');
+        if (invoiceItemsData) {
+          const deleteRequests = [];
+          for (let i = invoiceItemsData.length - 1; i >= 1; i--) {
+            if (invoiceItemsData[i][1] === invoiceId) {
+              deleteRequests.push({
+                deleteDimension: {
+                  range: {
+                    sheetId: invoiceItemsSheetId,
+                    dimension: 'ROWS',
+                    startIndex: i,
+                    endIndex: i + 1,
+                  },
+                },
+              });
+            }
+          }
+          if(deleteRequests.length > 0) {
+            await sheets.spreadsheets.batchUpdate({
+                spreadsheetId,
+                requestBody: { requests: deleteRequests },
+            });
+          }
+        }
+        
+        // Then, add the updated line items
+        const allInvoiceItems = (await getSheetData('InvoiceItems!A:A')) || [['id']];
+        const newInvoiceItemsRows = invoiceData.lineItems.map((item, index) => {
+            const newItemId = `item-${allInvoiceItems.length + index}`;
+            return [newItemId, invoiceId, item.productId, item.quantity, item.total];
+        });
+
+        if (newInvoiceItemsRows.length > 0) {
+          await sheets.spreadsheets.values.append({
+            spreadsheetId,
+            range: 'InvoiceItems!A:E',
+            valueInputOption: 'USER_ENTERED',
+            requestBody: {
+              values: newInvoiceItemsRows,
+            },
+          });
+        }
+
+
+    } catch (error) {
+        console.error('Error updating invoice:', error);
+        throw new Error('Could not update invoice in Google Sheets.');
+    }
+}
+
+
 export async function deleteInvoices(invoiceIds: string[]) {
     try {
         const sheetTitle = 'Invoices';

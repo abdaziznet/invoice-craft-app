@@ -194,7 +194,9 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
                       <DropdownMenuItem asChild>
                         <Link href={`/invoices/${invoice.id}`}>View Details</Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem disabled>Edit</DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href={`/invoices/${invoice.id}/edit`}>Edit</Link>
+                      </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => handleExportPdf(invoice.id)}>
                         Export as PDF
                       </DropdownMenuItem>
