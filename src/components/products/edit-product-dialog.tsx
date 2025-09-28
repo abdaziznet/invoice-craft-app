@@ -144,7 +144,16 @@ export default function EditProductDialog({ product, isOpen, onOpenChange, onPro
                         <FormItem>
                             <FormLabel>Unit Price</FormLabel>
                             <FormControl>
-                            <Input type="number" placeholder="5000000" {...field} />
+                            <Input
+                              type="number"
+                              placeholder="5000000"
+                              {...field}
+                              onFocus={(e) => {
+                                if (e.target.value === '0') {
+                                  e.target.value = '';
+                                }
+                              }}
+                            />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
