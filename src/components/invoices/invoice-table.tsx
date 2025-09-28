@@ -23,6 +23,7 @@ import type { Invoice, InvoiceStatus } from '@/lib/types';
 import { formatCurrency } from '@/lib/utils';
 import { Checkbox } from '../ui/checkbox';
 import PaymentReminderModal from './payment-reminder-modal';
+import { cn } from '@/lib/utils';
 
 type InvoiceTableProps = {
   invoices: Invoice[];
@@ -32,16 +33,16 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const getBadgeVariant = (status: InvoiceStatus): 'default' | 'secondary' | 'destructive' => {
+  const getStatusClass = (status: InvoiceStatus) => {
     switch (status) {
       case 'Paid':
-        return 'default';
+        return 'bg-green-100 text-green-800 border-green-200 hover:bg-green-200 dark:bg-green-900/50 dark:text-green-300 dark:border-green-700';
       case 'Unpaid':
-        return 'secondary';
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200 hover:bg-yellow-200 dark:bg-yellow-900/50 dark:text-yellow-300 dark:border-yellow-700';
       case 'Overdue':
-        return 'destructive';
+        return 'bg-red-100 text-red-800 border-red-200 hover:bg-red-200 dark:bg-red-900/50 dark:text-red-300 dark:border-red-700';
       default:
-        return 'secondary';
+        return 'bg-gray-100 text-gray-800 border-gray-200 hover:bg-gray-200 dark:bg-gray-900/50 dark:text-gray-300 dark:border-gray-700';
     }
   };
 
@@ -86,7 +87,7 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
                 <TableCell className="font-medium">{invoice.invoiceNumber}</TableCell>
                 <TableCell>{invoice.client.name}</TableCell>
                 <TableCell>
-                  <Badge variant={getBadgeVariant(invoice.status)}>{invoice.status}</Badge>
+                  <Badge className={cn(getStatusClass(invoice.status))} variant="outline">{invoice.status}</Badge>
                 </TableCell>
                 <TableCell>{invoice.dueDate}</TableCell>
                 <TableCell className="text-right">{formatCurrency(invoice.total)}</TableCell>
