@@ -51,6 +51,7 @@ import { format, addDays } from 'date-fns';
 import { getClients, getProducts, createInvoice } from '@/lib/google-sheets';
 import type { Client, Product, InvoiceStatus } from '@/lib/types';
 import Spinner from '@/components/ui/spinner';
+import { Switch } from '@/components/ui/switch';
 
 
 const lineItemSchema = z.object({
@@ -77,6 +78,7 @@ export default function NewInvoicePage() {
   const [clients, setClients] = React.useState<Client[]>([]);
   const [products, setProducts] = React.useState<Product[]>([]);
   const [isSaving, setIsSaving] = React.useState(false);
+  const [includeTax, setIncludeTax] = React.useState(true);
 
   React.useEffect(() => {
     async function fetchData() {
@@ -117,7 +119,7 @@ export default function NewInvoicePage() {
     () => watchLineItems.reduce((acc, item) => acc + item.total, 0),
     [watchLineItems]
   );
-  const tax = subtotal * 0.11;
+  const tax = React.useMemo(() => includeTax ? subtotal * 0.11 : 0, [subtotal, includeTax]);
   const total = subtotal + tax;
 
   const onSubmit = async (data: InvoiceFormValues) => {
@@ -126,7 +128,7 @@ export default function NewInvoicePage() {
       const invoicePayload = {
           clientId: data.clientId,
           subtotal: subtotal,
-          tax: 11,
+          tax: includeTax ? 11 : 0,
           discount: 0, // Not implemented in form yet
           total: total,
           status: data.status,
@@ -479,8 +481,15 @@ export default function NewInvoicePage() {
                   <span>Subtotal</span>
                   <span>{formatCurrency(subtotal)}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span>Tax (11%)</span>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="include-tax">Include Tax (11%)</Label>
+                    <Switch 
+                      id="include-tax" 
+                      checked={includeTax} 
+                      onCheckedChange={setIncludeTax}
+                    />
+                  </div>
                   <span>{formatCurrency(tax)}</span>
                 </div>
                 <div className="flex justify-between font-semibold text-lg">
