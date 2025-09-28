@@ -83,11 +83,11 @@ export default async function InvoiceDetailPage({
               <p className="text-muted-foreground">#{invoice.invoiceNumber}</p>
             </div>
             <div className="text-right">
-              <h2 className="text-lg font-semibold">InvoiceCraft Inc.</h2>
+              <h2 className="text-lg font-semibold">Sumber Rejeki Frozen Foods</h2>
               <p className="text-sm text-muted-foreground">
-                123 Creative Lane, Suite 500
+                Pasar Patra
                 <br />
-                Design City, DC 12345
+                West Jakarta 11510
               </p>
             </div>
           </div>
