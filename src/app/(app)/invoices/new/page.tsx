@@ -184,7 +184,7 @@ export default function NewInvoicePage() {
             <CardHeader>
               <CardTitle>Invoice Details</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <FormField
                   control={form.control}
@@ -515,5 +515,3 @@ export default function NewInvoicePage() {
     </div>
   );
 }
-
-    
