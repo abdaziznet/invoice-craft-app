@@ -186,7 +186,9 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
                         <Link href={`/invoices/${invoice.id}`}>View Details</Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem disabled>Edit</DropdownMenuItem>
-                      <DropdownMenuItem disabled>Export as PDF</DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href={`/invoices/${invoice.id}`}>Export as PDF</Link>
+                      </DropdownMenuItem>
                       {invoice.status === 'Overdue' && (
                         <DropdownMenuItem onClick={() => handleGenerateReminder(invoice)}>
                           Generate Reminder
