@@ -52,6 +52,7 @@ import { getClients, getProducts, createInvoice } from '@/lib/google-sheets';
 import type { Client, Product, InvoiceStatus } from '@/lib/types';
 import Spinner from '@/components/ui/spinner';
 import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 
 
 const lineItemSchema = z.object({
@@ -514,3 +515,5 @@ export default function NewInvoicePage() {
     </div>
   );
 }
+
+    
