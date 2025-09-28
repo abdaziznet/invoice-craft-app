@@ -26,7 +26,7 @@ export type Invoice = {
   id: string;
   invoiceNumber: string;
   client: Client;
-  items: InvoiceItem[];
+  lineItems: InvoiceItem[];
   subtotal: number;
   tax: number; // percentage
   discount: number; // value

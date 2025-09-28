@@ -299,7 +299,7 @@ export async function getInvoices() {
 
     return invoices.map(inv => {
         const client = clients.find(c => c.id === inv.clientId);
-        const items = invoiceItems
+        const lineItems = invoiceItems
             .filter(item => item.invoiceId === inv.id)
             .map(item => {
                 const product = products.find(p => p.id === item.productId);
@@ -314,7 +314,7 @@ export async function getInvoices() {
         return {
             ...inv,
             client,
-            items,
+            lineItems,
             subtotal: parseFloat(inv.subtotal),
             tax: parseFloat(inv.tax),
             discount: parseFloat(inv.discount),
@@ -323,7 +323,7 @@ export async function getInvoices() {
     });
 }
 
-export async function createInvoice(invoiceData: Omit<Invoice, 'id' | 'invoiceNumber' | 'createdAt' | 'client' | 'items'> & { lineItems: Omit<InvoiceItem, 'id'|'product'>[], clientId: string}) {
+export async function createInvoice(invoiceData: Omit<Invoice, 'id' | 'invoiceNumber' | 'createdAt' | 'client' | 'items' | 'lineItems'> & { lineItems: Omit<InvoiceItem, 'id'|'product'>[], clientId: string}) {
   try {
     const invoicesData = (await getSheetData('Invoices!A:A')) || [['id']];
     const invoiceItemsData = (await getSheetData('InvoiceItems!A:A')) || [['id']];
@@ -379,4 +379,78 @@ export async function createInvoice(invoiceData: Omit<Invoice, 'id' | 'invoiceNu
   }
 }
 
+export async function deleteInvoices(invoiceIds: string[]) {
+    try {
+        const sheetTitle = 'Invoices';
+        const sheetResponse = await sheets.spreadsheets.get({ spreadsheetId });
+        const sheet = sheetResponse.data.sheets?.find(s => s.properties?.title === sheetTitle);
+        const sheetId = sheet?.properties?.sheetId;
+
+        if (sheetId === undefined) {
+            throw new Error(`Sheet "${sheetTitle}" not found.`);
+        }
+
+        const data = await getSheetData('Invoices!A:A');
+        if (!data) {
+            throw new Error('Could not fetch invoices data.');
+        }
+
+        const requests = [];
+        // Iterate backwards to avoid index shifting issues
+        for (let i = data.length - 1; i >= 1; i--) {
+            const rowId = data[i][0];
+            if (invoiceIds.includes(rowId)) {
+                requests.push({
+                    deleteDimension: {
+                        range: {
+                            sheetId: sheetId,
+                            dimension: 'ROWS',
+                            startIndex: i,
+                            endIndex: i + 1,
+                        },
+                    },
+                });
+            }
+        }
+        
+        const invoiceItemsSheet = sheetResponse.data.sheets?.find(s => s.properties?.title === 'InvoiceItems');
+        const invoiceItemsSheetId = invoiceItemsSheet?.properties?.sheetId;
+        
+        if (invoiceItemsSheetId === undefined) {
+          throw new Error(`Sheet "InvoiceItems" not found.`);
+        }
+        
+        const invoiceItemsData = await getSheetData('InvoiceItems!B:B');
+        if(invoiceItemsData){
+            for (let i = invoiceItemsData.length - 1; i >= 1; i--) {
+                const rowId = invoiceItemsData[i][0];
+                if (invoiceIds.includes(rowId)) {
+                    requests.push({
+                        deleteDimension: {
+                            range: {
+                                sheetId: invoiceItemsSheetId,
+                                dimension: 'ROWS',
+                                startIndex: i,
+                                endIndex: i + 1,
+                            },
+                        },
+                    });
+                }
+            }
+        }
+
+        if (requests.length > 0) {
+            await sheets.spreadsheets.batchUpdate({
+                spreadsheetId,
+                requestBody: {
+                    requests,
+                },
+            });
+        }
+
+    } catch (error) {
+        console.error('Error deleting invoices:', error);
+        throw new Error('Could not delete invoices in Google Sheets.');
+    }
+}
     

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { MoreHorizontal, ArrowUpDown } from 'lucide-react';
+import { MoreHorizontal, ArrowUpDown, Trash2 } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -24,14 +24,23 @@ import { formatCurrency } from '@/lib/utils';
 import { Checkbox } from '../ui/checkbox';
 import PaymentReminderModal from './payment-reminder-modal';
 import { cn } from '@/lib/utils';
+import DeleteConfirmationDialog from '../clients/delete-confirmation-dialog';
+import { useToast } from '@/hooks/use-toast';
+import { deleteInvoices } from '@/lib/google-sheets';
+import { useRouter } from 'next/navigation';
 
 type InvoiceTableProps = {
   invoices: Invoice[];
 };
 
 export default function InvoiceTable({ invoices }: InvoiceTableProps) {
+  const { toast } = useToast();
+  const router = useRouter();
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedInvoiceIds, setSelectedInvoiceIds] = useState<string[]>([]);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const getStatusClass = (status: InvoiceStatus) => {
     switch (status) {
@@ -50,15 +59,78 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
     setSelectedInvoice(invoice);
     setIsModalOpen(true);
   };
+  
+  const handleDeleteClick = (invoice: Invoice) => {
+    setSelectedInvoiceIds([invoice.id]);
+    setIsDeleteDialogOpen(true);
+  }
+  
+  const handleBulkDeleteClick = () => {
+    setIsDeleteDialogOpen(true);
+  }
+
+  const confirmDelete = async () => {
+    setIsDeleting(true);
+    try {
+      await deleteInvoices(selectedInvoiceIds);
+      toast({
+        title: 'Invoices Deleted',
+        description: 'The selected invoices have been successfully deleted.',
+      });
+      router.refresh();
+      setSelectedInvoiceIds([]);
+    } catch (error) {
+      console.error(error);
+      toast({
+        variant: 'destructive',
+        title: 'Failed to Delete Invoices',
+        description: 'An error occurred while deleting the invoices. Please try again.',
+      });
+    } finally {
+      setIsDeleting(false);
+      setIsDeleteDialogOpen(false);
+    }
+  }
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedInvoiceIds(invoices.map(inv => inv.id));
+    } else {
+      setSelectedInvoiceIds([]);
+    }
+  }
+
+  const handleSelectRow = (invoiceId: string, checked: boolean) => {
+    if (checked) {
+      setSelectedInvoiceIds(prev => [...prev, invoiceId]);
+    } else {
+      setSelectedInvoiceIds(prev => prev.filter(id => id !== invoiceId));
+    }
+  }
+
+  const numSelected = selectedInvoiceIds.length;
+  const rowCount = invoices.length;
 
   return (
     <>
+      <div className="mb-4 flex items-center gap-2">
+        {numSelected > 0 && (
+            <Button variant="destructive" size="sm" onClick={handleBulkDeleteClick}>
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete Selected ({numSelected})
+            </Button>
+        )}
+      </div>
       <div className="rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead className="w-[40px]">
-                <Checkbox />
+                <Checkbox
+                  onCheckedChange={(checked) => handleSelectAll(checked as boolean)}
+                  checked={rowCount > 0 && numSelected === rowCount}
+                  aria-label="Select all"
+                 />
               </TableHead>
               <TableHead>Invoice</TableHead>
               <TableHead>Client</TableHead>
@@ -80,9 +152,16 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
           </TableHeader>
           <TableBody>
             {invoices.map((invoice) => (
-              <TableRow key={invoice.id}>
+              <TableRow 
+                key={invoice.id}
+                data-state={selectedInvoiceIds.includes(invoice.id) && "selected"}
+              >
                 <TableCell>
-                  <Checkbox />
+                  <Checkbox 
+                    onCheckedChange={(checked) => handleSelectRow(invoice.id, checked as boolean)}
+                    checked={selectedInvoiceIds.includes(invoice.id)}
+                    aria-label={`Select row ${invoice.id}`}
+                  />
                 </TableCell>
                 <TableCell className="font-medium">{invoice.invoiceNumber}</TableCell>
                 <TableCell>{invoice.client.name}</TableCell>
@@ -101,15 +180,18 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                      <DropdownMenuItem>Edit</DropdownMenuItem>
-                      <DropdownMenuItem>View Details</DropdownMenuItem>
-                      <DropdownMenuItem>Export as PDF</DropdownMenuItem>
+                      <DropdownMenuItem disabled>Edit</DropdownMenuItem>
+                      <DropdownMenuItem disabled>View Details</DropdownMenuItem>
+                      <DropdownMenuItem disabled>Export as PDF</DropdownMenuItem>
                       {invoice.status === 'Overdue' && (
                         <DropdownMenuItem onClick={() => handleGenerateReminder(invoice)}>
                           Generate Reminder
                         </DropdownMenuItem>
                       )}
-                       <DropdownMenuItem className="text-destructive focus:bg-destructive/10 focus:text-destructive">
+                       <DropdownMenuItem
+                        className="text-destructive focus:bg-destructive/10 focus:text-destructive"
+                        onClick={() => handleDeleteClick(invoice)}
+                       >
                         Delete
                       </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -127,6 +209,13 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
           onClose={() => setIsModalOpen(false)}
         />
       )}
+      <DeleteConfirmationDialog
+        isOpen={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        onConfirm={confirmDelete}
+        isDeleting={isDeleting}
+        itemsDescription={numSelected > 1 ? `${numSelected} invoices` : `invoice "${invoices.find(inv => inv.id === selectedInvoiceIds[0])?.invoiceNumber}"`}
+      />
     </>
   );
 }
