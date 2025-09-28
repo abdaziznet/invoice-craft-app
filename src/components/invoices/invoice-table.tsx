@@ -71,6 +71,15 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
     setIsDeleteDialogOpen(true);
   }
 
+  const handleExportPdf = (invoiceId: string) => {
+    const printWindow = window.open(`/invoices/${invoiceId}?print=true`, '_blank');
+    if (printWindow) {
+      printWindow.focus();
+    } else {
+      alert('Please allow pop-ups for this site to export the PDF.');
+    }
+  }
+
   const confirmDelete = async () => {
     setIsDeleting(true);
     try {
@@ -186,8 +195,8 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
                         <Link href={`/invoices/${invoice.id}`}>View Details</Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem disabled>Edit</DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link href={`/invoices/${invoice.id}`}>Export as PDF</Link>
+                      <DropdownMenuItem onClick={() => handleExportPdf(invoice.id)}>
+                        Export as PDF
                       </DropdownMenuItem>
                       {invoice.status === 'Overdue' && (
                         <DropdownMenuItem onClick={() => handleGenerateReminder(invoice)}>

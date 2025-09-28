@@ -1,7 +1,8 @@
 
 
+'use client';
 import { getInvoiceById } from '@/lib/google-sheets';
-import { notFound } from 'next/navigation';
+import { notFound, useSearchParams } from 'next/navigation';
 import {
   Card,
   CardContent,
@@ -27,6 +28,9 @@ import { ArrowLeft, Printer } from 'lucide-react';
 import type { InvoiceStatus } from '@/lib/types';
 import { format } from 'date-fns';
 import InvoiceActions from '@/components/invoices/invoice-actions';
+import { useEffect, useState } from 'react';
+import type { Invoice } from '@/lib/types';
+import Spinner from '@/components/ui/spinner';
 
 type InvoiceDetailPageProps = {
   params: {
@@ -47,14 +51,56 @@ const getStatusClass = (status: InvoiceStatus) => {
   }
 };
 
-export default async function InvoiceDetailPage({
+export default function InvoiceDetailPage({
   params,
 }: InvoiceDetailPageProps) {
-  const invoice = await getInvoiceById(params.id);
+  const searchParams = useSearchParams();
+  const isPrintMode = searchParams.get('print') === 'true';
 
-  if (!invoice) {
-    notFound();
+  const [invoice, setInvoice] = useState<Invoice | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchInvoice() {
+      try {
+        const fetchedInvoice = await getInvoiceById(params.id);
+        if (!fetchedInvoice) {
+          notFound();
+        } else {
+          setInvoice(fetchedInvoice);
+        }
+      } catch (error) {
+        console.error("Failed to fetch invoice:", error);
+        notFound();
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchInvoice();
+  }, [params.id]);
+  
+  useEffect(() => {
+    if(isPrintMode && invoice) {
+        setTimeout(() => {
+            window.print();
+            // Add a small delay before closing to ensure print dialog appears
+            setTimeout(() => window.close(), 500);
+        }, 500);
+    }
+  }, [isPrintMode, invoice]);
+
+  if (loading) {
+    return (
+      <div className="flex h-96 items-center justify-center">
+        <Spinner />
+      </div>
+    );
   }
+  
+  if (!invoice) {
+     return notFound();
+  }
+
 
   return (
     <div className="space-y-6">
