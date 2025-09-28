@@ -151,7 +151,7 @@ export default async function InvoiceDetailPage({
                     {formatCurrency(item.product.unitPrice)}
                   </TableCell>
                   <TableCell className="text-right">
-                    {formatCurrency(item.total)}
+                    {formatCurrency(item.product.unitPrice * item.quantity)}
                   </TableCell>
                 </TableRow>
               ))}
