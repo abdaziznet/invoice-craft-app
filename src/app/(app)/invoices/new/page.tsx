@@ -47,7 +47,7 @@ import {
 } from 'lucide-react';
 import { cn, formatCurrency } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
-import { format } from 'date-fns';
+import { format, addDays } from 'date-fns';
 import { getClients, getProducts, createInvoice } from '@/lib/google-sheets';
 import type { Client, Product, InvoiceStatus } from '@/lib/types';
 import Spinner from '@/components/ui/spinner';
@@ -92,6 +92,7 @@ export default function NewInvoicePage() {
     resolver: zodResolver(invoiceSchema),
     defaultValues: {
       invoiceDate: new Date(),
+      dueDate: addDays(new Date(), 7),
       status: 'Unpaid',
       lineItems: [
         {
