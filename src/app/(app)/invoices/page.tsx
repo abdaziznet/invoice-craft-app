@@ -1,4 +1,7 @@
-import { PlusCircle } from 'lucide-react';
+
+'use client'
+
+import { PlusCircle, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -10,15 +13,65 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import InvoiceTable from '@/components/invoices/invoice-table';
 import { getInvoices } from '@/lib/google-sheets';
-import type { InvoiceStatus } from '@/lib/types';
+import type { Invoice, InvoiceStatus } from '@/lib/types';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
-export default async function InvoicesPage() {
-  const invoices = await getInvoices();
+export default function InvoicesPage() {
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  
+  useEffect(() => {
+    async function fetchInvoices() {
+      const invoicesData = await getInvoices();
+      setInvoices(invoicesData);
+    }
+    fetchInvoices();
+  }, []);
+  
   const statusFilters: InvoiceStatus[] = ['Paid', 'Unpaid', 'Overdue'];
   const allInvoices = invoices;
   const unpaidInvoices = invoices.filter((inv) => inv.status === 'Unpaid');
   const paidInvoices = invoices.filter((inv) => inv.status === 'Paid');
   const overdueInvoices = invoices.filter((inv) => inv.status === 'Overdue');
+  
+  const handleExport = () => {
+    const headers = [
+      'Invoice Number',
+      'Client Name',
+      'Client Email',
+      'Status',
+      'Due Date',
+      'Total',
+      'Created At',
+    ];
+
+    const data = allInvoices.map((invoice) => [
+      invoice.invoiceNumber,
+      invoice.client.name,
+      invoice.client.email,
+      invoice.status,
+      invoice.dueDate,
+      invoice.total,
+      invoice.createdAt,
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...data.map((row) => row.join(',')),
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    if (link.href) {
+      URL.revokeObjectURL(link.href);
+    }
+    const url = URL.createObjectURL(blob);
+    link.href = url;
+    link.setAttribute('download', 'invoices.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
     <Tabs defaultValue="all">
@@ -30,12 +83,15 @@ export default async function InvoicesPage() {
           <TabsTrigger value="overdue" className="text-destructive">Overdue</TabsTrigger>
         </TabsList>
         <div className="ml-auto flex items-center gap-2">
-          <Button size="sm" variant="outline">
+          <Button size="sm" variant="outline" onClick={handleExport}>
+            <Download className="mr-2 h-4 w-4" />
             Export
           </Button>
-          <Button size="sm">
-            <PlusCircle className="mr-2 h-4 w-4" />
-            Create Invoice
+          <Button size="sm" asChild>
+            <Link href="/invoices/new">
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Create Invoice
+            </Link>
           </Button>
         </div>
       </div>
