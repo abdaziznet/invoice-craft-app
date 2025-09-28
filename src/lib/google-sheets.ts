@@ -1,4 +1,5 @@
 
+
 'use server';
 import { google } from 'googleapis';
 import { JWT } from 'google-auth-library';
@@ -322,6 +323,13 @@ export async function getInvoices() {
         }
     });
 }
+
+export async function getInvoiceById(id: string): Promise<Invoice | null> {
+    const invoices = await getInvoices();
+    const invoice = invoices.find(inv => inv.id === id);
+    return invoice || null;
+}
+
 
 export async function createInvoice(invoiceData: Omit<Invoice, 'id' | 'invoiceNumber' | 'createdAt' | 'client' | 'items' | 'lineItems'> & { lineItems: Omit<InvoiceItem, 'id'|'product'>[], clientId: string}) {
   try {

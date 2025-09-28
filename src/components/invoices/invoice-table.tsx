@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -28,6 +29,7 @@ import DeleteConfirmationDialog from '../clients/delete-confirmation-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { deleteInvoices } from '@/lib/google-sheets';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 type InvoiceTableProps = {
   invoices: Invoice[];
@@ -180,8 +182,10 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                      <DropdownMenuItem asChild>
+                        <Link href={`/invoices/${invoice.id}`}>View Details</Link>
+                      </DropdownMenuItem>
                       <DropdownMenuItem disabled>Edit</DropdownMenuItem>
-                      <DropdownMenuItem disabled>View Details</DropdownMenuItem>
                       <DropdownMenuItem disabled>Export as PDF</DropdownMenuItem>
                       {invoice.status === 'Overdue' && (
                         <DropdownMenuItem onClick={() => handleGenerateReminder(invoice)}>
