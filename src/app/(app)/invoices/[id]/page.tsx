@@ -116,20 +116,22 @@ export default function InvoiceDetailPage() {
       <Card className="max-w-4xl mx-auto p-4 sm:p-10 print:shadow-none print:border-none">
         <CardHeader className="p-6">
           <div className="flex justify-between items-start">
-            <div>
+             <div className="flex items-center gap-4">
               {companyProfile.logoUrl && (
                 <Image 
                     src={companyProfile.logoUrl} 
                     alt={companyProfile.name} 
-                    width={100} 
-                    height={100}
-                    className="mb-4"
+                    width={80} 
+                    height={80}
+                    className="rounded-md"
                 />
               )}
-               <h2 className="text-lg font-semibold">{companyProfile.name}</h2>
-              <p className="text-sm text-muted-foreground whitespace-pre-line">
-                {companyProfile.address}
-              </p>
+              <div>
+                <h2 className="text-lg font-semibold">{companyProfile.name}</h2>
+                <p className="text-sm text-muted-foreground whitespace-pre-line">
+                  {companyProfile.address}
+                </p>
+              </div>
             </div>
             <div className="text-right">
                 <h1 className="text-3xl font-bold">Invoice</h1>
