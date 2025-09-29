@@ -7,7 +7,7 @@ import WhatsappIcon from '../icons/whatsapp-icon';
 import type { Invoice } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { formatCurrency } from '@/lib/utils';
-import { generatePdfFlow } from '@/ai/flows/pdf-generation';
+import { generatePdf } from '@/ai/flows/pdf-generation';
 import Spinner from '../ui/spinner';
 
 type InvoiceActionsProps = {
@@ -21,7 +21,7 @@ export default function InvoiceActions({ invoice }: InvoiceActionsProps) {
   const handleExportPdf = async () => {
     setIsGeneratingPdf(true);
     try {
-      const response = await generatePdfFlow({ invoiceId: invoice.id });
+      const response = await generatePdf({ invoiceId: invoice.id });
       const { pdfBase64 } = response;
       const byteCharacters = atob(pdfBase64);
       const byteNumbers = new Array(byteCharacters.length);
@@ -59,7 +59,7 @@ export default function InvoiceActions({ invoice }: InvoiceActionsProps) {
       return;
     }
 
-    const invoiceUrl = `${window.location.origin}/invoices/${invoice.id}`;
+    const invoiceUrl = `${window.location.origin}/invoices/${invoice.id}?print=true`;
     const message = `Hi ${invoice.client.name}, here is your invoice #${invoice.invoiceNumber} for ${formatCurrency(invoice.total)}. You can view and save the PDF here: ${invoiceUrl}`;
     const whatsappUrl = `https://wa.me/${invoice.client.phone}?text=${encodeURIComponent(message)}`;
     

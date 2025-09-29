@@ -32,7 +32,7 @@ import { deleteInvoices } from '@/lib/google-sheets';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import WhatsappIcon from '../icons/whatsapp-icon';
-import { generatePdfFlow } from '@/ai/flows/pdf-generation';
+import { generatePdf } from '@/ai/flows/pdf-generation';
 
 type InvoiceTableProps = {
   invoices: Invoice[];
@@ -79,7 +79,7 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
   const handleExportPdf = async (invoice: Invoice) => {
     setIsGeneratingPdf(invoice.id);
     try {
-        const response = await generatePdfFlow({ invoiceId: invoice.id });
+        const response = await generatePdf({ invoiceId: invoice.id });
         const { pdfBase64 } = response;
         const byteCharacters = atob(pdfBase64);
         const byteNumbers = new Array(byteCharacters.length);
@@ -117,7 +117,7 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
       return;
     }
 
-    const invoiceUrl = `${window.location.origin}/invoices/${invoice.id}`;
+    const invoiceUrl = `${window.location.origin}/invoices/${invoice.id}?print=true`;
     const message = `Hi ${invoice.client.name}, here is your invoice #${invoice.invoiceNumber} for ${formatCurrency(invoice.total)}. You can view and save the PDF here: ${invoiceUrl}`;
     const whatsappUrl = `https://wa.me/${invoice.client.phone}?text=${encodeURIComponent(message)}`;
     
