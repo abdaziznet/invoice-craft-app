@@ -10,7 +10,7 @@
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import {z} from 'zod';
 import {PDFDocument, rgb, StandardFonts} from 'pdf-lib';
 import {getInvoiceById} from '@/lib/google-sheets';
 import {formatCurrency} from '@/lib/utils';
@@ -194,10 +194,15 @@ const generatePdfFlow = ai.defineFlow(
       contentWidth * 0.15,
     ];
     let currentX = margin + 10;
+    const totalColX = margin + colWidths[0] + colWidths[1] + colWidths[2];
 
     tableHeaders.forEach((header, i) => {
+       let xPos = currentX;
+      if (i === tableHeaders.length - 1) { // Right align last header
+        xPos = width - margin - font.widthOfTextAtSize(header, fontSize) - 10;
+      }
       page.drawText(header, {
-        x: currentX,
+        x: xPos,
         y: tableTop - 5,
         font: boldFont,
         size: fontSize,
@@ -219,8 +224,14 @@ const generatePdfFlow = ai.defineFlow(
 
       currentX = margin + 10;
       rowData.forEach((cell, i) => {
+        let xPos = currentX;
+        if (i > 1) { // right align price and total
+            const textWidth = font.widthOfTextAtSize(cell, fontSize);
+            xPos = currentX + colWidths[i] - textWidth - 10;
+        }
+
         page.drawText(cell, {
-          x: currentX,
+          x: xPos,
           y: y,
           font: font,
           size: fontSize,
@@ -242,9 +253,8 @@ const generatePdfFlow = ai.defineFlow(
     y -= 20;
     
     // Summary
-    const summaryX = width / 2 + 50;
-    const summaryLabelX = summaryX;
-    const summaryValueX = width - margin - 100;
+    const summaryLabelX = width / 2 + 50;
+    const summaryValueXEnd = width - margin - 10;
 
     const summaryItems = [
       {label: 'Subtotal', value: formatCurrency(invoice.subtotal)},
@@ -259,8 +269,9 @@ const generatePdfFlow = ai.defineFlow(
 
     summaryItems.forEach(item => {
       page.drawText(item.label, {x: summaryLabelX, y: y, font: font, size: fontSize});
+      const valueWidth = font.widthOfTextAtSize(item.value, fontSize);
       page.drawText(item.value, {
-        x: summaryValueX,
+        x: summaryValueXEnd - valueWidth,
         y: y,
         font: font,
         size: fontSize,
@@ -270,16 +281,18 @@ const generatePdfFlow = ai.defineFlow(
 
     y -= 5;
     page.drawLine({
-      start: {x: summaryX, y: y},
+      start: {x: summaryLabelX, y: y},
       end: {x: width - margin, y: y},
       thickness: 0.5,
       color: rgb(0.8, 0.8, 0.8),
     });
     y -= 20;
-
+    
+    const totalText = formatCurrency(invoice.total);
+    const totalWidth = boldFont.widthOfTextAtSize(totalText, subHeaderFontSize);
     page.drawText('Total', {x: summaryLabelX, y: y, font: boldFont, size: subHeaderFontSize});
-    page.drawText(formatCurrency(invoice.total), {
-      x: summaryValueX,
+    page.drawText(totalText, {
+      x: summaryValueXEnd - totalWidth,
       y: y,
       font: boldFont,
       size: subHeaderFontSize,
