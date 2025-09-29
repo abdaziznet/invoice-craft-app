@@ -1,6 +1,5 @@
 
 
-
 'use client';
 import { getCompanyProfile, getInvoiceById } from '@/lib/google-sheets';
 import { notFound, useParams } from 'next/navigation';
@@ -122,19 +121,19 @@ export default function InvoiceDetailPage() {
                 <Image 
                     src={companyProfile.logoUrl} 
                     alt={companyProfile.name} 
-                    width={120} 
-                    height={120}
+                    width={100} 
+                    height={100}
                     className="mb-4"
                 />
               )}
-              <h1 className="text-3xl font-bold">Invoice</h1>
-              <p className="text-muted-foreground">#{invoice.invoiceNumber}</p>
-            </div>
-            <div className="text-right">
-              <h2 className="text-lg font-semibold">{companyProfile.name}</h2>
+               <h2 className="text-lg font-semibold">{companyProfile.name}</h2>
               <p className="text-sm text-muted-foreground whitespace-pre-line">
                 {companyProfile.address}
               </p>
+            </div>
+            <div className="text-right">
+                <h1 className="text-3xl font-bold">Invoice</h1>
+                <p className="text-muted-foreground">#{invoice.invoiceNumber}</p>
             </div>
           </div>
         </CardHeader>
