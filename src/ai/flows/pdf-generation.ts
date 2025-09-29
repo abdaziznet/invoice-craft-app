@@ -65,7 +65,8 @@ const generatePdfFlow = ai.defineFlow(
           logoImage = await pdfDoc.embedJpg(logoImageBytes);
         }
         if (logoImage) {
-            logoDims = logoImage.scale(0.2);
+           const scaleFactor = 80 / logoImage.height;
+           logoDims = logoImage.scale(scaleFactor);
         }
       } catch (e) {
         console.error("Failed to embed logo:", e);
