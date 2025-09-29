@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -127,9 +128,11 @@ const generatePdfFlow = ai.defineFlow(
         font: font,
         size: smallFontSize,
         color: rgb(0.3, 0.3, 0.3),
+        lineHeight: 12
       });
       y -= 12;
     });
+    y -= 3; // Extra space after address
 
     page.drawText(invoice.client.email, {
       x: margin,
@@ -238,31 +241,6 @@ const generatePdfFlow = ai.defineFlow(
 
     y -= 20;
     
-    let summaryY = y;
-    
-    // Notes - position calculated relative to summary
-    let notesEndY = y;
-    if (invoice.notes) {
-      const notesX = margin;
-      const notesHeaderY = y;
-      page.drawText('Notes', {x: notesX, y: notesHeaderY, font: boldFont, size: fontSize});
-      
-      const notesLines = invoice.notes.split('\n');
-      let currentNotesY = notesHeaderY - 15;
-      notesLines.forEach(line => {
-        page.drawText(line, {
-          x: notesX,
-          y: currentNotesY,
-          font: font,
-          size: smallFontSize,
-          color: rgb(0.3, 0.3, 0.3),
-        });
-        currentNotesY -= 12;
-      });
-      notesEndY = currentNotesY;
-    }
-
-
     // Summary
     const summaryX = width / 2 + 50;
     const summaryLabelX = summaryX;
@@ -280,35 +258,53 @@ const generatePdfFlow = ai.defineFlow(
     }
 
     summaryItems.forEach(item => {
-      page.drawText(item.label, {x: summaryLabelX, y: summaryY, font: font, size: fontSize});
+      page.drawText(item.label, {x: summaryLabelX, y: y, font: font, size: fontSize});
       page.drawText(item.value, {
         x: summaryValueX,
-        y: summaryY,
+        y: y,
         font: font,
         size: fontSize,
       });
-      summaryY -= 20;
+      y -= 20;
     });
 
-    summaryY -= 5;
+    y -= 5;
     page.drawLine({
-      start: {x: summaryX, y: summaryY},
-      end: {x: width - margin, y: summaryY},
+      start: {x: summaryX, y: y},
+      end: {x: width - margin, y: y},
       thickness: 0.5,
       color: rgb(0.8, 0.8, 0.8),
     });
-    summaryY -= 20;
+    y -= 20;
 
-    page.drawText('Total', {x: summaryLabelX, y: summaryY, font: boldFont, size: subHeaderFontSize});
+    page.drawText('Total', {x: summaryLabelX, y: y, font: boldFont, size: subHeaderFontSize});
     page.drawText(formatCurrency(invoice.total), {
       x: summaryValueX,
-      y: summaryY,
+      y: y,
       font: boldFont,
       size: subHeaderFontSize,
     });
     
-    y = Math.min(summaryY, notesEndY);
-
+    y -= 40;
+    
+    // Notes - moved after summary
+    if (invoice.notes) {
+      const notesX = margin;
+      page.drawText('Notes', {x: notesX, y: y, font: boldFont, size: fontSize});
+      y -= 15;
+      
+      const notesLines = invoice.notes.split('\n');
+      notesLines.forEach(line => {
+        page.drawText(line, {
+          x: notesX,
+          y: y,
+          font: font,
+          size: smallFontSize,
+          color: rgb(0.3, 0.3, 0.3),
+        });
+        y -= 12;
+      });
+    }
 
     // Footer
     const footerY = margin;
