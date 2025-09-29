@@ -113,7 +113,7 @@ const generatePdfFlow = ai.defineFlow(
     if (logoImage) {
         page.drawImage(logoImage, {
             x: leftX,
-            y: y - logoDims.height,
+            y: y - logoDims.height + 10,
             width: logoDims.width,
             height: logoDims.height,
         });
