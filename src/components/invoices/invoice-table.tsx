@@ -1,8 +1,9 @@
 
+
 'use client';
 
 import { useState } from 'react';
-import { MoreHorizontal, ArrowUpDown, Trash2 } from 'lucide-react';
+import { MoreHorizontal, ArrowUpDown, Trash2, Printer } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -31,6 +32,7 @@ import { deleteInvoices } from '@/lib/google-sheets';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import WhatsappIcon from '../icons/whatsapp-icon';
+import { generatePdfFlow } from '@/ai/flows/pdf-generation';
 
 type InvoiceTableProps = {
   invoices: Invoice[];
@@ -44,6 +46,8 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
   const [selectedInvoiceIds, setSelectedInvoiceIds] = useState<string[]>([]);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState<string | null>(null);
+
 
   const getStatusClass = (status: InvoiceStatus) => {
     switch (status) {
@@ -72,18 +76,36 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
     setIsDeleteDialogOpen(true);
   }
 
-  const handleExportPdf = (invoiceId: string) => {
-    const printWindow = window.open(`/invoices/${invoiceId}?print=true`, '_blank');
-    if (printWindow) {
-      printWindow.focus();
-    } else {
-      toast({
-        variant: "destructive",
-        title: "Popup Blocked",
-        description: "Please allow pop-ups for this site to export the PDF.",
-      });
+  const handleExportPdf = async (invoice: Invoice) => {
+    setIsGeneratingPdf(invoice.id);
+    try {
+        const response = await generatePdfFlow({ invoiceId: invoice.id });
+        const { pdfBase64 } = response;
+        const byteCharacters = atob(pdfBase64);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+            byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: 'application/pdf' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `invoice-${invoice.invoiceNumber}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+    } catch (error) {
+        console.error("Failed to generate PDF", error);
+        toast({
+            variant: 'destructive',
+            title: 'PDF Generation Failed',
+            description: 'Could not generate PDF for this invoice.',
+        });
+    } finally {
+        setIsGeneratingPdf(null);
     }
-  }
+  };
 
   const handleShareWhatsApp = (invoice: Invoice) => {
     if (!invoice.client.phone) {
@@ -95,7 +117,7 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
       return;
     }
 
-    const invoiceUrl = `${window.location.origin}/invoices/${invoice.id}?print=true`;
+    const invoiceUrl = `${window.location.origin}/invoices/${invoice.id}`;
     const message = `Hi ${invoice.client.name}, here is your invoice #${invoice.invoiceNumber} for ${formatCurrency(invoice.total)}. You can view and save the PDF here: ${invoiceUrl}`;
     const whatsappUrl = `https://wa.me/${invoice.client.phone}?text=${encodeURIComponent(message)}`;
     
@@ -219,8 +241,8 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
                       <DropdownMenuItem asChild>
                         <Link href={`/invoices/${invoice.id}/edit`}>Edit</Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleExportPdf(invoice.id)}>
-                        Export as PDF
+                      <DropdownMenuItem onClick={() => handleExportPdf(invoice)} disabled={isGeneratingPdf === invoice.id}>
+                         {isGeneratingPdf === invoice.id ? 'Generating...' : 'Export as PDF'}
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => handleShareWhatsApp(invoice)}>
                          <WhatsappIcon className="mr-2" /> Share via WhatsApp

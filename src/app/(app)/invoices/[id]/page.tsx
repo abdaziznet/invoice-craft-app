@@ -2,7 +2,7 @@
 
 'use client';
 import { getInvoiceById } from '@/lib/google-sheets';
-import { notFound, useSearchParams, useParams } from 'next/navigation';
+import { notFound, useParams } from 'next/navigation';
 import {
   Card,
   CardContent,
@@ -24,9 +24,9 @@ import { Separator } from '@/components/ui/separator';
 import { cn, formatCurrency } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowLeft, Printer } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import type { InvoiceStatus } from '@/lib/types';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import InvoiceActions from '@/components/invoices/invoice-actions';
 import { useEffect, useState } from 'react';
 import type { Invoice } from '@/lib/types';
@@ -47,9 +47,7 @@ const getStatusClass = (status: InvoiceStatus) => {
 
 export default function InvoiceDetailPage() {
   const params = useParams();
-  const searchParams = useSearchParams();
-  const isPrintMode = searchParams.get('print') === 'true';
-
+  
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [loading, setLoading] = useState(true);
   const { id } = params;
@@ -74,15 +72,6 @@ export default function InvoiceDetailPage() {
     fetchInvoice();
   }, [id]);
   
-  useEffect(() => {
-    if(isPrintMode && invoice) {
-        setTimeout(() => {
-            window.print();
-            // Add a small delay before closing to ensure print dialog appears
-            setTimeout(() => window.close(), 500);
-        }, 500);
-    }
-  }, [isPrintMode, invoice]);
 
   if (loading) {
     return (
@@ -161,12 +150,12 @@ export default function InvoiceDetailPage() {
 
                 <span className="font-semibold">Invoice Date:</span>
                 <span className="text-muted-foreground">
-                  {format(new Date(invoice.createdAt), 'PPP')}
+                  {format(parseISO(invoice.createdAt), 'PPP')}
                 </span>
 
                 <span className="font-semibold">Due Date:</span>
                 <span className="text-muted-foreground">
-                  {format(new Date(invoice.dueDate), 'PPP')}
+                  {format(parseISO(invoice.dueDate), 'PPP')}
                 </span>
               </div>
             </div>
