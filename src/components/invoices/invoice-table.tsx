@@ -30,6 +30,7 @@ import { useToast } from '@/hooks/use-toast';
 import { deleteInvoices } from '@/lib/google-sheets';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import WhatsappIcon from '../icons/whatsapp-icon';
 
 type InvoiceTableProps = {
   invoices: Invoice[];
@@ -76,9 +77,30 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
     if (printWindow) {
       printWindow.focus();
     } else {
-      alert('Please allow pop-ups for this site to export the PDF.');
+      toast({
+        variant: "destructive",
+        title: "Popup Blocked",
+        description: "Please allow pop-ups for this site to export the PDF.",
+      });
     }
   }
+
+  const handleShareWhatsApp = (invoice: Invoice) => {
+    if (!invoice.client.phone) {
+      toast({
+        variant: "destructive",
+        title: "Missing Phone Number",
+        description: "This client does not have a phone number saved.",
+      });
+      return;
+    }
+
+    const invoiceUrl = `${window.location.origin}/invoices/${invoice.id}`;
+    const message = `Hi ${invoice.client.name}, here is your invoice #${invoice.invoiceNumber} for ${formatCurrency(invoice.total)}. You can view it here: ${invoiceUrl}`;
+    const whatsappUrl = `https://wa.me/${invoice.client.phone}?text=${encodeURIComponent(message)}`;
+    
+    window.open(whatsappUrl, '_blank');
+  };
 
   const confirmDelete = async () => {
     setIsDeleting(true);
@@ -199,6 +221,9 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => handleExportPdf(invoice.id)}>
                         Export as PDF
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleShareWhatsApp(invoice)}>
+                         <WhatsappIcon className="mr-2" /> Share via WhatsApp
                       </DropdownMenuItem>
                       {invoice.status === 'Overdue' && (
                         <DropdownMenuItem onClick={() => handleGenerateReminder(invoice)}>
