@@ -1,5 +1,6 @@
 
 
+
 'use server';
 import { google } from 'googleapis';
 import { JWT } from 'google-auth-library';
@@ -59,7 +60,7 @@ export async function getCompanyProfile(): Promise<CompanyProfile> {
     };
     
     const data = await getSheetData('CompanyProfile!A:B');
-    if (!data || data.length < 2) {
+    if (!data) {
         return defaultProfile;
     }
 
@@ -81,11 +82,35 @@ export async function getCompanyProfile(): Promise<CompanyProfile> {
 
 
 export async function updateCompanyProfile(profileData: CompanyProfile) {
-    const data = Object.entries(profileData);
+    const sheetTitle = 'CompanyProfile';
     try {
+        const spreadsheetInfo = await sheets.spreadsheets.get({ spreadsheetId });
+        const sheetExists = spreadsheetInfo.data.sheets?.some(s => s.properties?.title === sheetTitle);
+
+        if (!sheetExists) {
+            await sheets.spreadsheets.batchUpdate({
+                spreadsheetId,
+                requestBody: {
+                    requests: [
+                        { addSheet: { properties: { title: sheetTitle } } }
+                    ]
+                }
+            });
+            // Add headers
+            await sheets.spreadsheets.values.update({
+                spreadsheetId,
+                range: `${sheetTitle}!A1:B1`,
+                valueInputOption: 'USER_ENTERED',
+                requestBody: {
+                    values: [['key', 'value']]
+                }
+            });
+        }
+        
+        const data = Object.entries(profileData);
         await sheets.spreadsheets.values.update({
             spreadsheetId,
-            range: 'CompanyProfile!A2:B6',
+            range: `${sheetTitle}!A2:B${data.length + 1}`,
             valueInputOption: 'USER_ENTERED',
             requestBody: {
                 values: data,
