@@ -55,6 +55,7 @@ const generatePdfFlow = ai.defineFlow(
     const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
     
     let logoImage;
+    let logoDims = { width: 0, height: 0 };
     if (companyProfile.logoUrl) {
       try {
         const logoImageBytes = await fetch(companyProfile.logoUrl).then(res => res.arrayBuffer());
@@ -62,6 +63,9 @@ const generatePdfFlow = ai.defineFlow(
           logoImage = await pdfDoc.embedPng(logoImageBytes);
         } else if (companyProfile.logoUrl.endsWith('.jpg') || companyProfile.logoUrl.endsWith('.jpeg')) {
           logoImage = await pdfDoc.embedJpg(logoImageBytes);
+        }
+        if (logoImage) {
+            logoDims = logoImage.scale(0.2);
         }
       } catch (e) {
         console.error("Failed to embed logo:", e);
@@ -79,43 +83,8 @@ const generatePdfFlow = ai.defineFlow(
     let y = height - margin;
     
     // Header Section
-    let leftY = y;
     let rightY = y;
-    const rightX = width / 2;
-
-    // Left side: Logo and Company Info
-    if (logoImage) {
-        const logoDims = logoImage.scale(0.25);
-        page.drawImage(logoImage, {
-            x: margin,
-            y: y - logoDims.height + 25,
-            width: logoDims.width,
-            height: logoDims.height,
-        });
-        leftY -= logoDims.height;
-    }
     
-    page.drawText(companyProfile.name, {
-      x: margin,
-      y: leftY,
-      font: boldFont,
-      size: subHeaderFontSize
-    });
-    leftY -= 15;
-
-    const companyAddressLines = companyProfile.address.split('\n');
-    companyAddressLines.forEach(line => {
-       page.drawText(line, {
-        x: margin,
-        y: leftY,
-        font: font,
-        size: fontSize,
-        color: rgb(0.3, 0.3, 0.3),
-        lineHeight: 15
-      });
-      leftY -= 15;
-    });
-
     // Right side: Invoice Title and Info
     const invoiceTitle = 'Invoice';
     const titleWidth = boldFont.widthOfTextAtSize(invoiceTitle, headerFontSize);
@@ -139,6 +108,40 @@ const generatePdfFlow = ai.defineFlow(
     });
     rightY -= 20;
 
+    // Left side: Logo and Company Info
+    let leftX = margin;
+    if (logoImage) {
+        page.drawImage(logoImage, {
+            x: leftX,
+            y: y - logoDims.height,
+            width: logoDims.width,
+            height: logoDims.height,
+        });
+        leftX += logoDims.width + 15;
+    }
+    
+    let leftY = y;
+    page.drawText(companyProfile.name, {
+      x: leftX,
+      y: leftY,
+      font: boldFont,
+      size: subHeaderFontSize
+    });
+    leftY -= 15;
+
+    const companyAddressLines = companyProfile.address.split('\n');
+    companyAddressLines.forEach(line => {
+       page.drawText(line, {
+        x: leftX,
+        y: leftY,
+        font: font,
+        size: fontSize,
+        color: rgb(0.3, 0.3, 0.3),
+        lineHeight: 15
+      });
+      leftY -= 15;
+    });
+
     const metaInfo = [
       {label: 'Status:', value: invoice.status},
       {label: 'Invoice Date:', value: format(parseISO(invoice.createdAt), 'PPP')},
@@ -146,10 +149,11 @@ const generatePdfFlow = ai.defineFlow(
     ];
 
     metaInfo.forEach(info => {
-      const labelWidth = font.widthOfTextAtSize(info.label, fontSize);
-      page.drawText(info.label, {x: rightX, y: rightY, font: boldFont, size: fontSize});
+      const labelWidth = boldFont.widthOfTextAtSize(info.label, fontSize);
+      page.drawText(info.label, {x: width - margin - 150, y: rightY, font: boldFont, size: fontSize});
+      const valueWidth = font.widthOfTextAtSize(info.value, fontSize);
       page.drawText(info.value, {
-        x: rightX + 80,
+        x: width - margin - valueWidth,
         y: rightY,
         font: font,
         size: fontSize,
@@ -159,7 +163,8 @@ const generatePdfFlow = ai.defineFlow(
     });
     
     // Position `y` for the next section based on the longest column
-    y = Math.min(leftY, rightY) - 20;
+    const minLeftY = y - logoDims.height - 20;
+    y = Math.min(minLeftY, rightY) - 20;
 
     // Billing Info
     page.drawText('Bill To:', {
@@ -233,8 +238,10 @@ const generatePdfFlow = ai.defineFlow(
 
     tableHeaders.forEach((header, i) => {
        let xPos = currentX;
-      if (i === tableHeaders.length - 1) { // Right align last header
-        xPos = width - margin - boldFont.widthOfTextAtSize(header, fontSize) - 10;
+      if (i > 0) { // Right align headers other than item
+         const colEnd = margin + colWidths.slice(0, i + 1).reduce((a, b) => a + b);
+         const textWidth = boldFont.widthOfTextAtSize(header, fontSize);
+         xPos = colEnd - textWidth - 10;
       }
       page.drawText(header, {
         x: xPos,
@@ -278,20 +285,12 @@ const generatePdfFlow = ai.defineFlow(
       y -= 25;
     });
 
+    // Move y for summary section, ensuring it's below the table
     y -= 20;
-    // Separator
-    page.drawLine({
-      start: {x: margin, y: y},
-      end: {x: width - margin, y: y},
-      thickness: 0.5,
-      color: rgb(0.8, 0.8, 0.8),
-    });
 
-    y -= 20;
-    
     // Summary Section
     const summaryLabelX = width / 2 + 50;
-    const summaryValueXEnd = width - margin - 10;
+    const summaryValueXEnd = width - margin;
     
     const summaryItems = [
       {label: 'Subtotal', value: formatCurrency(invoice.subtotal)},
@@ -320,8 +319,8 @@ const generatePdfFlow = ai.defineFlow(
     page.drawLine({
       start: {x: summaryLabelX, y: y},
       end: {x: width - margin, y: y},
-      thickness: 0.5,
-      color: rgb(0.8, 0.8, 0.8),
+      thickness: 1,
+      color: rgb(0, 0, 0),
     });
     y -= 20;
     
