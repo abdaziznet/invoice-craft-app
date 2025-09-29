@@ -1,4 +1,5 @@
 
+
 'use server';
 
 /**
@@ -12,7 +13,7 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'zod';
 import {PDFDocument, rgb, StandardFonts} from 'pdf-lib';
-import {getInvoiceById} from '@/lib/google-sheets';
+import {getCompanyProfile, getInvoiceById} from '@/lib/google-sheets';
 import {formatCurrency} from '@/lib/utils';
 import {format, parseISO} from 'date-fns';
 
@@ -43,6 +44,8 @@ const generatePdfFlow = ai.defineFlow(
     if (!invoice) {
       throw new Error('Invoice not found');
     }
+    
+    const companyProfile = await getCompanyProfile();
 
     const pdfDoc = await PDFDocument.create();
     const page = pdfDoc.addPage();
@@ -50,6 +53,21 @@ const generatePdfFlow = ai.defineFlow(
 
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+    
+    let logoImage;
+    if (companyProfile.logoUrl) {
+      try {
+        const logoImageBytes = await fetch(companyProfile.logoUrl).then(res => res.arrayBuffer());
+        if (companyProfile.logoUrl.endsWith('.png')) {
+          logoImage = await pdfDoc.embedPng(logoImageBytes);
+        } else if (companyProfile.logoUrl.endsWith('.jpg') || companyProfile.logoUrl.endsWith('.jpeg')) {
+          logoImage = await pdfDoc.embedJpg(logoImageBytes);
+        }
+      } catch (e) {
+        console.error("Failed to embed logo:", e);
+      }
+    }
+
 
     const fontSize = 10;
     const headerFontSize = 24;
@@ -59,6 +77,17 @@ const generatePdfFlow = ai.defineFlow(
     const margin = 50;
     const contentWidth = width - 2 * margin;
     let y = height - margin;
+    
+    // Logo
+    if (logoImage) {
+        const logoDims = logoImage.scale(0.25);
+        page.drawImage(logoImage, {
+            x: margin,
+            y: y - logoDims.height + 25,
+            width: logoDims.width,
+            height: logoDims.height
+        });
+    }
 
     // Header
     page.drawText('Invoice', {
@@ -69,27 +98,31 @@ const generatePdfFlow = ai.defineFlow(
       color: rgb(0, 0, 0),
     });
 
-    page.drawText(`Sumber Rejeki Frozen Foods`, {
-      x: width - margin - 200,
-      y: y,
+    const companyAddressLines = companyProfile.address.split('\n');
+    const companyInfoWidth = 200;
+    let companyY = y;
+    
+    page.drawText(companyProfile.name, {
+      x: width - margin - companyInfoWidth,
+      y: companyY,
       font: boldFont,
       size: subHeaderFontSize,
       color: rgb(0, 0, 0),
+      lineHeight: 15,
+      maxWidth: companyInfoWidth
     });
-    page.drawText(`Pasar Patra`, {
-      x: width - margin - 200,
+    companyY -= (companyAddressLines.length + 1) * 15;
+    
+    page.drawText(companyProfile.address, {
+      x: width - margin - companyInfoWidth,
       y: y - 15,
       font: font,
       size: fontSize,
       color: rgb(0.3, 0.3, 0.3),
+      lineHeight: 15,
+      maxWidth: companyInfoWidth
     });
-    page.drawText(`West Jakarta 11510`, {
-      x: width - margin - 200,
-      y: y - 30,
-      font: font,
-      size: fontSize,
-      color: rgb(0.3, 0.3, 0.3),
-    });
+
 
     y -= 30;
     page.drawText(`#${invoice.invoiceNumber}`, {
@@ -199,7 +232,7 @@ const generatePdfFlow = ai.defineFlow(
     tableHeaders.forEach((header, i) => {
        let xPos = currentX;
       if (i === tableHeaders.length - 1) { // Right align last header
-        xPos = width - margin - font.widthOfTextAtSize(header, fontSize) - 10;
+        xPos = width - margin - boldFont.widthOfTextAtSize(header, fontSize) - 10;
       }
       page.drawText(header, {
         x: xPos,

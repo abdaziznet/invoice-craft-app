@@ -1,9 +1,10 @@
 
 
+
 'use server';
 import { google } from 'googleapis';
 import { JWT } from 'google-auth-library';
-import type { Client, Invoice, InvoiceItem, Product } from './types';
+import type { Client, Invoice, InvoiceItem, Product, CompanyProfile } from './types';
 
 const spreadsheetId = process.env.GOOGLE_SHEET_ID;
 
@@ -44,6 +45,51 @@ function mapToObjects(data: any[][] | null | undefined) {
     });
     return obj;
   });
+}
+
+export async function getCompanyProfile(): Promise<CompanyProfile> {
+    const data = await getSheetData('CompanyProfile!A:B');
+    if (!data || data.length < 2) {
+        return {
+            name: '',
+            address: '',
+            logoUrl: '',
+            currency: 'IDR',
+            language: 'id',
+        };
+    }
+    const profile = data.slice(1).reduce((acc, row) => {
+        if (row[0]) {
+            acc[row[0]] = row[1];
+        }
+        return acc;
+    }, {} as { [key: string]: any });
+
+    return {
+        name: profile.name || '',
+        address: profile.address || '',
+        logoUrl: profile.logoUrl || '',
+        currency: (profile.currency as CompanyProfile['currency']) || 'IDR',
+        language: (profile.language as CompanyProfile['language']) || 'id',
+    };
+}
+
+
+export async function updateCompanyProfile(profileData: CompanyProfile) {
+    const data = Object.entries(profileData);
+    try {
+        await sheets.spreadsheets.values.update({
+            spreadsheetId,
+            range: 'CompanyProfile!A2:B6',
+            valueInputOption: 'USER_ENTERED',
+            requestBody: {
+                values: data,
+            },
+        });
+    } catch (error) {
+        console.error('Error updating company profile:', error);
+        throw new Error('Could not update company profile in Google Sheets.');
+    }
 }
 
 export async function getClients() {

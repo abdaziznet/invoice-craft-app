@@ -1,7 +1,8 @@
 
 
+
 'use client';
-import { getInvoiceById } from '@/lib/google-sheets';
+import { getCompanyProfile, getInvoiceById } from '@/lib/google-sheets';
 import { notFound, useParams } from 'next/navigation';
 import {
   Card,
@@ -25,12 +26,13 @@ import { cn, formatCurrency } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
-import type { InvoiceStatus } from '@/lib/types';
+import type { CompanyProfile, InvoiceStatus } from '@/lib/types';
 import { format, parseISO } from 'date-fns';
 import InvoiceActions from '@/components/invoices/invoice-actions';
 import { useEffect, useState } from 'react';
 import type { Invoice } from '@/lib/types';
 import Spinner from '@/components/ui/spinner';
+import Image from 'next/image';
 
 const getStatusClass = (status: InvoiceStatus) => {
   switch (status) {
@@ -49,6 +51,7 @@ export default function InvoiceDetailPage() {
   const params = useParams();
   
   const [invoice, setInvoice] = useState<Invoice | null>(null);
+  const [companyProfile, setCompanyProfile] = useState<CompanyProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const { id } = params;
 
@@ -56,11 +59,16 @@ export default function InvoiceDetailPage() {
     if (!id) return;
     async function fetchInvoice() {
       try {
-        const fetchedInvoice = await getInvoiceById(id as string);
+        const [fetchedInvoice, fetchedProfile] = await Promise.all([
+            getInvoiceById(id as string),
+            getCompanyProfile(),
+        ]);
+
         if (!fetchedInvoice) {
           notFound();
         } else {
           setInvoice(fetchedInvoice);
+          setCompanyProfile(fetchedProfile);
         }
       } catch (error) {
         console.error("Failed to fetch invoice:", error);
@@ -81,7 +89,7 @@ export default function InvoiceDetailPage() {
     );
   }
   
-  if (!invoice) {
+  if (!invoice || !companyProfile) {
      return notFound();
   }
 
@@ -110,15 +118,22 @@ export default function InvoiceDetailPage() {
         <CardHeader className="p-6">
           <div className="flex justify-between items-start">
             <div>
+              {companyProfile.logoUrl && (
+                <Image 
+                    src={companyProfile.logoUrl} 
+                    alt={companyProfile.name} 
+                    width={120} 
+                    height={120}
+                    className="mb-4"
+                />
+              )}
               <h1 className="text-3xl font-bold">Invoice</h1>
               <p className="text-muted-foreground">#{invoice.invoiceNumber}</p>
             </div>
             <div className="text-right">
-              <h2 className="text-lg font-semibold">Sumber Rejeki Frozen Foods</h2>
-              <p className="text-sm text-muted-foreground">
-                Pasar Patra
-                <br />
-                West Jakarta 11510
+              <h2 className="text-lg font-semibold">{companyProfile.name}</h2>
+              <p className="text-sm text-muted-foreground whitespace-pre-line">
+                {companyProfile.address}
               </p>
             </div>
           </div>
@@ -128,7 +143,7 @@ export default function InvoiceDetailPage() {
             <div>
               <h3 className="font-semibold mb-2">Bill To:</h3>
               <p className="font-medium text-primary">{invoice.client.name}</p>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground whitespace-pre-line">
                 {invoice.client.address}
               </p>
               <p className="text-sm text-muted-foreground">

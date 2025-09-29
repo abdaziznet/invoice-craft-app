@@ -1,3 +1,4 @@
+
 export type Client = {
   id: string;
   name: string;
@@ -23,7 +24,7 @@ export type InvoiceItem = {
 export type InvoiceStatus = 'Paid' | 'Unpaid' | 'Overdue';
 
 export type Invoice = {
-  id: string;
+  id:string;
   invoiceNumber: string;
   client: Client;
   lineItems: InvoiceItem[];
@@ -38,4 +39,12 @@ export type Invoice = {
   // Fields for GenAI feature
   clientRelationship: string; 
   paymentHistory: string; 
+};
+
+export type CompanyProfile = {
+    name: string;
+    address: string;
+    logoUrl: string;
+    currency: 'IDR' | 'USD';
+    language: 'id' | 'en';
 };
