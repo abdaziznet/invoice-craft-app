@@ -1,6 +1,5 @@
 
 
-
 'use server';
 import { google } from 'googleapis';
 import { JWT } from 'google-auth-library';
@@ -26,7 +25,10 @@ async function getSheetData(range: string) {
       range,
     });
     return response.data.values;
-  } catch (error) {
+  } catch (error: any) {
+    if (error.code === 400 && error.errors[0]?.message.includes('Unable to parse range')) {
+        return null; // Sheet or range doesn't exist
+    }
     console.error('Error fetching sheet data:', error);
     throw new Error('Could not fetch data from Google Sheets.');
   }
@@ -48,16 +50,19 @@ function mapToObjects(data: any[][] | null | undefined) {
 }
 
 export async function getCompanyProfile(): Promise<CompanyProfile> {
+    const defaultProfile: CompanyProfile = {
+        name: '',
+        address: '',
+        logoUrl: '',
+        currency: 'IDR',
+        language: 'id',
+    };
+    
     const data = await getSheetData('CompanyProfile!A:B');
     if (!data || data.length < 2) {
-        return {
-            name: '',
-            address: '',
-            logoUrl: '',
-            currency: 'IDR',
-            language: 'id',
-        };
+        return defaultProfile;
     }
+
     const profile = data.slice(1).reduce((acc, row) => {
         if (row[0]) {
             acc[row[0]] = row[1];
