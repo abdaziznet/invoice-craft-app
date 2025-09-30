@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -30,6 +29,7 @@ export default function RecentInvoices({ invoices }: RecentInvoicesProps) {
   const { t } = useLocale();
 
   const recentInvoices = invoices
+    .filter(invoice => !!invoice.customer) // Filter out invoices without a customer
     .sort((a, b) => compareDesc(parseISO(a.createdAt), parseISO(b.createdAt)))
     .slice(0, 5);
 
@@ -84,10 +84,10 @@ export default function RecentInvoices({ invoices }: RecentInvoicesProps) {
             </Avatar>
             <div className="grid gap-1">
               <p className="text-sm font-medium leading-none">
-                {invoice.customer ? invoice.customer.name : 'Customer not found'}
+                {invoice.customer.name}
               </p>
               <p className="text-sm text-muted-foreground">
-                {invoice.customer ? invoice.customer.email : ''}
+                {invoice.customer.email}
               </p>
             </div>
             <div className="ml-auto flex flex-col items-end">
