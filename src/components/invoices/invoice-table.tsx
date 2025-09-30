@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -124,6 +125,14 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
   };
 
   const handleShare = async (invoice: Invoice) => {
+    if (!invoice.customer) {
+      toast({
+        variant: 'destructive',
+        title: 'Customer Not Found',
+        description: 'Cannot share invoice because the customer data is missing.',
+      });
+      return;
+    }
     setIsProcessing(invoice.id);
     try {
       const response = await generatePdf({ invoiceId: invoice.id });
@@ -257,7 +266,7 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
                   />
                 </TableCell>
                 <TableCell className="font-medium">{invoice.invoiceNumber}</TableCell>
-                <TableCell>{invoice.customer.name}</TableCell>
+                <TableCell>{invoice.customer ? invoice.customer.name : 'Customer not found'}</TableCell>
                 <TableCell>
                   <Badge className={cn(getStatusClass(invoice.status))} variant="outline">{invoice.status}</Badge>
                 </TableCell>
