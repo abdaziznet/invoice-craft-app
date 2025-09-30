@@ -1,4 +1,5 @@
 
+'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DollarSign, FileText, Clock } from 'lucide-react';
