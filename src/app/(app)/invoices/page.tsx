@@ -36,7 +36,7 @@ export default function InvoicesPage() {
     if (!searchTerm) return invoices;
     return invoices.filter(invoice => 
       invoice.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      invoice.customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (invoice.customer && invoice.customer.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
       invoice.status.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [invoices, searchTerm]);
@@ -59,8 +59,8 @@ export default function InvoicesPage() {
 
     const data = allInvoices.map((invoice) => [
       invoice.invoiceNumber,
-      invoice.customer.name,
-      invoice.customer.email,
+      invoice.customer?.name || 'N/A',
+      invoice.customer?.email || 'N/A',
       invoice.status,
       invoice.dueDate,
       invoice.total,
@@ -94,8 +94,8 @@ export default function InvoicesPage() {
           <TabsTrigger value="unpaid">{t('invoices.tabs.unpaid')}</TabsTrigger>
           <TabsTrigger value="overdue" className="text-destructive">{t('invoices.tabs.overdue')}</TabsTrigger>
         </TabsList>
-        <div className="flex-1 md:ml-auto md:flex-grow-0">
-            <div className="relative">
+        <div className="md:ml-auto flex flex-col sm:flex-row items-center gap-2 w-full md:w-auto">
+            <div className="relative w-full sm:flex-1">
              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
              <Input
                 type="search"
@@ -105,18 +105,18 @@ export default function InvoicesPage() {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
            </div>
-        </div>
-        <div className="flex items-center gap-2 flex-wrap md:flex-nowrap md:flex-grow-0">
-          <Button size="sm" variant="outline" onClick={handleExport} className="w-full sm:w-auto">
-            <Download className="mr-2 h-4 w-4" />
-            {t('common.export')}
-          </Button>
-          <Button size="sm" asChild className="w-full sm:w-auto">
-            <Link href="/invoices/new">
-              <PlusCircle className="mr-2 h-4 w-4" />
-              {t('invoices.create')}
-            </Link>
-          </Button>
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+              <Button size="sm" variant="outline" onClick={handleExport} className="w-full">
+                <Download className="mr-2 h-4 w-4" />
+                {t('common.export')}
+              </Button>
+              <Button size="sm" asChild className="w-full">
+                <Link href="/invoices/new">
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  {t('invoices.create')}
+                </Link>
+              </Button>
+          </div>
         </div>
       </div>
       <TabsContent value="all">
