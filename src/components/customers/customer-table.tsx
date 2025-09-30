@@ -66,6 +66,16 @@ export default function CustomerTable({ customers, onCustomerUpdated, onCustomer
     return name.substring(0, 2);
   }
 
+  const generateAvatarColor = (name: string) => {
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+        hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const h = hash % 360;
+    return `hsl(${h}, 70%, 80%)`;
+  };
+
+
   const handleEditClick = (customer: Customer) => {
     setSelectedCustomer(customer);
     setIsEditDialogOpen(true);
@@ -178,8 +188,9 @@ export default function CustomerTable({ customers, onCustomerUpdated, onCustomer
                 <TableCell className="font-medium">
                   <div className="flex items-center gap-3">
                     <Avatar className="h-9 w-9">
-                      <AvatarImage src={`https://picsum.photos/seed/${customer.id}/40/40`} alt="Avatar" data-ai-hint="person portrait"/>
-                      <AvatarFallback>{getInitials(customer.name)}</AvatarFallback>
+                      <AvatarFallback style={{ backgroundColor: generateAvatarColor(customer.name) }}>
+                        {getInitials(customer.name)}
+                      </AvatarFallback>
                     </Avatar>
                     {customer.name}
                   </div>

@@ -41,6 +41,15 @@ export default function RecentInvoices({ invoices }: RecentInvoicesProps) {
     }
     return name.substring(0, 2);
   }
+  
+  const generateAvatarColor = (name: string) => {
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+        hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const h = hash % 360;
+    return `hsl(${h}, 70%, 80%)`;
+  };
 
   const getBadgeVariant = (status: InvoiceStatus): 'default' | 'secondary' | 'destructive' => {
     switch (status) {
@@ -74,10 +83,9 @@ export default function RecentInvoices({ invoices }: RecentInvoicesProps) {
           <div key={invoice.id} className="flex items-center gap-4">
              <Avatar className="hidden h-9 w-9 sm:flex">
                 {invoice.customer ? (
-                  <>
-                    <AvatarImage src={`https://picsum.photos/seed/${invoice.customer.id}/40/40`} alt="Avatar" data-ai-hint="person portrait"/>
-                    <AvatarFallback>{getInitials(invoice.customer.name)}</AvatarFallback>
-                  </>
+                  <AvatarFallback style={{ backgroundColor: generateAvatarColor(invoice.customer.name) }}>
+                    {getInitials(invoice.customer.name)}
+                  </AvatarFallback>
                 ) : (
                   <AvatarFallback>??</AvatarFallback>
                 )}
