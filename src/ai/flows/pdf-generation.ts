@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -184,29 +185,40 @@ const generatePdfFlow = ai.defineFlow(
       font: boldFont,
       size: fontSize,
     });
-    //y -= 15;
-    page.drawText(invoice.customer.name, {
-      x: margin + 40,
-      y: y,
-      font: font,
-      size: fontSize,
-      color: rgb(0.1, 0.1, 0.1),
-    });
-    y -= 15;
+    
+    if (invoice.customer) {
+        page.drawText(invoice.customer.name, {
+          x: margin + 40,
+          y: y,
+          font: font,
+          size: fontSize,
+          color: rgb(0.1, 0.1, 0.1),
+        });
+        y -= 15;
 
-    // Handle multi-line address
-    const addressLines = invoice.customer.address.split('\n');
-    addressLines.forEach(line => {
-      page.drawText(line, {
-        x: margin,
-        y: y,
-        font: font,
-        size: smallFontSize,
-        color: rgb(0.3, 0.3, 0.3),
-        lineHeight: 12
-      });
-      y -= 12;
-    });
+        // Handle multi-line address
+        const addressLines = invoice.customer.address.split('\n');
+        addressLines.forEach(line => {
+          page.drawText(line, {
+            x: margin,
+            y: y,
+            font: font,
+            size: smallFontSize,
+            color: rgb(0.3, 0.3, 0.3),
+            lineHeight: 12
+          });
+          y -= 12;
+        });
+    } else {
+        page.drawText('Customer not found', {
+            x: margin + 40,
+            y: y,
+            font: font,
+            size: fontSize,
+            color: rgb(0.5, 0.1, 0.1),
+        });
+        y -= 15;
+    }
     y -= 3; // Extra space after address
 
     y -= 25;
