@@ -1,3 +1,4 @@
+
 import Link from 'next/link';
 import { ArrowUpRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -17,12 +18,15 @@ import { Badge } from '@/components/ui/badge';
 import { formatCurrency } from '@/lib/utils';
 import type { Invoice, InvoiceStatus } from '@/lib/types';
 import { parseISO, compareDesc } from 'date-fns';
+import { useLocale } from '@/hooks/use-locale';
 
 type RecentInvoicesProps = {
   invoices: Invoice[];
 };
 
 export default function RecentInvoices({ invoices }: RecentInvoicesProps) {
+  const { t } = useLocale();
+
   const recentInvoices = invoices
     .sort((a, b) => compareDesc(parseISO(a.createdAt), parseISO(b.createdAt)))
     .slice(0, 5);
@@ -50,14 +54,14 @@ export default function RecentInvoices({ invoices }: RecentInvoicesProps) {
     <Card className="lg:col-span-3">
       <CardHeader className="flex flex-row items-center">
         <div className="grid gap-2">
-          <CardTitle>Recent Invoices</CardTitle>
+          <CardTitle>{t('dashboard.recentInvoices')}</CardTitle>
           <CardDescription>
-            You have {invoices.length} invoices in total.
+            {t('dashboard.recentInvoicesDesc', { count: invoices.length })}
           </CardDescription>
         </div>
         <Button asChild size="sm" className="ml-auto gap-1">
           <Link href="/invoices">
-            View All
+            {t('common.viewAll')}
             <ArrowUpRight className="h-4 w-4" />
           </Link>
         </Button>

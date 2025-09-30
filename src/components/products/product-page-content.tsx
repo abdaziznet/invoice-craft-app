@@ -11,6 +11,7 @@ import type { Product } from '@/lib/types';
 import { useRouter } from 'next/navigation';
 import { useSearch } from '@/hooks/use-search';
 import { Input } from '../ui/input';
+import { useLocale } from '@/hooks/use-locale';
 
 type ProductPageContentProps = {
     initialProducts: Product[];
@@ -21,6 +22,7 @@ export default function ProductPageContent({ initialProducts }: ProductPageConte
   const [isAddDialogOpen, setIsAddDialogOpen] = React.useState(false);
   const router = useRouter();
   const { searchTerm, setSearchTerm } = useSearch();
+  const { t } = useLocale();
 
   React.useEffect(() => {
     setProducts(initialProducts);
@@ -71,10 +73,10 @@ export default function ProductPageContent({ initialProducts }: ProductPageConte
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-semibold md:text-3xl">
-            Products & Services
+            {t('products.title')}
           </h1>
           <p className="text-muted-foreground">
-            Manage your product and service catalog.
+            {t('products.description')}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -82,7 +84,7 @@ export default function ProductPageContent({ initialProducts }: ProductPageConte
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
-              placeholder="Search products..."
+              placeholder={t('products.searchPlaceholder')}
               className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[336px]"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -90,11 +92,11 @@ export default function ProductPageContent({ initialProducts }: ProductPageConte
           </div>
           <Button size="sm" variant="outline" onClick={handleExport}>
             <Download className="mr-2 h-4 w-4" />
-            Export
+            {t('common.export')}
           </Button>
           <Button onClick={() => setIsAddDialogOpen(true)}>
             <PlusCircle className="mr-2 h-4 w-4" />
-            Add New Item
+            {t('products.addNew')}
           </Button>
         </div>
       </div>

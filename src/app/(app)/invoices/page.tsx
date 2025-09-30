@@ -1,5 +1,5 @@
 
-'use client'
+'use client';
 
 import { PlusCircle, Download, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -18,10 +18,12 @@ import type { Invoice, InvoiceStatus } from '@/lib/types';
 import Link from 'next/link';
 import { useEffect, useState, useMemo } from 'react';
 import { useSearch } from '@/hooks/use-search';
+import { useLocale } from '@/hooks/use-locale';
 
 export default function InvoicesPage() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const { searchTerm, setSearchTerm } = useSearch();
+  const { t } = useLocale();
   
   useEffect(() => {
     async function fetchInvoices() {
@@ -40,7 +42,6 @@ export default function InvoicesPage() {
     );
   }, [invoices, searchTerm]);
   
-  const statusFilters: InvoiceStatus[] = ['Paid', 'Unpaid', 'Overdue'];
   const allInvoices = filteredInvoices;
   const unpaidInvoices = filteredInvoices.filter((inv) => inv.status === 'Unpaid');
   const paidInvoices = filteredInvoices.filter((inv) => inv.status === 'Paid');
@@ -89,17 +90,17 @@ export default function InvoicesPage() {
     <Tabs defaultValue="all">
       <div className="flex items-center">
         <TabsList>
-          <TabsTrigger value="all">All</TabsTrigger>
-          <TabsTrigger value="paid">Paid</TabsTrigger>
-          <TabsTrigger value="unpaid">Unpaid</TabsTrigger>
-          <TabsTrigger value="overdue" className="text-destructive">Overdue</TabsTrigger>
+          <TabsTrigger value="all">{t('invoices.tabs.all')}</TabsTrigger>
+          <TabsTrigger value="paid">{t('invoices.tabs.paid')}</TabsTrigger>
+          <TabsTrigger value="unpaid">{t('invoices.tabs.unpaid')}</TabsTrigger>
+          <TabsTrigger value="overdue" className="text-destructive">{t('invoices.tabs.overdue')}</TabsTrigger>
         </TabsList>
         <div className="ml-auto flex items-center gap-2">
            <div className="relative">
              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
              <Input
                 type="search"
-                placeholder="Search invoices..."
+                placeholder={t('invoices.searchPlaceholder')}
                 className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[336px]"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -107,12 +108,12 @@ export default function InvoicesPage() {
            </div>
           <Button size="sm" variant="outline" onClick={handleExport}>
             <Download className="mr-2 h-4 w-4" />
-            Export
+            {t('common.export')}
           </Button>
           <Button size="sm" asChild>
             <Link href="/invoices/new">
               <PlusCircle className="mr-2 h-4 w-4" />
-              Create Invoice
+              {t('invoices.create')}
             </Link>
           </Button>
         </div>
@@ -120,9 +121,9 @@ export default function InvoicesPage() {
       <TabsContent value="all">
         <Card>
           <CardHeader>
-            <CardTitle>Invoices</CardTitle>
+            <CardTitle>{t('invoices.title')}</CardTitle>
             <CardDescription>
-              Manage your invoices and track their payment status.
+              {t('invoices.description')}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -133,9 +134,9 @@ export default function InvoicesPage() {
       <TabsContent value="paid">
         <Card>
           <CardHeader>
-            <CardTitle>Paid Invoices</CardTitle>
+            <CardTitle>{t('invoices.paidTitle')}</CardTitle>
             <CardDescription>
-              These invoices have been successfully paid.
+              {t('invoices.paidDescription')}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -146,9 +147,9 @@ export default function InvoicesPage() {
        <TabsContent value="unpaid">
         <Card>
           <CardHeader>
-            <CardTitle>Unpaid Invoices</CardTitle>
+            <CardTitle>{t('invoices.unpaidTitle')}</CardTitle>
             <CardDescription>
-              These invoices are awaiting payment.
+              {t('invoices.unpaidDescription')}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -159,9 +160,9 @@ export default function InvoicesPage() {
        <TabsContent value="overdue">
         <Card>
           <CardHeader>
-            <CardTitle>Overdue Invoices</CardTitle>
+            <CardTitle>{t('invoices.overdueTitle')}</CardTitle>
             <CardDescription>
-              These invoices have passed their due date.
+              {t('invoices.overdueDescription')}
             </CardDescription>
           </CardHeader>
           <CardContent>

@@ -33,20 +33,24 @@ import { ThemeToggle } from '@/components/theme-toggle';
 import { useAuth } from '@/hooks/use-auth';
 import { cn } from '@/lib/utils';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-
-const navItems = [
-  { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { href: '/invoices', icon: FileText, label: 'Invoices' },
-  { href: '/clients', icon: Users, label: 'Clients' },
-  { href: '/products', icon: Package, label: 'Products' },
-];
-
-const settingsItem = { href: '/settings', icon: Settings, label: 'Settings' };
+import { useLocale } from '@/hooks/use-locale';
 
 export default function Header() {
   const { user, signOut } = useAuth();
   const pathname = usePathname();
   const logo = PlaceHolderImages.find((img) => img.id === 'logo');
+  const { t } = useLocale();
+
+  const navItems = [
+    { href: '/dashboard', icon: LayoutDashboard, label: t('nav.dashboard') },
+    { href: '/invoices', icon: FileText, label: t('nav.invoices') },
+    { href: '/clients', icon: Users, label: t('nav.clients') },
+    { href: '/products', icon: Package, label: t('nav.products') },
+  ];
+
+  const settingsItem = { href: '/settings', icon: Settings, label: t('nav.settings') };
+
+  const isDashboard = pathname === '/dashboard';
 
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
@@ -153,14 +157,14 @@ export default function Header() {
             <Link href="/settings">
               <DropdownMenuItem>
                 <Settings className="mr-2 h-4 w-4" />
-                Settings
+                {t('nav.settings')}
               </DropdownMenuItem>
             </Link>
-            <DropdownMenuItem>Support</DropdownMenuItem>
+            <DropdownMenuItem>{t('nav.support')}</DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={signOut}>
               <LogOut className="mr-2 h-4 w-4" />
-              Sign Out
+              {t('nav.signOut')}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

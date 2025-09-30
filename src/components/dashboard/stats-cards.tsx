@@ -1,14 +1,18 @@
 
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DollarSign, FileText, Clock } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
 import type { Invoice } from '@/lib/types';
+import { useLocale } from '@/hooks/use-locale';
+
 
 type StatsCardsProps = {
   invoices: Invoice[];
 };
 
 export default function StatsCards({ invoices }: StatsCardsProps) {
+  const { t } = useLocale();
   const paidInvoices = invoices.filter((inv) => inv.status === 'Paid');
   const totalRevenue = paidInvoices.reduce((acc, inv) => acc + inv.total, 0);
 
@@ -19,22 +23,22 @@ export default function StatsCards({ invoices }: StatsCardsProps) {
 
   const stats = [
     { 
-        title: 'Total Revenue', 
+        title: t('dashboard.totalRevenue'), 
         value: formatCurrency(totalRevenue), 
         icon: DollarSign,
-        description: `Based on ${paidInvoices.length} paid invoices`
+        description: t('dashboard.revenueDesc', { count: paidInvoices.length })
     },
     { 
-        title: 'Pending Payments', 
+        title: t('dashboard.pendingPayments'), 
         value: formatCurrency(pendingPayments), 
         icon: Clock,
-        description: `Based on ${unpaidInvoices.length} unpaid invoices`
+        description: t('dashboard.pendingDesc', { count: unpaidInvoices.length })
     },
     { 
-        title: 'Total Invoices', 
+        title: t('dashboard.totalInvoices'), 
         value: `+${totalInvoices}`, 
         icon: FileText,
-        description: `Across all statuses`
+        description: t('dashboard.invoicesDesc')
     },
   ];
 

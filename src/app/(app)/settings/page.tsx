@@ -29,6 +29,7 @@ import { useToast } from '@/hooks/use-toast';
 import { getCompanyProfile, updateCompanyProfile } from '@/lib/google-sheets';
 import type { CompanyProfile } from '@/lib/types';
 import Spinner from '@/components/ui/spinner';
+import { useLocale } from '@/hooks/use-locale';
 
 const profileSchema = z.object({
   name: z.string().min(1, 'Company name is required.'),
@@ -42,6 +43,7 @@ type ProfileFormValues = z.infer<typeof profileSchema>;
 
 export default function SettingsPage() {
   const { toast } = useToast();
+  const { t, setLang } = useLocale();
   const [isLoading, setIsLoading] = React.useState(true);
   const [isSaving, setIsSaving] = React.useState(false);
 
@@ -65,30 +67,31 @@ export default function SettingsPage() {
         console.error('Failed to fetch company profile', error);
         toast({
           variant: 'destructive',
-          title: 'Error',
-          description: 'Failed to load company profile.',
+          title: t('settings.toast.loadErrorTitle'),
+          description: t('settings.toast.loadErrorDesc'),
         });
       } finally {
         setIsLoading(false);
       }
     }
     fetchProfile();
-  }, [form, toast]);
+  }, [form, toast, t]);
 
   const onSubmit = async (data: ProfileFormValues) => {
     setIsSaving(true);
     try {
       await updateCompanyProfile(data);
+      setLang(data.language);
       toast({
-        title: 'Settings Saved',
-        description: 'Your company profile has been updated.',
+        title: t('settings.toast.savedTitle'),
+        description: t('settings.toast.savedDesc'),
       });
     } catch (error) {
       console.error(error);
       toast({
         variant: 'destructive',
-        title: 'Save Failed',
-        description: 'An error occurred while saving your settings.',
+        title: t('settings.toast.saveErrorTitle'),
+        description: t('settings.toast.saveErrorDesc'),
       });
     } finally {
       setIsSaving(false);
@@ -106,9 +109,9 @@ export default function SettingsPage() {
   return (
     <div className="space-y-6">
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold md:text-3xl">Settings</h1>
+        <h1 className="text-2xl font-semibold md:text-3xl">{t('settings.title')}</h1>
         <p className="text-muted-foreground">
-          Manage your company profile and application preferences.
+          {t('settings.description')}
         </p>
       </div>
 
@@ -116,7 +119,7 @@ export default function SettingsPage() {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <Card>
             <CardHeader>
-              <CardTitle>Company Profile</CardTitle>
+              <CardTitle>{t('settings.companyProfile.title')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <FormField
@@ -124,7 +127,7 @@ export default function SettingsPage() {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Company Name</FormLabel>
+                    <FormLabel>{t('settings.companyProfile.name')}</FormLabel>
                     <FormControl>
                       <Input placeholder="Your Company Name" {...field} />
                     </FormControl>
@@ -137,7 +140,7 @@ export default function SettingsPage() {
                 name="address"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Address</FormLabel>
+                    <FormLabel>{t('settings.companyProfile.address')}</FormLabel>
                     <FormControl>
                       <Textarea placeholder="123 Business Rd, Suite 100" {...field} />
                     </FormControl>
@@ -150,7 +153,7 @@ export default function SettingsPage() {
                 name="logoUrl"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Logo URL</FormLabel>
+                    <FormLabel>{t('settings.companyProfile.logoUrl')}</FormLabel>
                     <FormControl>
                       <Input placeholder="https://your-logo.com/image.png" {...field} />
                     </FormControl>
@@ -163,7 +166,7 @@ export default function SettingsPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Localization</CardTitle>
+              <CardTitle>{t('settings.localization.title')}</CardTitle>
             </CardHeader>
             <CardContent className="grid gap-4 md:grid-cols-2">
               <FormField
@@ -171,11 +174,11 @@ export default function SettingsPage() {
                 name="currency"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Default Currency</FormLabel>
+                    <FormLabel>{t('settings.localization.currency')}</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select currency" />
+                          <SelectValue placeholder={t('settings.localization.selectCurrency')} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -192,11 +195,11 @@ export default function SettingsPage() {
                 name="language"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Default Language</FormLabel>
+                    <FormLabel>{t('settings.localization.language')}</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select language" />
+                          <SelectValue placeholder={t('settings.localization.selectLanguage')} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -214,7 +217,7 @@ export default function SettingsPage() {
           <div className="flex justify-end">
             <Button type="submit" disabled={isSaving}>
               {isSaving ? <Spinner className="mr-2 h-4 w-4" /> : <Save className="mr-2 h-4 w-4" />}
-              Save Changes
+              {t('common.saveChanges')}
             </Button>
           </div>
         </form>

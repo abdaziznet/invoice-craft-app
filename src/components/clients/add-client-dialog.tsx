@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -27,6 +28,7 @@ import { Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { createClient } from '@/lib/google-sheets';
 import Spinner from '@/components/ui/spinner';
+import { useLocale } from '@/hooks/use-locale';
 
 const clientSchema = z.object({
   name: z.string().min(1, 'Name is required.'),
@@ -45,6 +47,7 @@ type AddClientDialogProps = {
 
 export default function AddClientDialog({ isOpen, onOpenChange, onClientAdded }: AddClientDialogProps) {
   const { toast } = useToast();
+  const { t } = useLocale();
   const [isSaving, setIsSaving] = React.useState(false);
 
   const form = useForm<ClientFormValues>({
@@ -70,8 +73,8 @@ export default function AddClientDialog({ isOpen, onOpenChange, onClientAdded }:
     try {
       await createClient(data);
       toast({
-        title: 'Client Created',
-        description: 'The new client has been successfully saved.',
+        title: t('clients.toast.createdTitle'),
+        description: t('clients.toast.createdDesc'),
       });
       onClientAdded();
       handleOpenChange(false);
@@ -79,8 +82,8 @@ export default function AddClientDialog({ isOpen, onOpenChange, onClientAdded }:
       console.error(error);
       toast({
         variant: 'destructive',
-        title: 'Failed to Save Client',
-        description: 'An error occurred while saving the client. Please try again.',
+        title: t('clients.toast.createErrorTitle'),
+        description: t('clients.toast.createErrorDesc'),
       });
     } finally {
       setIsSaving(false);
@@ -91,9 +94,9 @@ export default function AddClientDialog({ isOpen, onOpenChange, onClientAdded }:
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
         <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-                <DialogTitle>Add New Client</DialogTitle>
+                <DialogTitle>{t('clients.addDialog.title')}</DialogTitle>
                 <DialogDescription>
-                    Fill out the form below to add a new client to your database.
+                    {t('clients.addDialog.description')}
                 </DialogDescription>
             </DialogHeader>
             <Form {...form}>
@@ -103,7 +106,7 @@ export default function AddClientDialog({ isOpen, onOpenChange, onClientAdded }:
                         name="name"
                         render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Full Name</FormLabel>
+                            <FormLabel>{t('clients.form.name')}</FormLabel>
                             <FormControl>
                             <Input placeholder="John Doe" {...field} />
                             </FormControl>
@@ -116,7 +119,7 @@ export default function AddClientDialog({ isOpen, onOpenChange, onClientAdded }:
                         name="email"
                         render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Email</FormLabel>
+                            <FormLabel>{t('clients.form.email')}</FormLabel>
                             <FormControl>
                             <Input placeholder="john.doe@example.com" {...field} />
                             </FormControl>
@@ -129,7 +132,7 @@ export default function AddClientDialog({ isOpen, onOpenChange, onClientAdded }:
                         name="phone"
                         render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Phone Number</FormLabel>
+                            <FormLabel>{t('clients.form.phone')}</FormLabel>
                             <FormControl>
                             <Input placeholder="6281234567890" {...field} />
                             </FormControl>
@@ -142,7 +145,7 @@ export default function AddClientDialog({ isOpen, onOpenChange, onClientAdded }:
                         name="address"
                         render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Address</FormLabel>
+                            <FormLabel>{t('clients.form.address')}</FormLabel>
                             <FormControl>
                             <Textarea
                                 placeholder="123 Main Street, Anytown, USA 12345"
@@ -155,11 +158,11 @@ export default function AddClientDialog({ isOpen, onOpenChange, onClientAdded }:
                     />
                      <DialogFooter>
                         <Button type="button" variant="outline" onClick={() => handleOpenChange(false)} disabled={isSaving}>
-                            Cancel
+                            {t('common.cancel')}
                         </Button>
                         <Button type="submit" disabled={isSaving}>
                             {isSaving ? <Spinner className="mr-2 h-4 w-4" /> : <Save className="mr-2 h-4 w-4" />}
-                            Save Client
+                            {t('common.save')}
                         </Button>
                     </DialogFooter>
                 </form>

@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -28,6 +29,7 @@ import { useToast } from '@/hooks/use-toast';
 import { updateClient } from '@/lib/google-sheets';
 import Spinner from '@/components/ui/spinner';
 import type { Client } from '@/lib/types';
+import { useLocale } from '@/hooks/use-locale';
 
 const clientSchema = z.object({
   name: z.string().min(1, 'Name is required.'),
@@ -47,6 +49,7 @@ type EditClientDialogProps = {
 
 export default function EditClientDialog({ client, isOpen, onOpenChange, onClientUpdated }: EditClientDialogProps) {
   const { toast } = useToast();
+  const { t } = useLocale();
   const [isSaving, setIsSaving] = React.useState(false);
 
   const form = useForm<ClientFormValues>({
@@ -78,8 +81,8 @@ export default function EditClientDialog({ client, isOpen, onOpenChange, onClien
     try {
       await updateClient(client.id, data);
       toast({
-        title: 'Client Updated',
-        description: 'The client has been successfully updated.',
+        title: t('clients.toast.updatedTitle'),
+        description: t('clients.toast.updatedDesc'),
       });
       onClientUpdated();
       handleOpenChange(false);
@@ -87,8 +90,8 @@ export default function EditClientDialog({ client, isOpen, onOpenChange, onClien
       console.error(error);
       toast({
         variant: 'destructive',
-        title: 'Failed to Update Client',
-        description: 'An error occurred while updating the client. Please try again.',
+        title: t('clients.toast.updateErrorTitle'),
+        description: t('clients.toast.updateErrorDesc'),
       });
     } finally {
       setIsSaving(false);
@@ -99,9 +102,9 @@ export default function EditClientDialog({ client, isOpen, onOpenChange, onClien
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
         <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-                <DialogTitle>Edit Client</DialogTitle>
+                <DialogTitle>{t('clients.editDialog.title')}</DialogTitle>
                 <DialogDescription>
-                    Update the client details below.
+                    {t('clients.editDialog.description')}
                 </DialogDescription>
             </DialogHeader>
             <Form {...form}>
@@ -111,7 +114,7 @@ export default function EditClientDialog({ client, isOpen, onOpenChange, onClien
                         name="name"
                         render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Full Name</FormLabel>
+                            <FormLabel>{t('clients.form.name')}</FormLabel>
                             <FormControl>
                             <Input placeholder="John Doe" {...field} />
                             </FormControl>
@@ -124,7 +127,7 @@ export default function EditClientDialog({ client, isOpen, onOpenChange, onClien
                         name="email"
                         render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Email</FormLabel>
+                            <FormLabel>{t('clients.form.email')}</FormLabel>
                             <FormControl>
                             <Input placeholder="john.doe@example.com" {...field} />
                             </FormControl>
@@ -137,7 +140,7 @@ export default function EditClientDialog({ client, isOpen, onOpenChange, onClien
                         name="phone"
                         render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Phone Number</FormLabel>
+                            <FormLabel>{t('clients.form.phone')}</FormLabel>
                             <FormControl>
                             <Input placeholder="6281234567890" {...field} />
                             </FormControl>
@@ -150,7 +153,7 @@ export default function EditClientDialog({ client, isOpen, onOpenChange, onClien
                         name="address"
                         render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Address</FormLabel>
+                            <FormLabel>{t('clients.form.address')}</FormLabel>
                             <FormControl>
                             <Textarea
                                 placeholder="123 Main Street, Anytown, USA 12345"
@@ -163,11 +166,11 @@ export default function EditClientDialog({ client, isOpen, onOpenChange, onClien
                     />
                      <DialogFooter>
                         <Button type="button" variant="outline" onClick={() => handleOpenChange(false)} disabled={isSaving}>
-                            Cancel
+                            {t('common.cancel')}
                         </Button>
                         <Button type="submit" disabled={isSaving}>
                             {isSaving ? <Spinner className="mr-2 h-4 w-4" /> : <Save className="mr-2 h-4 w-4" />}
-                            Save Changes
+                            {t('common.saveChanges')}
                         </Button>
                     </DialogFooter>
                 </form>

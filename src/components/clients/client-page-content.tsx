@@ -11,6 +11,7 @@ import type { Client } from '@/lib/types';
 import { useRouter } from 'next/navigation';
 import { useSearch } from '@/hooks/use-search';
 import { Input } from '../ui/input';
+import { useLocale } from '@/hooks/use-locale';
 
 type ClientPageContentProps = {
   initialClients: Client[];
@@ -23,6 +24,7 @@ export default function ClientPageContent({
   const [isAddDialogOpen, setIsAddDialogOpen] = React.useState(false);
   const router = useRouter();
   const { searchTerm, setSearchTerm } = useSearch();
+  const { t } = useLocale();
 
   const refreshClients = () => {
     router.refresh();
@@ -75,15 +77,15 @@ export default function ClientPageContent({
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-semibold md:text-3xl">Clients</h1>
-          <p className="text-muted-foreground">Manage your client database.</p>
+          <h1 className="text-2xl font-semibold md:text-3xl">{t('clients.title')}</h1>
+          <p className="text-muted-foreground">{t('clients.description')}</p>
         </div>
         <div className="flex items-center gap-2">
           <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
-              placeholder="Search clients..."
+              placeholder={t('clients.searchPlaceholder')}
               className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[336px]"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -91,11 +93,11 @@ export default function ClientPageContent({
           </div>
           <Button size="sm" variant="outline" onClick={handleExport}>
             <Download className="mr-2 h-4 w-4" />
-            Export
+            {t('common.export')}
           </Button>
           <Button onClick={() => setIsAddDialogOpen(true)}>
             <PlusCircle className="mr-2 h-4 w-4" />
-            Add New Client
+            {t('clients.addNew')}
           </Button>
         </div>
       </div>

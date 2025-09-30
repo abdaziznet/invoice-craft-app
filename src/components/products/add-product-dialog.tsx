@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -27,6 +28,7 @@ import { useToast } from '@/hooks/use-toast';
 import { createProduct } from '@/lib/google-sheets';
 import Spinner from '@/components/ui/spinner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { useLocale } from '@/hooks/use-locale';
 
 const productSchema = z.object({
   name: z.string().min(1, 'Name is required.'),
@@ -44,6 +46,7 @@ type AddProductDialogProps = {
 
 export default function AddProductDialog({ isOpen, onOpenChange, onProductAdded }: AddProductDialogProps) {
   const { toast } = useToast();
+  const { t } = useLocale();
   const [isSaving, setIsSaving] = React.useState(false);
 
   const form = useForm<ProductFormValues>({
@@ -68,8 +71,8 @@ export default function AddProductDialog({ isOpen, onOpenChange, onProductAdded 
     try {
       await createProduct(data);
       toast({
-        title: 'Product Created',
-        description: 'The new product has been successfully saved.',
+        title: t('products.toast.createdTitle'),
+        description: t('products.toast.createdDesc'),
       });
       onProductAdded();
       handleOpenChange(false);
@@ -77,8 +80,8 @@ export default function AddProductDialog({ isOpen, onOpenChange, onProductAdded 
       console.error(error);
       toast({
         variant: 'destructive',
-        title: 'Failed to Save Product',
-        description: 'An error occurred while saving the product. Please try again.',
+        title: t('products.toast.createErrorTitle'),
+        description: t('products.toast.createErrorDesc'),
       });
     } finally {
       setIsSaving(false);
@@ -89,9 +92,9 @@ export default function AddProductDialog({ isOpen, onOpenChange, onProductAdded 
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
         <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-                <DialogTitle>Add New Product/Service</DialogTitle>
+                <DialogTitle>{t('products.addDialog.title')}</DialogTitle>
                 <DialogDescription>
-                    Fill out the form below to add a new item to your catalog.
+                    {t('products.addDialog.description')}
                 </DialogDescription>
             </DialogHeader>
             <Form {...form}>
@@ -101,9 +104,9 @@ export default function AddProductDialog({ isOpen, onOpenChange, onProductAdded 
                         name="name"
                         render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Name</FormLabel>
+                            <FormLabel>{t('products.form.name')}</FormLabel>
                             <FormControl>
-                            <Input placeholder="e.g., Web Design" {...field} />
+                            <Input placeholder={t('products.form.namePlaceholder')} {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -114,11 +117,11 @@ export default function AddProductDialog({ isOpen, onOpenChange, onProductAdded 
                       name="unit"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Unit</FormLabel>
+                          <FormLabel>{t('products.form.unit')}</FormLabel>
                           <Select onValueChange={field.onChange} defaultValue={field.value}>
                             <FormControl>
                               <SelectTrigger>
-                                <SelectValue placeholder="Select a unit" />
+                                <SelectValue placeholder={t('products.form.unitPlaceholder')} />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
@@ -135,7 +138,7 @@ export default function AddProductDialog({ isOpen, onOpenChange, onProductAdded 
                         name="unitPrice"
                         render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Unit Price</FormLabel>
+                            <FormLabel>{t('products.form.unitPrice')}</FormLabel>
                             <FormControl>
                             <Input
                               type="number"
@@ -154,11 +157,11 @@ export default function AddProductDialog({ isOpen, onOpenChange, onProductAdded 
                     />
                      <DialogFooter>
                         <Button type="button" variant="outline" onClick={() => handleOpenChange(false)} disabled={isSaving}>
-                            Cancel
+                            {t('common.cancel')}
                         </Button>
                         <Button type="submit" disabled={isSaving}>
                             {isSaving ? <Spinner className="mr-2 h-4 w-4" /> : <Save className="mr-2 h-4 w-4" />}
-                            Save Item
+                            {t('common.save')}
                         </Button>
                     </DialogFooter>
                 </form>

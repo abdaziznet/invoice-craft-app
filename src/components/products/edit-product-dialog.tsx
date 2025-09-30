@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -28,6 +29,7 @@ import { updateProduct } from '@/lib/google-sheets';
 import Spinner from '@/components/ui/spinner';
 import type { Product } from '@/lib/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { useLocale } from '@/hooks/use-locale';
 
 const productSchema = z.object({
   name: z.string().min(1, 'Name is required.'),
@@ -46,6 +48,7 @@ type EditProductDialogProps = {
 
 export default function EditProductDialog({ product, isOpen, onOpenChange, onProductUpdated }: EditProductDialogProps) {
   const { toast } = useToast();
+  const { t } = useLocale();
   const [isSaving, setIsSaving] = React.useState(false);
 
   const form = useForm<ProductFormValues>({
@@ -75,8 +78,8 @@ export default function EditProductDialog({ product, isOpen, onOpenChange, onPro
     try {
       await updateProduct(product.id, data);
       toast({
-        title: 'Product Updated',
-        description: 'The product has been successfully updated.',
+        title: t('products.toast.updatedTitle'),
+        description: t('products.toast.updatedDesc'),
       });
       onProductUpdated();
       handleOpenChange(false);
@@ -84,8 +87,8 @@ export default function EditProductDialog({ product, isOpen, onOpenChange, onPro
       console.error(error);
       toast({
         variant: 'destructive',
-        title: 'Failed to Update Product',
-        description: 'An error occurred while updating the product. Please try again.',
+        title: t('products.toast.updateErrorTitle'),
+        description: t('products.toast.updateErrorDesc'),
       });
     } finally {
       setIsSaving(false);
@@ -96,9 +99,9 @@ export default function EditProductDialog({ product, isOpen, onOpenChange, onPro
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
         <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-                <DialogTitle>Edit Product</DialogTitle>
+                <DialogTitle>{t('products.editDialog.title')}</DialogTitle>
                 <DialogDescription>
-                    Update the product details below.
+                    {t('products.editDialog.description')}
                 </DialogDescription>
             </DialogHeader>
             <Form {...form}>
@@ -108,7 +111,7 @@ export default function EditProductDialog({ product, isOpen, onOpenChange, onPro
                         name="name"
                         render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Name</FormLabel>
+                            <FormLabel>{t('products.form.name')}</FormLabel>
                             <FormControl>
                             <Input placeholder="e.g., Web Design" {...field} />
                             </FormControl>
@@ -121,11 +124,11 @@ export default function EditProductDialog({ product, isOpen, onOpenChange, onPro
                       name="unit"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Unit</FormLabel>
+                          <FormLabel>{t('products.form.unit')}</FormLabel>
                           <Select onValueChange={field.onChange} defaultValue={field.value}>
                             <FormControl>
                               <SelectTrigger>
-                                <SelectValue placeholder="Select a unit" />
+                                <SelectValue placeholder={t('products.form.unitPlaceholder')} />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
@@ -142,7 +145,7 @@ export default function EditProductDialog({ product, isOpen, onOpenChange, onPro
                         name="unitPrice"
                         render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Unit Price</FormLabel>
+                            <FormLabel>{t('products.form.unitPrice')}</FormLabel>
                             <FormControl>
                             <Input
                               type="number"
@@ -161,11 +164,11 @@ export default function EditProductDialog({ product, isOpen, onOpenChange, onPro
                     />
                      <DialogFooter>
                         <Button type="button" variant="outline" onClick={() => handleOpenChange(false)} disabled={isSaving}>
-                            Cancel
+                            {t('common.cancel')}
                         </Button>
                         <Button type="submit" disabled={isSaving}>
                             {isSaving ? <Spinner className="mr-2 h-4 w-4" /> : <Save className="mr-2 h-4 w-4" />}
-                            Save Changes
+                            {t('common.saveChanges')}
                         </Button>
                     </DialogFooter>
                 </form>

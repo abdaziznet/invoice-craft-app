@@ -1,0 +1,147 @@
+
+{
+  "nav": {
+    "dashboard": "Dasbor",
+    "invoices": "Faktur",
+    "clients": "Klien",
+    "products": "Produk",
+    "settings": "Pengaturan",
+    "support": "Dukungan",
+    "signOut": "Keluar"
+  },
+  "common": {
+    "export": "Ekspor",
+    "cancel": "Batal",
+    "save": "Simpan",
+    "saveChanges": "Simpan Perubahan",
+    "delete": "Hapus",
+    "deleting": "Menghapus...",
+    "viewAll": "Lihat Semua"
+  },
+  "dashboard": {
+    "title": "Dasbor",
+    "createInvoice": "Buat Faktur Baru",
+    "totalRevenue": "Total Pendapatan",
+    "revenueDesc": "Berdasarkan {{count}} faktur lunas",
+    "pendingPayments": "Pembayaran Tertunda",
+    "pendingDesc": "Berdasarkan {{count}} faktur belum lunas",
+    "totalInvoices": "Total Faktur",
+    "invoicesDesc": "Di semua status",
+    "monthlyRevenue": "Pendapatan Bulanan",
+    "monthlyRevenueDesc": "Gambaran umum pendapatan Anda tahun ini berdasarkan faktur yang telah dibayar.",
+    "revenue": "Pendapatan",
+    "recentInvoices": "Faktur Terbaru",
+    "recentInvoicesDesc": "Anda memiliki total {{count}} faktur."
+  },
+  "clients": {
+    "title": "Klien",
+    "description": "Kelola basis data klien Anda.",
+    "searchPlaceholder": "Cari klien...",
+    "addNew": "Tambah Klien Baru",
+    "addDialog": {
+      "title": "Tambah Klien Baru",
+      "description": "Isi formulir di bawah untuk menambahkan klien baru ke database Anda."
+    },
+    "editDialog": {
+      "title": "Edit Klien",
+      "description": "Perbarui detail klien di bawah ini."
+    },
+    "form": {
+      "name": "Nama Lengkap",
+      "email": "Email",
+      "phone": "Nomor Telepon",
+      "address": "Alamat"
+    },
+    "toast": {
+      "createdTitle": "Klien Dibuat",
+      "createdDesc": "Klien baru telah berhasil disimpan.",
+      "createErrorTitle": "Gagal Menyimpan Klien",
+      "createErrorDesc": "Terjadi kesalahan saat menyimpan klien. Silakan coba lagi.",
+      "updatedTitle": "Klien Diperbarui",
+      "updatedDesc": "Klien telah berhasil diperbarui.",
+      "updateErrorTitle": "Gagal Memperbarui Klien",
+      "updateErrorDesc": "Terjadi kesalahan saat memperbarui klien. Silakan coba lagi."
+    }
+  },
+  "products": {
+    "title": "Produk & Layanan",
+    "description": "Kelola katalog produk dan layanan Anda.",
+    "searchPlaceholder": "Cari produk...",
+    "addNew": "Tambah Item Baru",
+    "addDialog": {
+      "title": "Tambah Produk/Layanan Baru",
+      "description": "Isi formulir di bawah untuk menambahkan item baru ke katalog Anda."
+    },
+    "editDialog": {
+      "title": "Edit Produk",
+      "description": "Perbarui detail produk di bawah ini."
+    },
+    "form": {
+      "name": "Nama",
+      "namePlaceholder": "mis., Desain Web",
+      "unit": "Satuan",
+      "unitPlaceholder": "Pilih satuan",
+      "unitPrice": "Harga Satuan"
+    },
+    "toast": {
+      "createdTitle": "Produk Dibuat",
+      "createdDesc": "Produk baru telah berhasil disimpan.",
+      "createErrorTitle": "Gagal Menyimpan Produk",
+      "createErrorDesc": "Terjadi kesalahan saat menyimpan produk. Silakan coba lagi.",
+      "updatedTitle": "Produk Diperbarui",
+      "updatedDesc": "Produk telah berhasil diperbarui.",
+      "updateErrorTitle": "Gagal Memperbarui Produk",
+      "updateErrorDesc": "Terjadi kesalahan saat memperbarui produk. Silakan coba lagi."
+    }
+  },
+  "invoices": {
+    "title": "Faktur",
+    "description": "Kelola faktur Anda dan lacak status pembayarannya.",
+    "searchPlaceholder": "Cari faktur...",
+    "create": "Buat Faktur",
+    "tabs": {
+      "all": "Semua",
+      "paid": "Lunas",
+      "unpaid": "Belum Lunas",
+      "overdue": "Jatuh Tempo"
+    },
+    "paidTitle": "Faktur Lunas",
+    "paidDescription": "Faktur-faktur ini telah berhasil dibayar.",
+    "unpaidTitle": "Faktur Belum Lunas",
+    "unpaidDescription": "Faktur-faktur ini sedang menunggu pembayaran.",
+    "overdueTitle": "Faktur Jatuh Tempo",
+    "overdueDescription": "Faktur-faktur ini telah melewati tanggal jatuh tempo."
+  },
+  "settings": {
+    "title": "Pengaturan",
+    "description": "Kelola profil perusahaan dan preferensi aplikasi Anda.",
+    "companyProfile": {
+      "title": "Profil Perusahaan",
+      "name": "Nama Perusahaan",
+      "address": "Alamat",
+      "logoUrl": "URL Logo"
+    },
+    "localization": {
+      "title": "Lokalisasi",
+      "currency": "Mata Uang Default",
+      "selectCurrency": "Pilih mata uang",
+      "language": "Bahasa Default",
+      "selectLanguage": "Pilih bahasa"
+    },
+    "toast": {
+      "loadErrorTitle": "Kesalahan",
+      "loadErrorDesc": "Gagal memuat profil perusahaan.",
+      "savedTitle": "Pengaturan Disimpan",
+      "savedDesc": "Profil perusahaan Anda telah diperbarui.",
+      "saveErrorTitle": "Gagal Menyimpan",
+      "saveErrorDesc": "Terjadi kesalahan saat menyimpan pengaturan Anda."
+    }
+  },
+  "months": {
+    "short": ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"]
+  },
+  "deleteDialog": {
+    "title": "Apakah Anda benar-benar yakin?",
+    "description": "Tindakan ini tidak dapat dibatalkan. Ini akan menghapus {{items}} secara permanen dan menghapus datanya dari server kami."
+  }
+}

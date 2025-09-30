@@ -1,0 +1,147 @@
+
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "invoices": "Invoices",
+    "clients": "Clients",
+    "products": "Products",
+    "settings": "Settings",
+    "support": "Support",
+    "signOut": "Sign Out"
+  },
+  "common": {
+    "export": "Export",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saveChanges": "Save Changes",
+    "delete": "Delete",
+    "deleting": "Deleting...",
+    "viewAll": "View All"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "createInvoice": "Create New Invoice",
+    "totalRevenue": "Total Revenue",
+    "revenueDesc": "Based on {{count}} paid invoices",
+    "pendingPayments": "Pending Payments",
+    "pendingDesc": "Based on {{count}} unpaid invoices",
+    "totalInvoices": "Total Invoices",
+    "invoicesDesc": "Across all statuses",
+    "monthlyRevenue": "Monthly Revenue",
+    "monthlyRevenueDesc": "An overview of your income this year based on paid invoices.",
+    "revenue": "Revenue",
+    "recentInvoices": "Recent Invoices",
+    "recentInvoicesDesc": "You have {{count}} invoices in total."
+  },
+  "clients": {
+    "title": "Clients",
+    "description": "Manage your client database.",
+    "searchPlaceholder": "Search clients...",
+    "addNew": "Add New Client",
+    "addDialog": {
+      "title": "Add New Client",
+      "description": "Fill out the form below to add a new client to your database."
+    },
+    "editDialog": {
+      "title": "Edit Client",
+      "description": "Update the client details below."
+    },
+    "form": {
+      "name": "Full Name",
+      "email": "Email",
+      "phone": "Phone Number",
+      "address": "Address"
+    },
+    "toast": {
+      "createdTitle": "Client Created",
+      "createdDesc": "The new client has been successfully saved.",
+      "createErrorTitle": "Failed to Save Client",
+      "createErrorDesc": "An error occurred while saving the client. Please try again.",
+      "updatedTitle": "Client Updated",
+      "updatedDesc": "The client has been successfully updated.",
+      "updateErrorTitle": "Failed to Update Client",
+      "updateErrorDesc": "An error occurred while updating the client. Please try again."
+    }
+  },
+  "products": {
+    "title": "Products & Services",
+    "description": "Manage your product and service catalog.",
+    "searchPlaceholder": "Search products...",
+    "addNew": "Add New Item",
+    "addDialog": {
+      "title": "Add New Product/Service",
+      "description": "Fill out the form below to add a new item to your catalog."
+    },
+    "editDialog": {
+      "title": "Edit Product",
+      "description": "Update the product details below."
+    },
+    "form": {
+      "name": "Name",
+      "namePlaceholder": "e.g., Web Design",
+      "unit": "Unit",
+      "unitPlaceholder": "Select a unit",
+      "unitPrice": "Unit Price"
+    },
+    "toast": {
+      "createdTitle": "Product Created",
+      "createdDesc": "The new product has been successfully saved.",
+      "createErrorTitle": "Failed to Save Product",
+      "createErrorDesc": "An error occurred while saving the product. Please try again.",
+      "updatedTitle": "Product Updated",
+      "updatedDesc": "The product has been successfully updated.",
+      "updateErrorTitle": "Failed to Update Product",
+      "updateErrorDesc": "An error occurred while updating the product. Please try again."
+    }
+  },
+  "invoices": {
+    "title": "Invoices",
+    "description": "Manage your invoices and track their payment status.",
+    "searchPlaceholder": "Search invoices...",
+    "create": "Create Invoice",
+    "tabs": {
+      "all": "All",
+      "paid": "Paid",
+      "unpaid": "Unpaid",
+      "overdue": "Overdue"
+    },
+    "paidTitle": "Paid Invoices",
+    "paidDescription": "These invoices have been successfully paid.",
+    "unpaidTitle": "Unpaid Invoices",
+    "unpaidDescription": "These invoices are awaiting payment.",
+    "overdueTitle": "Overdue Invoices",
+    "overdueDescription": "These invoices have passed their due date."
+  },
+  "settings": {
+    "title": "Settings",
+    "description": "Manage your company profile and application preferences.",
+    "companyProfile": {
+      "title": "Company Profile",
+      "name": "Company Name",
+      "address": "Address",
+      "logoUrl": "Logo URL"
+    },
+    "localization": {
+      "title": "Localization",
+      "currency": "Default Currency",
+      "selectCurrency": "Select currency",
+      "language": "Default Language",
+      "selectLanguage": "Select language"
+    },
+    "toast": {
+      "loadErrorTitle": "Error",
+      "loadErrorDesc": "Failed to load company profile.",
+      "savedTitle": "Settings Saved",
+      "savedDesc": "Your company profile has been updated.",
+      "saveErrorTitle": "Save Failed",
+      "saveErrorDesc": "An error occurred while saving your settings."
+    }
+  },
+  "months": {
+    "short": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+  },
+  "deleteDialog": {
+    "title": "Are you absolutely sure?",
+    "description": "This action cannot be undone. This will permanently delete the {{items}} and remove their data from our servers."
+  }
+}

@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -12,6 +13,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import Spinner from '@/components/ui/spinner';
+import { useLocale } from '@/hooks/use-locale';
 import { Trash2 } from 'lucide-react';
 
 type DeleteConfirmationDialogProps = {
@@ -29,17 +31,18 @@ export default function DeleteConfirmationDialog({
   isDeleting,
   itemsDescription,
 }: DeleteConfirmationDialogProps) {
+  const { t } = useLocale();
   return (
     <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogTitle>{t('deleteDialog.title')}</AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete the {itemsDescription} and remove their data from our servers.
+            {t('deleteDialog.description', { items: itemsDescription })}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel disabled={isDeleting}>{t('common.cancel')}</AlertDialogCancel>
           <Button
             variant="destructive"
             onClick={onConfirm}
@@ -50,7 +53,7 @@ export default function DeleteConfirmationDialog({
             ) : (
               <Trash2 className="mr-2 h-4 w-4" />
             )}
-            {isDeleting ? 'Deleting...' : 'Delete'}
+            {isDeleting ? t('common.deleting') : t('common.delete')}
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
