@@ -272,7 +272,7 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
                   <Badge className={cn(getStatusClass(invoice.status))} variant="outline">{invoice.status}</Badge>
                 </TableCell>
                 <TableCell className="hidden md:table-cell">{invoice.dueDate}</TableCell>
-                <TableCell className="text-right">{formatCurrency(invoice.total)}</TableCell>
+                <TableCell className="text-right text-xs md:text-sm">{formatCurrency(invoice.total)}</TableCell>
                 <TableCell className="text-right">
                   {isProcessing === invoice.id ? <Spinner/> : (
                   <DropdownMenu>
