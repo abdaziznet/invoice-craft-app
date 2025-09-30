@@ -163,7 +163,6 @@ export default function Header() {
                 {t('nav.settings')}
               </DropdownMenuItem>
             </Link>
-            <DropdownMenuItem>{t('nav.support')}</DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={signOut}>
               <LogOut className="mr-2 h-4 w-4" />
