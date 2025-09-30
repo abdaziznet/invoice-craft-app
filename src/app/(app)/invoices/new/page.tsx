@@ -70,6 +70,9 @@ const invoiceSchema = z.object({
   status: z.enum(['Paid', 'Unpaid', 'Overdue']),
   lineItems: z.array(lineItemSchema).min(1, 'At least one item is required.'),
   notes: z.string().optional(),
+}).refine(data => data.dueDate >= data.invoiceDate, {
+    message: "Due date cannot be earlier than invoice date.",
+    path: ["dueDate"],
 });
 
 type InvoiceFormValues = z.infer<typeof invoiceSchema>;
