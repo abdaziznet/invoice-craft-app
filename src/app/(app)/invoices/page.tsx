@@ -1,7 +1,7 @@
 
 'use client'
 
-import { PlusCircle, Download } from 'lucide-react';
+import { PlusCircle, Download, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -10,6 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import InvoiceTable from '@/components/invoices/invoice-table';
 import { getInvoices } from '@/lib/google-sheets';
@@ -20,7 +21,7 @@ import { useSearch } from '@/hooks/use-search';
 
 export default function InvoicesPage() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
-  const { searchTerm } = useSearch();
+  const { searchTerm, setSearchTerm } = useSearch();
   
   useEffect(() => {
     async function fetchInvoices() {
@@ -94,6 +95,16 @@ export default function InvoicesPage() {
           <TabsTrigger value="overdue" className="text-destructive">Overdue</TabsTrigger>
         </TabsList>
         <div className="ml-auto flex items-center gap-2">
+           <div className="relative">
+             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+             <Input
+                type="search"
+                placeholder="Search invoices..."
+                className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[336px]"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+           </div>
           <Button size="sm" variant="outline" onClick={handleExport}>
             <Download className="mr-2 h-4 w-4" />
             Export
