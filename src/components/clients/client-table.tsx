@@ -28,6 +28,8 @@ import { useToast } from '@/hooks/use-toast';
 import { deleteClients } from '@/lib/google-sheets';
 import Spinner from '../ui/spinner';
 import DataTablePagination from '../data-table-pagination';
+import { useRouter } from 'next/navigation';
+import { useSearch } from '@/hooks/use-search';
 
 type ClientTableProps = {
   clients: Client[];
@@ -37,6 +39,8 @@ type ClientTableProps = {
 
 export default function ClientTable({ clients, onClientUpdated, onClientDeleted }: ClientTableProps) {
   const { toast } = useToast();
+  const router = useRouter();
+  const { setSearchTerm } = useSearch();
   const [isEditDialogOpen, setIsEditDialogOpen] = React.useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
   const [selectedClient, setSelectedClient] = React.useState<Client | null>(null);
@@ -64,6 +68,11 @@ export default function ClientTable({ clients, onClientUpdated, onClientDeleted 
   const handleDeleteClick = (client: Client) => {
     setSelectedClientIds([client.id]);
     setIsDeleteDialogOpen(true);
+  }
+  
+  const handleViewInvoices = (client: Client) => {
+    setSearchTerm(client.name);
+    router.push('/invoices');
   }
 
   const handleBulkDeleteClick = () => {
@@ -175,7 +184,7 @@ export default function ClientTable({ clients, onClientUpdated, onClientDeleted 
                     <DropdownMenuContent align="end">
                       <DropdownMenuLabel>Actions</DropdownMenuLabel>
                       <DropdownMenuItem onClick={() => handleEditClick(client)}>Edit</DropdownMenuItem>
-                      <DropdownMenuItem>View Invoices</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleViewInvoices(client)}>View Invoices</DropdownMenuItem>
                       <DropdownMenuItem 
                         className="text-destructive focus:bg-destructive/10 focus:text-destructive"
                         onClick={() => handleDeleteClick(client)}
