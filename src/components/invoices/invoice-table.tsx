@@ -1,9 +1,7 @@
-
-
 'use client';
 
 import { useState } from 'react';
-import { MoreHorizontal, ArrowUpDown, Trash2, Printer } from 'lucide-react';
+import { MoreHorizontal, ArrowUpDown, Trash2, Share2 } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -31,12 +29,33 @@ import { useToast } from '@/hooks/use-toast';
 import { deleteInvoices } from '@/lib/google-sheets';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import WhatsappIcon from '../icons/whatsapp-icon';
 import { generatePdf } from '@/ai/flows/pdf-generation';
+import { saveAs } from 'file-saver';
+import Spinner from '../ui/spinner';
 
 type InvoiceTableProps = {
   invoices: Invoice[];
 };
+
+const b64toBlob = (b64Data: string, contentType='', sliceSize=512) => {
+  const byteCharacters = atob(b64Data);
+  const byteArrays = [];
+
+  for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+    const slice = byteCharacters.slice(offset, offset + sliceSize);
+
+    const byteNumbers = new Array(slice.length);
+    for (let i = 0; i < slice.length; i++) {
+      byteNumbers[i] = slice.charCodeAt(i);
+    }
+
+    const byteArray = new Uint8Array(byteNumbers);
+    byteArrays.push(byteArray);
+  }
+    
+  const blob = new Blob(byteArrays, {type: contentType});
+  return blob;
+}
 
 export default function InvoiceTable({ invoices }: InvoiceTableProps) {
   const { toast } = useToast();
@@ -46,7 +65,7 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
   const [selectedInvoiceIds, setSelectedInvoiceIds] = useState<string[]>([]);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [isGeneratingPdf, setIsGeneratingPdf] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState<string | null>(null);
 
 
   const getStatusClass = (status: InvoiceStatus) => {
@@ -77,23 +96,11 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
   }
 
   const handleExportPdf = async (invoice: Invoice) => {
-    setIsGeneratingPdf(invoice.id);
+    setIsProcessing(invoice.id);
     try {
         const response = await generatePdf({ invoiceId: invoice.id });
-        const { pdfBase64 } = response;
-        const byteCharacters = atob(pdfBase64);
-        const byteNumbers = new Array(byteCharacters.length);
-        for (let i = 0; i < byteCharacters.length; i++) {
-            byteNumbers[i] = byteCharacters.charCodeAt(i);
-        }
-        const byteArray = new Uint8Array(byteNumbers);
-        const blob = new Blob([byteArray], { type: 'application/pdf' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = `invoice-${invoice.invoiceNumber}.pdf`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        const blob = b64toBlob(response.pdfBase64, 'application/pdf');
+        saveAs(blob, `invoice-${invoice.invoiceNumber}.pdf`);
 
     } catch (error) {
         console.error("Failed to generate PDF", error);
@@ -103,26 +110,48 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
             description: 'Could not generate PDF for this invoice.',
         });
     } finally {
-        setIsGeneratingPdf(null);
+        setIsProcessing(null);
     }
   };
 
-  const handleShareWhatsApp = (invoice: Invoice) => {
-    if (!invoice.client.phone) {
-      toast({
-        variant: "destructive",
-        title: "Missing Phone Number",
-        description: "This client does not have a phone number saved.",
-      });
-      return;
-    }
+  const handleShare = async (invoice: Invoice) => {
+    setIsProcessing(invoice.id);
+    try {
+      const response = await generatePdf({ invoiceId: invoice.id });
+      const blob = b64toBlob(response.pdfBase64, 'application/pdf');
+      const file = new File([blob], `invoice-${invoice.invoiceNumber}.pdf`, { type: 'application/pdf' });
+      
+      const shareData = {
+        files: [file],
+        title: `Invoice ${invoice.invoiceNumber}`,
+        text: `Hi ${invoice.client.name}, here is your invoice #${invoice.invoiceNumber} for ${formatCurrency(invoice.total)}.`,
+      };
 
-    const invoiceUrl = `${window.location.origin}/invoices/${invoice.id}?print=true`;
-    const message = `Hi ${invoice.client.name}, here is your invoice #${invoice.invoiceNumber} for ${formatCurrency(invoice.total)}. You can view and save the PDF here: ${invoiceUrl}`;
-    const whatsappUrl = `https://wa.me/${invoice.client.phone}?text=${encodeURIComponent(message)}`;
-    
-    window.open(whatsappUrl, '_blank');
+      if (navigator.canShare && navigator.canShare(shareData)) {
+        await navigator.share(shareData);
+      } else {
+         toast({
+            title: "Web Share not supported",
+            description: "Falling back to sharing a link via WhatsApp.",
+          });
+         const invoiceUrl = `${window.location.origin}/invoices/${invoice.id}`;
+         const message = `Hi ${invoice.client.name}, here is your invoice #${invoice.invoiceNumber} for ${formatCurrency(invoice.total)}. You can view it here: ${invoiceUrl}`;
+         const whatsappUrl = `https://wa.me/${invoice.client.phone}?text=${encodeURIComponent(message)}`;
+         window.open(whatsappUrl, '_blank');
+      }
+
+    } catch (error) {
+       console.error("Failed to share invoice", error);
+       toast({
+         variant: 'destructive',
+         title: 'Sharing Failed',
+         description: 'Could not share the invoice. Please try again.',
+       })
+    } finally {
+        setIsProcessing(null);
+    }
   };
+
 
   const confirmDelete = async () => {
     setIsDeleting(true);
@@ -226,6 +255,7 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
                 <TableCell>{invoice.dueDate}</TableCell>
                 <TableCell className="text-right">{formatCurrency(invoice.total)}</TableCell>
                 <TableCell className="text-right">
+                  {isProcessing === invoice.id ? <Spinner/> : (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" className="h-8 w-8 p-0">
@@ -241,11 +271,11 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
                       <DropdownMenuItem asChild>
                         <Link href={`/invoices/${invoice.id}/edit`}>Edit</Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleExportPdf(invoice)} disabled={isGeneratingPdf === invoice.id}>
-                         {isGeneratingPdf === invoice.id ? 'Generating...' : 'Export as PDF'}
+                      <DropdownMenuItem onClick={() => handleExportPdf(invoice)}>
+                         Export as PDF
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleShareWhatsApp(invoice)}>
-                         <WhatsappIcon className="mr-2" /> Share via WhatsApp
+                      <DropdownMenuItem onClick={() => handleShare(invoice)}>
+                         <Share2 className="mr-2 h-4 w-4" /> Share
                       </DropdownMenuItem>
                       {invoice.status === 'Overdue' && (
                         <DropdownMenuItem onClick={() => handleGenerateReminder(invoice)}>
@@ -260,6 +290,7 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
+                  )}
                 </TableCell>
               </TableRow>
             ))}
