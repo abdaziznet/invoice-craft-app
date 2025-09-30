@@ -59,7 +59,28 @@
       "updatedTitle": "Pelanggan Diperbarui",
       "updatedDesc": "Pelanggan telah berhasil diperbarui.",
       "updateErrorTitle": "Gagal Memperbarui Pelanggan",
-      "updateErrorDesc": "Terjadi kesalahan saat memperbarui pelanggan. Silakan coba lagi."
+      "updateErrorDesc": "Terjadi kesalahan saat memperbarui pelanggan. Silakan coba lagi.",
+      "deletedTitle": "Pelanggan Dihapus",
+      "deletedDesc": "Pelanggan yang dipilih telah berhasil dihapus.",
+      "deleteErrorTitle": "Gagal Menghapus Pelanggan",
+      "deleteErrorDesc": "Terjadi kesalahan saat menghapus pelanggan. Silakan coba lagi.",
+      "deleteBlockedTitle": "Penghapusan Diblokir",
+      "deleteBlockedDesc": "Tidak dapat menghapus {{names}} karena mereka memiliki satu atau lebih faktur terkait."
+    },
+    "table": {
+      "deleteSelected": "Hapus yang Dipilih ({{count}})",
+      "deleteDesc": "{{count}} pelanggan",
+      "deleteDescSingle": "pelanggan \"{{name}}\"",
+      "header": {
+        "name": "Nama",
+        "email": "Email",
+        "phone": "Telepon",
+        "actions": "Aksi"
+      },
+      "actions": {
+        "title": "Aksi",
+        "edit": "Edit"
+      }
     }
   },
   "products": {
@@ -90,7 +111,26 @@
       "updatedTitle": "Produk Diperbarui",
       "updatedDesc": "Produk telah berhasil diperbarui.",
       "updateErrorTitle": "Gagal Memperbarui Produk",
-      "updateErrorDesc": "Terjadi kesalahan saat memperbarui produk. Silakan coba lagi."
+      "updateErrorDesc": "Terjadi kesalahan saat memperbarui produk. Silakan coba lagi.",
+      "deletedTitle": "Produk Dihapus",
+      "deletedDesc": "Produk yang dipilih telah berhasil dihapus.",
+      "deleteErrorTitle": "Gagal Menghapus Produk",
+      "deleteErrorDesc": "Terjadi kesalahan saat menghapus produk. Silakan coba lagi."
+    },
+    "table": {
+      "deleteSelected": "Hapus yang Dipilih ({{count}})",
+      "deleteDesc": "{{count}} produk",
+      "deleteDescSingle": "produk \"{{name}}\"",
+      "header": {
+        "name": "Nama",
+        "unit": "Satuan",
+        "unitPrice": "Harga Satuan",
+        "actions": "Aksi"
+      },
+      "actions": {
+        "title": "Aksi",
+        "edit": "Edit"
+      }
     }
   },
   "invoices": {
@@ -146,7 +186,8 @@
       "notesPlaceholder": "Tambahkan catatan tambahan untuk pelanggan...",
       "summaryTitle": "Ringkasan",
       "subtotal": "Subtotal",
-      "includeTax": "Sertakan Pajak (11%)"
+      "includeTax": "Sertakan Pajak (11%)",
+      "total": "Total"
     },
     "table": {
       "deleteSelected": "Hapus yang Dipilih ({{count}})",

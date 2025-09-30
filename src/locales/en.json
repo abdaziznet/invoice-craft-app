@@ -59,7 +59,28 @@
       "updatedTitle": "Customer Updated",
       "updatedDesc": "The customer has been successfully updated.",
       "updateErrorTitle": "Failed to Update Customer",
-      "updateErrorDesc": "An error occurred while updating the customer. Please try again."
+      "updateErrorDesc": "An error occurred while updating the customer. Please try again.",
+      "deletedTitle": "Customers Deleted",
+      "deletedDesc": "The selected customers have been successfully deleted.",
+      "deleteErrorTitle": "Failed to Delete Customers",
+      "deleteErrorDesc": "An error occurred while deleting the customers. Please try again.",
+      "deleteBlockedTitle": "Deletion Blocked",
+      "deleteBlockedDesc": "Cannot delete {{names}} because they have one or more associated invoices."
+    },
+    "table": {
+      "deleteSelected": "Delete Selected ({{count}})",
+      "deleteDesc": "{{count}} customers",
+      "deleteDescSingle": "customer \"{{name}}\"",
+      "header": {
+        "name": "Name",
+        "email": "Email",
+        "phone": "Phone",
+        "actions": "Actions"
+      },
+      "actions": {
+        "title": "Actions",
+        "edit": "Edit"
+      }
     }
   },
   "products": {
@@ -90,7 +111,26 @@
       "updatedTitle": "Product Updated",
       "updatedDesc": "The product has been successfully updated.",
       "updateErrorTitle": "Failed to Update Product",
-      "updateErrorDesc": "An error occurred while updating the product. Please try again."
+      "updateErrorDesc": "An error occurred while updating the product. Please try again.",
+      "deletedTitle": "Products Deleted",
+      "deletedDesc": "The selected products have been successfully deleted.",
+      "deleteErrorTitle": "Failed to Delete Products",
+      "deleteErrorDesc": "An error occurred while deleting the products. Please try again."
+    },
+    "table": {
+      "deleteSelected": "Delete Selected ({{count}})",
+      "deleteDesc": "{{count}} products",
+      "deleteDescSingle": "product \"{{name}}\"",
+      "header": {
+        "name": "Name",
+        "unit": "Unit",
+        "unitPrice": "Unit Price",
+        "actions": "Actions"
+      },
+      "actions": {
+        "title": "Actions",
+        "edit": "Edit"
+      }
     }
   },
   "invoices": {
@@ -146,7 +186,8 @@
       "notesPlaceholder": "Add any additional notes for the customer...",
       "summaryTitle": "Summary",
       "subtotal": "Subtotal",
-      "includeTax": "Include Tax (11%)"
+      "includeTax": "Include Tax (11%)",
+      "total": "Total"
     },
     "table": {
       "deleteSelected": "Delete Selected ({{count}})",

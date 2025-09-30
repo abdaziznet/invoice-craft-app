@@ -1,4 +1,3 @@
-
 'use client';
 
 import *
@@ -24,10 +23,11 @@ import { Checkbox } from '@/components/ui/checkbox';
 import type { Product } from '@/lib/types';
 import { formatCurrency } from '@/lib/utils';
 import EditProductDialog from './edit-product-dialog';
-import DeleteConfirmationDialog from '@/components/clients/delete-confirmation-dialog';
+import DeleteConfirmationDialog from '../customers/delete-confirmation-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { deleteProducts } from '@/lib/google-sheets';
 import DataTablePagination from '../data-table-pagination';
+import { useLocale } from '@/hooks/use-locale';
 
 type ProductTableProps = {
   products: Product[];
@@ -37,6 +37,7 @@ type ProductTableProps = {
 
 export default function ProductTable({ products, onProductUpdated, onProductDeleted }: ProductTableProps) {
   const { toast } = useToast();
+  const { t } = useLocale();
   const [isEditDialogOpen, setIsEditDialogOpen] = React.useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
   const [selectedProduct, setSelectedProduct] = React.useState<Product | null>(null);
@@ -67,8 +68,8 @@ export default function ProductTable({ products, onProductUpdated, onProductDele
     try {
       await deleteProducts(selectedProductIds);
       toast({
-        title: 'Products Deleted',
-        description: 'The selected products have been successfully deleted.',
+        title: t('products.toast.deletedTitle'),
+        description: t('products.toast.deletedDesc'),
       });
       onProductDeleted();
       setSelectedProductIds([]);
@@ -76,8 +77,8 @@ export default function ProductTable({ products, onProductUpdated, onProductDele
       console.error(error);
       toast({
         variant: 'destructive',
-        title: 'Failed to Delete Products',
-        description: 'An error occurred while deleting the products. Please try again.',
+        title: t('products.toast.deleteErrorTitle'),
+        description: t('products.toast.deleteErrorDesc'),
       });
     } finally {
       setIsDeleting(false);
@@ -110,7 +111,7 @@ export default function ProductTable({ products, onProductUpdated, onProductDele
         {numSelected > 0 && (
             <Button variant="destructive" size="sm" onClick={handleBulkDeleteClick}>
                 <Trash2 className="mr-2 h-4 w-4" />
-                Delete Selected ({numSelected})
+                {t('products.table.deleteSelected', { count: numSelected })}
             </Button>
         )}
       </div>
@@ -125,10 +126,10 @@ export default function ProductTable({ products, onProductUpdated, onProductDele
                   aria-label="Select all"
                 />
               </TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead className="hidden sm:table-cell">Unit</TableHead>
-              <TableHead className="text-right">Unit Price</TableHead>
-              <TableHead className="text-right w-[50px]">Actions</TableHead>
+              <TableHead>{t('products.table.header.name')}</TableHead>
+              <TableHead className="hidden sm:table-cell">{t('products.table.header.unit')}</TableHead>
+              <TableHead className="text-right">{t('products.table.header.unitPrice')}</TableHead>
+              <TableHead className="text-right w-[50px]">{t('products.table.header.actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -156,13 +157,13 @@ export default function ProductTable({ products, onProductUpdated, onProductDele
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                      <DropdownMenuItem onClick={() => handleEditClick(product)}>Edit</DropdownMenuItem>
+                      <DropdownMenuLabel>{t('products.table.actions.title')}</DropdownMenuLabel>
+                      <DropdownMenuItem onClick={() => handleEditClick(product)}>{t('products.table.actions.edit')}</DropdownMenuItem>
                       <DropdownMenuItem 
                         className="text-destructive focus:bg-destructive/10 focus:text-destructive"
                         onClick={() => handleDeleteClick(product)}
                       >
-                        Delete
+                        {t('common.delete')}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -194,7 +195,7 @@ export default function ProductTable({ products, onProductUpdated, onProductDele
         onOpenChange={setIsDeleteDialogOpen}
         onConfirm={confirmDelete}
         isDeleting={isDeleting}
-        itemsDescription={numSelected > 1 ? `${numSelected} products` : `product "${products.find(p => p.id === selectedProductIds[0])?.name}"`}
+        itemsDescription={numSelected > 1 ? t('products.table.deleteDesc', { count: numSelected }) : t('products.table.deleteDescSingle', { name: products.find(p => p.id === selectedProductIds[0])?.name })}
       />
     </>
   );

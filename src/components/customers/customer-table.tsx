@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -26,8 +25,8 @@ import EditCustomerDialog from './edit-customer-dialog';
 import DeleteConfirmationDialog from './delete-confirmation-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { deleteCustomers, getInvoices } from '@/lib/google-sheets';
-import Spinner from '../ui/spinner';
 import DataTablePagination from '../data-table-pagination';
+import { useLocale } from '@/hooks/use-locale';
 
 type CustomerTableProps = {
   customers: Customer[];
@@ -37,6 +36,7 @@ type CustomerTableProps = {
 
 export default function CustomerTable({ customers, onCustomerUpdated, onCustomerDeleted }: CustomerTableProps) {
   const { toast } = useToast();
+  const { t } = useLocale();
   const [isEditDialogOpen, setIsEditDialogOpen] = React.useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
   const [selectedCustomer, setSelectedCustomer] = React.useState<Customer | null>(null);
@@ -80,8 +80,8 @@ export default function CustomerTable({ customers, onCustomerUpdated, onCustomer
       const customerNames = customers.filter(c => customersWithInvoices.includes(c.id)).map(c => c.name).join(', ');
       toast({
         variant: 'destructive',
-        title: 'Deletion Blocked',
-        description: `Cannot delete ${customerNames} because they have one or more associated invoices.`,
+        title: t('customers.toast.deleteBlockedTitle'),
+        description: t('customers.toast.deleteBlockedDesc', { names: customerNames }),
       });
       return;
     }
@@ -95,8 +95,8 @@ export default function CustomerTable({ customers, onCustomerUpdated, onCustomer
     try {
       await deleteCustomers(customersToDelete);
       toast({
-        title: 'Customers Deleted',
-        description: 'The selected customers have been successfully deleted.',
+        title: t('customers.toast.deletedTitle'),
+        description: t('customers.toast.deletedDesc'),
       });
       onCustomerDeleted();
       setSelectedCustomerIds([]);
@@ -105,8 +105,8 @@ export default function CustomerTable({ customers, onCustomerUpdated, onCustomer
       console.error(error);
       toast({
         variant: 'destructive',
-        title: 'Failed to Delete Customers',
-        description: 'An error occurred while deleting the customers. Please try again.',
+        title: t('customers.toast.deleteErrorTitle'),
+        description: t('customers.toast.deleteErrorDesc'),
       });
     } finally {
       setIsDeleting(false);
@@ -140,7 +140,7 @@ export default function CustomerTable({ customers, onCustomerUpdated, onCustomer
         {numSelected > 0 && (
             <Button variant="destructive" size="sm" onClick={() => handleDeleteClick(selectedCustomerIds)}>
                 <Trash2 className="mr-2 h-4 w-4" />
-                Delete Selected ({numSelected})
+                {t('customers.table.deleteSelected', { count: numSelected })}
             </Button>
         )}
       </div>
@@ -155,10 +155,10 @@ export default function CustomerTable({ customers, onCustomerUpdated, onCustomer
                   aria-label="Select all"
                 />
               </TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead className="hidden md:table-cell">Email</TableHead>
-              <TableHead className="hidden lg:table-cell">Phone</TableHead>
-              <TableHead className="text-right w-[50px]">Actions</TableHead>
+              <TableHead>{t('customers.table.header.name')}</TableHead>
+              <TableHead className="hidden md:table-cell">{t('customers.table.header.email')}</TableHead>
+              <TableHead className="hidden lg:table-cell">{t('customers.table.header.phone')}</TableHead>
+              <TableHead className="text-right w-[50px]">{t('customers.table.header.actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -194,13 +194,13 @@ export default function CustomerTable({ customers, onCustomerUpdated, onCustomer
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                      <DropdownMenuItem onClick={() => handleEditClick(customer)}>Edit</DropdownMenuItem>
+                      <DropdownMenuLabel>{t('customers.table.actions.title')}</DropdownMenuLabel>
+                      <DropdownMenuItem onClick={() => handleEditClick(customer)}>{t('customers.table.actions.edit')}</DropdownMenuItem>
                       <DropdownMenuItem 
                         className="text-destructive focus:bg-destructive/10 focus:text-destructive"
                         onClick={() => handleDeleteClick([customer.id])}
                       >
-                        Delete
+                        {t('common.delete')}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -232,7 +232,7 @@ export default function CustomerTable({ customers, onCustomerUpdated, onCustomer
         onOpenChange={setIsDeleteDialogOpen}
         onConfirm={confirmDelete}
         isDeleting={isDeleting}
-        itemsDescription={customersToDelete.length > 1 ? `${customersToDelete.length} customers` : `customer "${customers.find(c => c.id === customersToDelete[0])?.name}"`}
+        itemsDescription={customersToDelete.length > 1 ? t('customers.table.deleteDesc', { count: customersToDelete.length }) : t('customers.table.deleteDescSingle', { name: customers.find(c => c.id === customersToDelete[0])?.name })}
       />
     </>
   );
