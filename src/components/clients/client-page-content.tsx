@@ -9,6 +9,7 @@ import ClientTable from '@/components/clients/client-table';
 import AddClientDialog from '@/components/clients/add-client-dialog';
 import type { Client } from '@/lib/types';
 import { useRouter } from 'next/navigation';
+import { useSearch } from '@/hooks/use-search';
 
 type ClientPageContentProps = {
   initialClients: Client[];
@@ -20,6 +21,7 @@ export default function ClientPageContent({
   const [clients, setClients] = React.useState<Client[]>(initialClients);
   const [isAddDialogOpen, setIsAddDialogOpen] = React.useState(false);
   const router = useRouter();
+  const { searchTerm } = useSearch();
 
   const refreshClients = () => {
     router.refresh();
@@ -28,6 +30,16 @@ export default function ClientPageContent({
   React.useEffect(() => {
     setClients(initialClients);
   }, [initialClients]);
+
+  const filteredClients = React.useMemo(() => {
+    if (!searchTerm) {
+      return clients;
+    }
+    return clients.filter(client => 
+      client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      client.email.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [clients, searchTerm]);
 
 
   return (
@@ -45,7 +57,7 @@ export default function ClientPageContent({
       <Card>
         <CardContent className="p-6">
           <ClientTable
-            clients={clients}
+            clients={filteredClients}
             onClientUpdated={refreshClients}
             onClientDeleted={refreshClients}
           />

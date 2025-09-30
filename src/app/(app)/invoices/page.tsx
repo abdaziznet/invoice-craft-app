@@ -15,10 +15,12 @@ import InvoiceTable from '@/components/invoices/invoice-table';
 import { getInvoices } from '@/lib/google-sheets';
 import type { Invoice, InvoiceStatus } from '@/lib/types';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
+import { useSearch } from '@/hooks/use-search';
 
 export default function InvoicesPage() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const { searchTerm } = useSearch();
   
   useEffect(() => {
     async function fetchInvoices() {
@@ -27,12 +29,21 @@ export default function InvoicesPage() {
     }
     fetchInvoices();
   }, []);
+
+  const filteredInvoices = useMemo(() => {
+    if (!searchTerm) return invoices;
+    return invoices.filter(invoice => 
+      invoice.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      invoice.client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      invoice.status.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [invoices, searchTerm]);
   
   const statusFilters: InvoiceStatus[] = ['Paid', 'Unpaid', 'Overdue'];
-  const allInvoices = invoices;
-  const unpaidInvoices = invoices.filter((inv) => inv.status === 'Unpaid');
-  const paidInvoices = invoices.filter((inv) => inv.status === 'Paid');
-  const overdueInvoices = invoices.filter((inv) => inv.status === 'Overdue');
+  const allInvoices = filteredInvoices;
+  const unpaidInvoices = filteredInvoices.filter((inv) => inv.status === 'Unpaid');
+  const paidInvoices = filteredInvoices.filter((inv) => inv.status === 'Paid');
+  const overdueInvoices = filteredInvoices.filter((inv) => inv.status === 'Overdue');
   
   const handleExport = () => {
     const headers = [
@@ -60,7 +71,7 @@ export default function InvoicesPage() {
       ...data.map((row) => row.join(',')),
     ].join('\n');
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-t;' });
     const link = document.createElement('a');
     if (link.href) {
       URL.revokeObjectURL(link.href);

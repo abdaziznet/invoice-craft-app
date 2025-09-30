@@ -9,6 +9,7 @@ import ProductTable from '@/components/products/product-table';
 import AddProductDialog from '@/components/products/add-product-dialog';
 import type { Product } from '@/lib/types';
 import { useRouter } from 'next/navigation';
+import { useSearch } from '@/hooks/use-search';
 
 type ProductPageContentProps = {
     initialProducts: Product[];
@@ -18,6 +19,7 @@ export default function ProductPageContent({ initialProducts }: ProductPageConte
   const [products, setProducts] = React.useState<Product[]>(initialProducts);
   const [isAddDialogOpen, setIsAddDialogOpen] = React.useState(false);
   const router = useRouter();
+  const { searchTerm } = useSearch();
 
   React.useEffect(() => {
     setProducts(initialProducts);
@@ -26,6 +28,15 @@ export default function ProductPageContent({ initialProducts }: ProductPageConte
   const refreshProducts = () => {
     router.refresh();
   };
+
+  const filteredProducts = React.useMemo(() => {
+    if (!searchTerm) {
+      return products;
+    }
+    return products.filter(product =>
+      product.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [products, searchTerm]);
 
   return (
     <div>
@@ -46,7 +57,7 @@ export default function ProductPageContent({ initialProducts }: ProductPageConte
       <Card>
         <CardContent className="p-6">
           <ProductTable
-            products={products}
+            products={filteredProducts}
             onProductUpdated={refreshProducts}
             onProductDeleted={refreshProducts}
           />
