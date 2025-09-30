@@ -64,7 +64,7 @@ const b64toBlob = (b64Data: string, contentType='', sliceSize=512) => {
 export default function InvoiceTable({ invoices }: InvoiceTableProps) {
   const { toast } = useToast();
   const router = useRouter();
-  const { t } = useLocale();
+  const { lang, t } = useLocale();
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedInvoiceIds, setSelectedInvoiceIds] = useState<string[]>([]);
@@ -108,7 +108,7 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
   const handleExportPdf = async (invoice: Invoice) => {
     setIsProcessing(invoice.id);
     try {
-        const response = await generatePdf({ invoiceId: invoice.id });
+        const response = await generatePdf({ invoiceId: invoice.id, language: lang });
         const blob = b64toBlob(response.pdfBase64, 'application/pdf');
         saveAs(blob, `invoice-${invoice.invoiceNumber}.pdf`);
 
@@ -135,7 +135,7 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
     }
     setIsProcessing(invoice.id);
     try {
-      const response = await generatePdf({ invoiceId: invoice.id });
+      const response = await generatePdf({ invoiceId: invoice.id, language: lang });
       const blob = b64toBlob(response.pdfBase64, 'application/pdf');
       const file = new File([blob], `invoice-${invoice.invoiceNumber}.pdf`, { type: 'application/pdf' });
       
@@ -235,7 +235,7 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
                   className="border-primary-foreground data-[state=checked]:bg-primary-foreground data-[state=checked]:text-primary"
                  />
               </TableHead>
-              <TableHead className="text-primary-foreground">{t('invoices.table.header.invoice')}</TableHead>
+              <TableHead className="hidden sm:table-cell text-primary-foreground">{t('invoices.table.header.invoice')}</TableHead>
               <TableHead className="text-primary-foreground">{t('invoices.table.header.customer')}</TableHead>
               <TableHead className="text-primary-foreground">{t('invoices.table.header.status')}</TableHead>
               <TableHead className="hidden md:table-cell text-primary-foreground">
@@ -266,7 +266,7 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
                     aria-label={`Select row ${invoice.id}`}
                   />
                 </TableCell>
-                <TableCell className="font-medium">{invoice.invoiceNumber}</TableCell>
+                <TableCell className="font-medium hidden sm:table-cell">{invoice.invoiceNumber}</TableCell>
                 <TableCell>{invoice.customer ? invoice.customer.name : 'Customer not found'}</TableCell>
                 <TableCell>
                   <Badge className={cn(getStatusClass(invoice.status))} variant="outline">{invoice.status}</Badge>
