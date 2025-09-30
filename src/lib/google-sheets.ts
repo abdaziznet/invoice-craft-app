@@ -1,8 +1,10 @@
 
+
 'use server';
 import { google } from 'googleapis';
 import { JWT } from 'google-auth-library';
 import type { Customer, Invoice, InvoiceItem, Product, CompanyProfile } from './types';
+import { isPast, parseISO, startOfToday } from 'date-fns';
 
 const spreadsheetId = process.env.GOOGLE_SHEET_ID;
 
@@ -396,12 +398,43 @@ export async function deleteProducts(productIds: string[]) {
 
 export async function getInvoices() {
     const data = await getSheetData('Invoices!A:M');
-    const invoices = mapToObjects(data);
+    let invoices = mapToObjects(data) as Invoice[];
     const customers = await getCustomers();
     const products = await getProducts();
 
     const invoiceItemsData = await getSheetData('InvoiceItems!A:D');
     const invoiceItems = mapToObjects(invoiceItemsData);
+    
+    const today = startOfToday();
+
+    const updatePromises = invoices.map(async (inv) => {
+        if (inv.status === 'Unpaid' && isPast(parseISO(inv.dueDate))) {
+            inv.status = 'Overdue';
+            // This is a fire-and-forget update. We update the local object immediately
+            // for responsiveness and send the update to the sheet in the background.
+            // A more robust solution might involve a queue or error handling here.
+            try {
+                const fullInvoice = await getInvoiceById(inv.id);
+                if (fullInvoice) {
+                     await updateInvoice(inv.id, {
+                        ...fullInvoice,
+                        status: 'Overdue',
+                        customerId: fullInvoice.customer.id,
+                        lineItems: fullInvoice.lineItems.map(item => ({
+                            productId: item.product.id,
+                            quantity: item.quantity,
+                            total: item.total
+                        }))
+                    });
+                }
+            } catch (e) {
+                console.error(`Failed to auto-update invoice ${inv.id} to Overdue`, e);
+            }
+        }
+        return inv;
+    });
+
+    invoices = await Promise.all(updatePromises);
 
 
     return invoices.map(inv => {
@@ -431,9 +464,45 @@ export async function getInvoices() {
 }
 
 export async function getInvoiceById(id: string): Promise<Invoice | null> {
-    const invoices = await getInvoices();
-    const invoice = invoices.find(inv => inv.id === id);
-    return invoice || null;
+    // We call getInvoices without the auto-update logic here to prevent cycles
+    // and to get the raw data for a specific invoice.
+    const data = await getSheetData('Invoices!A:M');
+    const invoices = mapToObjects(data);
+    const targetInvoice = invoices.find(inv => inv.id === id);
+
+    if (!targetInvoice) {
+        return null;
+    }
+    
+    const customers = await getCustomers();
+    const products = await getProducts();
+    const invoiceItemsData = await getSheetData('InvoiceItems!A:D');
+    const invoiceItems = mapToObjects(invoiceItemsData);
+
+    const customer = customers.find(c => c.id === targetInvoice.customerId);
+    const lineItems = invoiceItems
+        .filter(item => item.invoiceId === targetInvoice.id)
+        .map(item => {
+            const product = products.find(p => p.id === item.productId);
+            return {
+                id: item.id,
+                product: product!,
+                quantity: parseInt(item.quantity, 10),
+                total: parseFloat(item.total),
+            }
+        });
+        
+    const fullInvoice: Invoice = {
+        ...targetInvoice,
+        customer: customer!,
+        lineItems: lineItems,
+        subtotal: parseFloat(targetInvoice.subtotal),
+        tax: parseFloat(targetInvoice.tax),
+        discount: parseFloat(targetInvoice.discount),
+        total: parseFloat(targetInvoice.total),
+    };
+
+    return fullInvoice;
 }
 
 
@@ -671,4 +740,5 @@ export async function deleteInvoices(invoiceIds: string[]) {
     }
 }
     
+
 
