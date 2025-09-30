@@ -88,14 +88,14 @@ export default function InvoicesPage() {
   return (
     <Tabs defaultValue="all">
       <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-        <TabsList className="grid grid-cols-2 sm:grid-cols-4 w-full sm:w-auto">
+        <TabsList className="flex flex-wrap h-auto w-full sm:w-auto">
           <TabsTrigger value="all">{t('invoices.tabs.all')}</TabsTrigger>
           <TabsTrigger value="paid">{t('invoices.tabs.paid')}</TabsTrigger>
           <TabsTrigger value="unpaid">{t('invoices.tabs.unpaid')}</TabsTrigger>
           <TabsTrigger value="overdue" className="text-destructive">{t('invoices.tabs.overdue')}</TabsTrigger>
         </TabsList>
         <div className="sm:ml-auto flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
-            <div className="relative w-full sm:flex-1">
+            <div className="relative w-full sm:w-auto">
              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
              <Input
                 type="search"
@@ -106,11 +106,11 @@ export default function InvoicesPage() {
               />
            </div>
           <div className="flex items-center gap-2 w-full sm:w-auto">
-              <Button size="sm" variant="outline" onClick={handleExport} className="w-full">
+              <Button size="sm" variant="outline" onClick={handleExport} className="w-full sm:w-auto">
                 <Download className="mr-2 h-4 w-4" />
                 {t('common.export')}
               </Button>
-              <Button size="sm" asChild className="w-full">
+              <Button size="sm" asChild className="w-full sm:w-auto">
                 <Link href="/invoices/new">
                   <PlusCircle className="mr-2 h-4 w-4" />
                   {t('invoices.create')}
