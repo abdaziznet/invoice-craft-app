@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -32,6 +33,8 @@ import Link from 'next/link';
 import { generatePdf } from '@/ai/flows/pdf-generation';
 import { saveAs } from 'file-saver';
 import Spinner from '../ui/spinner';
+import DataTablePagination from '../data-table-pagination';
+
 
 type InvoiceTableProps = {
   invoices: Invoice[];
@@ -66,6 +69,11 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isProcessing, setIsProcessing] = useState<string | null>(null);
+
+  const [page, setPage] = useState(1);
+  const pageSize = parseInt(process.env.NEXT_PUBLIC_PAGE_SIZE || '10');
+
+  const paginatedInvoices = invoices.slice((page - 1) * pageSize, page * pageSize);
 
 
   const getStatusClass = (status: InvoiceStatus) => {
@@ -235,7 +243,7 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {invoices.map((invoice) => (
+            {paginatedInvoices.map((invoice) => (
               <TableRow 
                 key={invoice.id}
                 data-state={selectedInvoiceIds.includes(invoice.id) && "selected"}
@@ -297,6 +305,12 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
           </TableBody>
         </Table>
       </div>
+      <DataTablePagination
+        count={invoices.length}
+        page={page}
+        onPageChange={setPage}
+        pageSize={pageSize}
+      />
       {selectedInvoice && (
         <PaymentReminderModal
           invoice={selectedInvoice}

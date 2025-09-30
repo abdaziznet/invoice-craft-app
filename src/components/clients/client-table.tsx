@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -26,6 +27,7 @@ import DeleteConfirmationDialog from './delete-confirmation-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { deleteClients } from '@/lib/google-sheets';
 import Spinner from '../ui/spinner';
+import DataTablePagination from '../data-table-pagination';
 
 type ClientTableProps = {
   clients: Client[];
@@ -40,6 +42,11 @@ export default function ClientTable({ clients, onClientUpdated, onClientDeleted 
   const [selectedClient, setSelectedClient] = React.useState<Client | null>(null);
   const [selectedClientIds, setSelectedClientIds] = React.useState<string[]>([]);
   const [isDeleting, setIsDeleting] = React.useState(false);
+
+  const [page, setPage] = React.useState(1);
+  const pageSize = parseInt(process.env.NEXT_PUBLIC_PAGE_SIZE || '10');
+
+  const paginatedClients = clients.slice((page - 1) * pageSize, page * pageSize);
 
   const getInitials = (name: string) => {
     const names = name.split(' ');
@@ -134,7 +141,7 @@ export default function ClientTable({ clients, onClientUpdated, onClientDeleted 
             </TableRow>
           </TableHeader>
           <TableBody>
-            {clients.map((client) => (
+            {paginatedClients.map((client) => (
               <TableRow 
                 key={client.id}
                 data-state={selectedClientIds.includes(client.id) && "selected"}
@@ -183,6 +190,12 @@ export default function ClientTable({ clients, onClientUpdated, onClientDeleted 
           </TableBody>
         </Table>
       </div>
+      <DataTablePagination
+        count={clients.length}
+        page={page}
+        onPageChange={setPage}
+        pageSize={pageSize}
+      />
       {selectedClient && (
         <EditClientDialog
           client={selectedClient}

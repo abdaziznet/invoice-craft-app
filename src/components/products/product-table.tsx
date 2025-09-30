@@ -1,6 +1,8 @@
+
 'use client';
 
-import * as React from 'react';
+import *
+as React from 'react';
 import { MoreHorizontal, Trash2 } from 'lucide-react';
 import {
   Table,
@@ -25,6 +27,7 @@ import EditProductDialog from './edit-product-dialog';
 import DeleteConfirmationDialog from '@/components/clients/delete-confirmation-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { deleteProducts } from '@/lib/google-sheets';
+import DataTablePagination from '../data-table-pagination';
 
 type ProductTableProps = {
   products: Product[];
@@ -39,6 +42,11 @@ export default function ProductTable({ products, onProductUpdated, onProductDele
   const [selectedProduct, setSelectedProduct] = React.useState<Product | null>(null);
   const [selectedProductIds, setSelectedProductIds] = React.useState<string[]>([]);
   const [isDeleting, setIsDeleting] = React.useState(false);
+
+  const [page, setPage] = React.useState(1);
+  const pageSize = parseInt(process.env.NEXT_PUBLIC_PAGE_SIZE || '10');
+
+  const paginatedProducts = products.slice((page - 1) * pageSize, page * pageSize);
 
   const handleEditClick = (product: Product) => {
     setSelectedProduct(product);
@@ -124,7 +132,7 @@ export default function ProductTable({ products, onProductUpdated, onProductDele
             </TableRow>
           </TableHeader>
           <TableBody>
-            {products.map((product) => (
+            {paginatedProducts.map((product) => (
               <TableRow 
                 key={product.id}
                 data-state={selectedProductIds.includes(product.id) && "selected"}
@@ -164,6 +172,12 @@ export default function ProductTable({ products, onProductUpdated, onProductDele
           </TableBody>
         </Table>
       </div>
+      <DataTablePagination
+        count={products.length}
+        page={page}
+        onPageChange={setPage}
+        pageSize={pageSize}
+      />
       {selectedProduct && (
         <EditProductDialog
           product={selectedProduct}
@@ -185,5 +199,3 @@ export default function ProductTable({ products, onProductUpdated, onProductDele
     </>
   );
 }
-
-    
