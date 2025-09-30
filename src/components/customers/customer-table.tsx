@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -71,18 +72,16 @@ export default function CustomerTable({ customers, onCustomerUpdated, onCustomer
   };
   
   const handleDeleteClick = (customerIds: string[]) => {
-    const customersWithUnpaidInvoices = customerIds.filter(customerId => 
-      invoices.some(invoice => 
-        invoice.customer.id === customerId && (invoice.status === 'Unpaid' || invoice.status === 'Overdue')
-      )
+    const customersWithInvoices = customerIds.filter(customerId => 
+      invoices.some(invoice => invoice.customer?.id === customerId)
     );
 
-    if (customersWithUnpaidInvoices.length > 0) {
-      const customerNames = customers.filter(c => customersWithUnpaidInvoices.includes(c.id)).map(c => c.name).join(', ');
+    if (customersWithInvoices.length > 0) {
+      const customerNames = customers.filter(c => customersWithInvoices.includes(c.id)).map(c => c.name).join(', ');
       toast({
         variant: 'destructive',
         title: 'Deletion Blocked',
-        description: `Cannot delete ${customerNames} because they have unpaid or overdue invoices.`,
+        description: `Cannot delete ${customerNames} because they have one or more associated invoices.`,
       });
       return;
     }
