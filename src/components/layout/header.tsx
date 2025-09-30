@@ -36,13 +36,35 @@ import { cn } from '@/lib/utils';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { useSearch } from '@/hooks/use-search';
 import { useLocale } from '@/hooks/use-locale';
+import * as React from 'react';
+import { getCompanyProfile } from '@/lib/google-sheets';
+import type { CompanyProfile } from '@/lib/types';
 
 export default function Header() {
   const { user, signOut } = useAuth();
   const pathname = usePathname();
   const { searchTerm, setSearchTerm } = useSearch();
-  const logo = PlaceHolderImages.find((img) => img.id === 'logo');
+  const defaultLogo = PlaceHolderImages.find((img) => img.id === 'logo');
   const { t } = useLocale();
+  const [companyLogoUrl, setCompanyLogoUrl] = React.useState<string | null>(null);
+
+   React.useEffect(() => {
+    async function fetchProfile() {
+      try {
+        const profile: CompanyProfile = await getCompanyProfile();
+        if (profile.logoUrl) {
+          setCompanyLogoUrl(profile.logoUrl);
+        }
+      } catch (error) {
+        console.error('Failed to fetch company profile for logo', error);
+      }
+    }
+    fetchProfile();
+  }, []);
+
+  const logoUrl = companyLogoUrl || defaultLogo?.imageUrl;
+  const logoHint = companyLogoUrl ? 'company logo' : defaultLogo?.imageHint;
+
 
   const navItems = [
     { href: '/dashboard', icon: LayoutDashboard, label: t('nav.dashboard') },
@@ -67,18 +89,18 @@ export default function Header() {
         <SheetContent side="left" className="sm:max-w-xs">
           <SheetHeader>
             <SheetTitle>
-              {logo && (
+              {logoUrl && (
                 <Link
                   href="/dashboard"
                   className="flex items-center gap-2 font-semibold"
                 >
                   <Image
-                    src={logo.imageUrl}
+                    src={logoUrl}
                     width={32}
                     height={32}
                     alt="InvoiceCraft Logo"
                     className="rounded-full"
-                    data-ai-hint={logo.imageHint}
+                    data-ai-hint={logoHint}
                   />
                   <span>InvoiceCraft</span>
                 </Link>
@@ -100,18 +122,18 @@ export default function Header() {
         </SheetContent>
       </Sheet>
       <div className="hidden items-center gap-6 md:flex">
-        {logo && (
+        {logoUrl && (
           <Link
             href="/dashboard"
             className="flex items-center gap-2 font-semibold"
           >
             <Image
-              src={logo.imageUrl}
+              src={logoUrl}
               width={32}
               height={32}
               alt="InvoiceCraft Logo"
               className="rounded-full"
-              data-ai-hint={logo.imageHint}
+              data-ai-hint={logoHint}
             />
             <span className="font-bold text-lg">
               Invoice<span className="text-primary">Craft</span>

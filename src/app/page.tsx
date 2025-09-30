@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Chrome } from 'lucide-react';
@@ -9,17 +9,32 @@ import { Button } from '@/components/ui/button';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Spinner from '@/components/ui/spinner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { getCompanyProfile } from '@/lib/google-sheets';
+import type { CompanyProfile } from '@/lib/types';
 
 export default function LoginPage() {
   const { user, loading, signInWithGoogle } = useAuth();
   const router = useRouter();
-  const logo = PlaceHolderImages.find((img) => img.id === 'logo');
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const defaultLogo = PlaceHolderImages.find((img) => img.id === 'logo');
 
   useEffect(() => {
     if (!loading && user) {
       router.push('/dashboard');
     }
   }, [user, loading, router]);
+  
+  useEffect(() => {
+    async function fetchLogo() {
+      try {
+        const profile: CompanyProfile = await getCompanyProfile();
+        setLogoUrl(profile.logoUrl);
+      } catch (error) {
+        console.error('Failed to fetch company profile for logo', error);
+      }
+    }
+    fetchLogo();
+  }, []);
 
   if (loading || (!loading && user)) {
     return (
@@ -28,19 +43,21 @@ export default function LoginPage() {
       </div>
     );
   }
+  
+  const displayLogoUrl = logoUrl || defaultLogo?.imageUrl;
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
       <Card className="w-full max-w-sm shadow-2xl">
         <CardHeader className="items-center text-center">
-          {logo && (
+          {displayLogoUrl && (
             <Image
-              src={logo.imageUrl}
+              src={displayLogoUrl}
               alt="InvoiceCraft Logo"
               width={80}
               height={80}
               className="rounded-full"
-              data-ai-hint={logo.imageHint}
+              data-ai-hint={logoUrl ? 'company logo' : defaultLogo?.imageHint}
             />
           )}
           <CardTitle className="pt-4 text-3xl font-bold">
