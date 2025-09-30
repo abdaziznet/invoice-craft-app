@@ -148,6 +148,39 @@
       "summaryTitle": "Ringkasan",
       "subtotal": "Subtotal",
       "includeTax": "Sertakan Pajak (11%)"
+    },
+    "table": {
+      "deleteSelected": "Hapus yang Dipilih ({{count}})",
+      "deleteDesc": "{{count}} faktur",
+      "deleteDescSingle": "faktur \"{{number}}\"",
+      "header": {
+        "invoice": "Faktur",
+        "client": "Klien",
+        "status": "Status",
+        "dueDate": "Jatuh Tempo",
+        "total": "Total",
+        "actions": "Aksi"
+      },
+      "actions": {
+        "title": "Aksi",
+        "view": "Lihat Detail",
+        "edit": "Edit",
+        "exportPdf": "Ekspor ke PDF",
+        "share": "Bagikan",
+        "generateReminder": "Buat Pengingat"
+      },
+      "toast": {
+        "pdfErrorTitle": "Gagal Membuat PDF",
+        "pdfErrorDesc": "Tidak dapat membuat PDF untuk faktur ini.",
+        "shareUnsupportedTitle": "Web Share tidak didukung",
+        "shareUnsupportedDesc": "Beralih ke berbagi tautan melalui WhatsApp.",
+        "shareErrorTitle": "Gagal Berbagi",
+        "shareErrorDesc": "Tidak dapat membagikan faktur. Silakan coba lagi.",
+        "deletedTitle": "Faktur Dihapus",
+        "deletedDesc": "Faktur yang dipilih telah berhasil dihapus.",
+        "deleteErrorTitle": "Gagal Menghapus Faktur",
+        "deleteErrorDesc": "Terjadi kesalahan saat menghapus faktur. Silakan coba lagi."
+      }
     }
   },
   "settings": {
@@ -183,3 +216,5 @@
     "description": "Tindakan ini tidak dapat dibatalkan. Ini akan menghapus {{items}} secara permanen dan menghapus datanya dari server kami."
   }
 }
+
+    

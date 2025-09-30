@@ -148,6 +148,39 @@
       "summaryTitle": "Summary",
       "subtotal": "Subtotal",
       "includeTax": "Include Tax (11%)"
+    },
+    "table": {
+      "deleteSelected": "Delete Selected ({{count}})",
+      "deleteDesc": "{{count}} invoices",
+      "deleteDescSingle": "invoice \"{{number}}\"",
+      "header": {
+        "invoice": "Invoice",
+        "client": "Client",
+        "status": "Status",
+        "dueDate": "Due Date",
+        "total": "Total",
+        "actions": "Actions"
+      },
+      "actions": {
+        "title": "Actions",
+        "view": "View Details",
+        "edit": "Edit",
+        "exportPdf": "Export as PDF",
+        "share": "Share",
+        "generateReminder": "Generate Reminder"
+      },
+      "toast": {
+        "pdfErrorTitle": "PDF Generation Failed",
+        "pdfErrorDesc": "Could not generate PDF for this invoice.",
+        "shareUnsupportedTitle": "Web Share not supported",
+        "shareUnsupportedDesc": "Falling back to sharing a link via WhatsApp.",
+        "shareErrorTitle": "Sharing Failed",
+        "shareErrorDesc": "Could not share the invoice. Please try again.",
+        "deletedTitle": "Invoices Deleted",
+        "deletedDesc": "The selected invoices have been successfully deleted.",
+        "deleteErrorTitle": "Failed to Delete Invoices",
+        "deleteErrorDesc": "An error occurred while deleting the invoices. Please try again."
+      }
     }
   },
   "settings": {
@@ -183,3 +216,5 @@
     "description": "This action cannot be undone. This will permanently delete the {{items}} and remove their data from our servers."
   }
 }
+
+    

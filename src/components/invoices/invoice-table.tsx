@@ -34,6 +34,7 @@ import { generatePdf } from '@/ai/flows/pdf-generation';
 import { saveAs } from 'file-saver';
 import Spinner from '../ui/spinner';
 import DataTablePagination from '../data-table-pagination';
+import { useLocale } from '@/hooks/use-locale';
 
 
 type InvoiceTableProps = {
@@ -63,6 +64,7 @@ const b64toBlob = (b64Data: string, contentType='', sliceSize=512) => {
 export default function InvoiceTable({ invoices }: InvoiceTableProps) {
   const { toast } = useToast();
   const router = useRouter();
+  const { t } = useLocale();
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedInvoiceIds, setSelectedInvoiceIds] = useState<string[]>([]);
@@ -114,8 +116,8 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
         console.error("Failed to generate PDF", error);
         toast({
             variant: 'destructive',
-            title: 'PDF Generation Failed',
-            description: 'Could not generate PDF for this invoice.',
+            title: t('invoices.table.toast.pdfErrorTitle'),
+            description: t('invoices.table.toast.pdfErrorDesc'),
         });
     } finally {
         setIsProcessing(null);
@@ -139,8 +141,8 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
         await navigator.share(shareData);
       } else {
          toast({
-            title: "Web Share not supported",
-            description: "Falling back to sharing a link via WhatsApp.",
+            title: t('invoices.table.toast.shareUnsupportedTitle'),
+            description: t('invoices.table.toast.shareUnsupportedDesc'),
           });
          const invoiceUrl = `${window.location.origin}/invoices/${invoice.id}`;
          const message = `Hi ${invoice.client.name}, here is your invoice #${invoice.invoiceNumber} for ${formatCurrency(invoice.total)}. You can view it here: ${invoiceUrl}`;
@@ -152,8 +154,8 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
        console.error("Failed to share invoice", error);
        toast({
          variant: 'destructive',
-         title: 'Sharing Failed',
-         description: 'Could not share the invoice. Please try again.',
+         title: t('invoices.table.toast.shareErrorTitle'),
+         description: t('invoices.table.toast.shareErrorDesc'),
        })
     } finally {
         setIsProcessing(null);
@@ -166,8 +168,8 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
     try {
       await deleteInvoices(selectedInvoiceIds);
       toast({
-        title: 'Invoices Deleted',
-        description: 'The selected invoices have been successfully deleted.',
+        title: t('invoices.table.toast.deletedTitle'),
+        description: t('invoices.table.toast.deletedDesc'),
       });
       router.refresh();
       setSelectedInvoiceIds([]);
@@ -175,8 +177,8 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
       console.error(error);
       toast({
         variant: 'destructive',
-        title: 'Failed to Delete Invoices',
-        description: 'An error occurred while deleting the invoices. Please try again.',
+        title: t('invoices.table.toast.deleteErrorTitle'),
+        description: t('invoices.table.toast.deleteErrorDesc'),
       });
     } finally {
       setIsDeleting(false);
@@ -209,7 +211,7 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
         {numSelected > 0 && (
             <Button variant="destructive" size="sm" onClick={handleBulkDeleteClick}>
                 <Trash2 className="mr-2 h-4 w-4" />
-                Delete Selected ({numSelected})
+                {t('invoices.table.deleteSelected', { count: numSelected })}
             </Button>
         )}
       </div>
@@ -224,22 +226,22 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
                   aria-label="Select all"
                  />
               </TableHead>
-              <TableHead>Invoice</TableHead>
-              <TableHead>Client</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead>{t('invoices.table.header.invoice')}</TableHead>
+              <TableHead>{t('invoices.table.header.client')}</TableHead>
+              <TableHead>{t('invoices.table.header.status')}</TableHead>
               <TableHead>
                 <Button variant="ghost" className="p-0 hover:bg-transparent">
-                  Due Date
+                  {t('invoices.table.header.dueDate')}
                   <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
               </TableHead>
               <TableHead className="text-right">
                  <Button variant="ghost" className="p-0 hover:bg-transparent">
-                  Total
+                  {t('invoices.table.header.total')}
                   <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
               </TableHead>
-              <TableHead className="text-right w-[50px]">Actions</TableHead>
+              <TableHead className="text-right w-[50px]">{t('invoices.table.header.actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -272,29 +274,29 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                      <DropdownMenuLabel>{t('invoices.table.actions.title')}</DropdownMenuLabel>
                       <DropdownMenuItem asChild>
-                        <Link href={`/invoices/${invoice.id}`}>View Details</Link>
+                        <Link href={`/invoices/${invoice.id}`}>{t('invoices.table.actions.view')}</Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link href={`/invoices/${invoice.id}/edit`}>Edit</Link>
+                        <Link href={`/invoices/${invoice.id}/edit`}>{t('invoices.table.actions.edit')}</Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => handleExportPdf(invoice)}>
-                         Export as PDF
+                         {t('invoices.table.actions.exportPdf')}
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => handleShare(invoice)}>
-                         <Share2 className="mr-2 h-4 w-4" /> Share
+                         <Share2 className="mr-2 h-4 w-4" /> {t('invoices.table.actions.share')}
                       </DropdownMenuItem>
                       {invoice.status === 'Overdue' && (
                         <DropdownMenuItem onClick={() => handleGenerateReminder(invoice)}>
-                          Generate Reminder
+                          {t('invoices.table.actions.generateReminder')}
                         </DropdownMenuItem>
                       )}
                        <DropdownMenuItem
                         className="text-destructive focus:bg-destructive/10 focus:text-destructive"
                         onClick={() => handleDeleteClick(invoice)}
                        >
-                        Delete
+                        {t('common.delete')}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -323,8 +325,10 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
         onOpenChange={setIsDeleteDialogOpen}
         onConfirm={confirmDelete}
         isDeleting={isDeleting}
-        itemsDescription={numSelected > 1 ? `${numSelected} invoices` : `invoice "${invoices.find(inv => inv.id === selectedInvoiceIds[0])?.invoiceNumber}"`}
+        itemsDescription={numSelected > 1 ? t('invoices.table.deleteDesc', { count: numSelected }) : t('invoices.table.deleteDescSingle', { number: invoices.find(inv => inv.id === selectedInvoiceIds[0])?.invoiceNumber })}
       />
     </>
   );
 }
+
+    
