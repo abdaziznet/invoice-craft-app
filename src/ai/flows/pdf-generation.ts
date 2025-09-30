@@ -8,12 +8,12 @@
  * - GeneratePdfOutput - The return type for the generatePdf function.
  */
 
-import {ai} from '@/ai/genkit';
-import {z} from 'zod';
-import {PDFDocument, rgb, StandardFonts} from 'pdf-lib';
-import {getCompanyProfile, getInvoiceById} from '@/lib/google-sheets';
-import {formatCurrency} from '@/lib/utils';
-import {format, parseISO} from 'date-fns';
+import { ai } from '@/ai/genkit';
+import { z } from 'zod';
+import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
+import { getCompanyProfile, getInvoiceById } from '@/lib/google-sheets';
+import { formatCurrency } from '@/lib/utils';
+import { format, parseISO } from 'date-fns';
 
 const GeneratePdfInputSchema = z.object({
   invoiceId: z.string(),
@@ -37,21 +37,21 @@ const generatePdfFlow = ai.defineFlow(
     inputSchema: GeneratePdfInputSchema,
     outputSchema: GeneratePdfOutputSchema,
   },
-  async ({invoiceId}) => {
+  async ({ invoiceId }) => {
     const invoice = await getInvoiceById(invoiceId);
     if (!invoice) {
       throw new Error('Invoice not found');
     }
-    
+
     const companyProfile = await getCompanyProfile();
 
     const pdfDoc = await PDFDocument.create();
     const page = pdfDoc.addPage();
-    const {width, height} = page.getSize();
+    const { width, height } = page.getSize();
 
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
-    
+
     let logoImage;
     let logoDims = { width: 0, height: 0 };
     if (companyProfile.logoUrl) {
@@ -63,8 +63,8 @@ const generatePdfFlow = ai.defineFlow(
           logoImage = await pdfDoc.embedJpg(logoImageBytes);
         }
         if (logoImage) {
-           const scaleFactor = 80 / logoImage.height;
-           logoDims = logoImage.scale(scaleFactor);
+          const scaleFactor = 80 / logoImage.height;
+          logoDims = logoImage.scale(scaleFactor);
         }
       } catch (e) {
         console.error("Failed to embed logo:", e);
@@ -79,11 +79,12 @@ const generatePdfFlow = ai.defineFlow(
 
     const margin = 50;
     const contentWidth = width - 2 * margin;
+
     let y = height - margin;
-    
+
     // Header Section
     let rightY = y;
-    
+
     // Right side: Invoice Title and Info
     const invoiceTitle = 'Invoice';
     const titleWidth = boldFont.widthOfTextAtSize(invoiceTitle, headerFontSize);
@@ -109,61 +110,72 @@ const generatePdfFlow = ai.defineFlow(
 
     // Left side: Logo and Company Info
     let leftX = margin;
+    let topY = y; // posisi awal paling atas
     if (logoImage) {
-        page.drawImage(logoImage, {
-            x: leftX,
-            y: y - logoDims.height + 10,
-            width: logoDims.width,
-            height: logoDims.height,
-        });
-        leftX += logoDims.width + 15;
+      page.drawImage(logoImage, {
+        x: leftX,
+        y: topY - logoDims.height,
+        width: logoDims.width,
+        height: logoDims.height,
+      });
+      leftX += logoDims.width + 15;
     }
     
-    let leftY = y;
+    let leftY = topY - (logoDims.height / 2) + (boldFont.heightOfTextAtSize(subHeaderFontSize) / 2);
+
     page.drawText(companyProfile.name, {
       x: leftX,
       y: leftY,
       font: boldFont,
-      size: subHeaderFontSize
+      size: subHeaderFontSize,
     });
-    leftY -= 15;
+    leftY -= 20;
 
     const companyAddressLines = companyProfile.address.split('\n');
     companyAddressLines.forEach(line => {
-       page.drawText(line, {
+      page.drawText(line, {
         x: leftX,
         y: leftY,
         font: font,
         size: fontSize,
         color: rgb(0.3, 0.3, 0.3),
-        lineHeight: 15
       });
       leftY -= 15;
     });
 
     const metaInfo = [
-      {label: 'Status:', value: invoice.status},
-      {label: 'Invoice Date:', value: format(parseISO(invoice.createdAt), 'PPP')},
-      {label: 'Due Date:', value: format(parseISO(invoice.dueDate), 'PPP')},
+      { label: 'Status:', value: invoice.status },
+      { label: 'Invoice Date:', value: format(parseISO(invoice.createdAt), 'PPP') },
+      { label: 'Due Date:', value: format(parseISO(invoice.dueDate), 'PPP') },
     ];
 
     metaInfo.forEach(info => {
-      const labelWidth = boldFont.widthOfTextAtSize(info.label, fontSize);
-      page.drawText(info.label, {x: width - margin - 150, y: rightY, font: boldFont, size: fontSize});
       const valueWidth = font.widthOfTextAtSize(info.value, fontSize);
+      const labelWidth = boldFont.widthOfTextAtSize(info.label, fontSize);
+      
+      const metaInfoXLabel = width - margin - valueWidth - labelWidth - 10;
+      const metaInfoXValue = width - margin;
+      
+      page.drawText(info.label, {
+        x: metaInfoXLabel,
+        y: rightY,
+        font: boldFont,
+        size: fontSize,
+        color: rgb(0, 0, 0),
+      });
+
       page.drawText(info.value, {
-        x: width - margin - valueWidth,
+        x: metaInfoXValue - valueWidth,
         y: rightY,
         font: font,
         size: fontSize,
         color: rgb(0.3, 0.3, 0.3),
       });
+
       rightY -= 20;
     });
     
-    // Position `y` for the next section based on the longest column
-    const minLeftY = y - logoDims.height - 20;
-    y = Math.min(minLeftY, rightY) - 20;
+    y = Math.min(leftY, rightY) - 20;
 
     // Billing Info
     page.drawText('Bill To:', {
@@ -172,16 +184,16 @@ const generatePdfFlow = ai.defineFlow(
       font: boldFont,
       size: fontSize,
     });
-    y -= 15;
+    //y -= 15;
     page.drawText(invoice.client.name, {
-      x: margin,
+      x: margin + 40,
       y: y,
       font: font,
       size: fontSize,
       color: rgb(0.1, 0.1, 0.1),
     });
     y -= 15;
-    
+
     // Handle multi-line address
     const addressLines = invoice.client.address.split('\n');
     addressLines.forEach(line => {
@@ -197,23 +209,7 @@ const generatePdfFlow = ai.defineFlow(
     });
     y -= 3; // Extra space after address
 
-    page.drawText(invoice.client.email, {
-      x: margin,
-      y: y,
-      font: font,
-      size: smallFontSize,
-      color: rgb(0.3, 0.3, 0.3),
-    });
-    y -= 12;
-    page.drawText(invoice.client.phone, {
-      x: margin,
-      y: y,
-      font: font,
-      size: smallFontSize,
-      color: rgb(0.3, 0.3, 0.3),
-    });
-
-    y -= 50;
+    y -= 25;
 
 
     // Table Header
@@ -236,11 +232,11 @@ const generatePdfFlow = ai.defineFlow(
     let currentX = margin + 10;
 
     tableHeaders.forEach((header, i) => {
-       let xPos = currentX;
+      let xPos = currentX;
       if (i > 0) { // Right align headers other than item
-         const colEnd = margin + colWidths.slice(0, i + 1).reduce((a, b) => a + b);
-         const textWidth = boldFont.widthOfTextAtSize(header, fontSize);
-         xPos = colEnd - textWidth - 10;
+        const colEnd = margin + colWidths.slice(0, i + 1).reduce((a, b) => a + b);
+        const textWidth = boldFont.widthOfTextAtSize(header, fontSize);
+        xPos = colEnd - textWidth - 10;
       }
       page.drawText(header, {
         x: xPos,
@@ -268,9 +264,9 @@ const generatePdfFlow = ai.defineFlow(
         let xPos = currentX;
         let cellFont = font;
         if (i > 0) { // right align numbers
-            const textWidth = cellFont.widthOfTextAtSize(cell, fontSize);
-            const colEnd = margin + colWidths.slice(0, i + 1).reduce((a, b) => a + b);
-            xPos = colEnd - textWidth - 10;
+          const textWidth = cellFont.widthOfTextAtSize(cell, fontSize);
+          const colEnd = margin + colWidths.slice(0, i + 1).reduce((a, b) => a + b);
+          xPos = colEnd - textWidth - 10;
         }
 
         page.drawText(cell, {
@@ -290,20 +286,23 @@ const generatePdfFlow = ai.defineFlow(
     // Summary Section
     const summaryLabelX = width / 2 + 50;
     const summaryValueXEnd = width - margin;
-    
+
     const summaryItems = [
-      {label: 'Subtotal', value: formatCurrency(invoice.subtotal)},
-      {
-        label: `Tax (${invoice.tax}%)`,
-        value: formatCurrency((invoice.subtotal * invoice.tax) / 100),
-      },
+      { label: 'Subtotal', value: formatCurrency(invoice.subtotal) },
     ];
+    
+    if (invoice.tax > 0) {
+        summaryItems.push({
+            label: `Tax (${invoice.tax}%)`,
+            value: formatCurrency((invoice.subtotal * invoice.tax) / 100),
+        });
+    }
     if (invoice.discount > 0) {
-      summaryItems.push({label: 'Discount', value: `- ${formatCurrency(invoice.discount)}`});
+      summaryItems.push({ label: 'Discount', value: `- ${formatCurrency(invoice.discount)}` });
     }
 
     summaryItems.forEach(item => {
-      page.drawText(item.label, {x: summaryLabelX, y: y, font: font, size: fontSize});
+      page.drawText(item.label, { x: summaryLabelX, y: y, font: font, size: fontSize });
       const valueWidth = font.widthOfTextAtSize(item.value, fontSize);
       page.drawText(item.value, {
         x: summaryValueXEnd - valueWidth,
@@ -316,32 +315,32 @@ const generatePdfFlow = ai.defineFlow(
 
     y -= 5;
     page.drawLine({
-      start: {x: summaryLabelX, y: y},
-      end: {x: width - margin, y: y},
+      start: { x: summaryLabelX, y: y },
+      end: { x: width - margin, y: y },
       thickness: 1,
       color: rgb(0, 0, 0),
     });
     y -= 20;
-    
+
     const totalText = formatCurrency(invoice.total);
     const totalWidth = boldFont.widthOfTextAtSize(totalText, subHeaderFontSize);
-    page.drawText('Total', {x: summaryLabelX, y: y, font: boldFont, size: subHeaderFontSize});
+    page.drawText('Total', { x: summaryLabelX, y: y, font: boldFont, size: subHeaderFontSize });
     page.drawText(totalText, {
       x: summaryValueXEnd - totalWidth,
       y: y,
       font: boldFont,
       size: subHeaderFontSize,
     });
-    
+
     // Move y below summary for notes
     y -= 40;
-    
+
     // Notes
     if (invoice.notes) {
       const notesX = margin;
-      page.drawText('Notes', {x: notesX, y: y, font: boldFont, size: fontSize});
+      page.drawText('Notes', { x: notesX, y: y, font: boldFont, size: fontSize });
       y -= 15;
-      
+
       const notesLines = invoice.notes.split('\n');
       notesLines.forEach(line => {
         page.drawText(line, {
@@ -374,4 +373,3 @@ const generatePdfFlow = ai.defineFlow(
     };
   }
 );
-    
