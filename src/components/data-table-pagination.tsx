@@ -33,29 +33,6 @@ export default function DataTablePagination({
         {/* You can add selection info here if needed */}
       </div>
       <div className="flex items-center space-x-6 lg:space-x-8">
-        <div className="flex items-center space-x-2">
-          <p className="text-sm font-medium">Rows per page</p>
-          <Select
-            value={`${pageSize}`}
-            onValueChange={(value) => {
-              // Note: For this to work, you'd need to lift page size state up
-              // and also allow setting it via an env var is tricky with a select
-              // For now, it's just a display.
-            }}
-            disabled
-          >
-            <SelectTrigger className="h-8 w-[70px]">
-              <SelectValue placeholder={pageSize} />
-            </SelectTrigger>
-            <SelectContent side="top">
-              {[10, 20, 30, 40, 50].map((size) => (
-                <SelectItem key={size} value={`${size}`}>
-                  {size}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
         <div className="flex w-[100px] items-center justify-center text-sm font-medium">
           Page {page} of {totalPages}
         </div>
