@@ -13,10 +13,9 @@ import {
 import {
   Avatar,
   AvatarFallback,
-  AvatarImage,
 } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { formatCurrency } from '@/lib/utils';
+import { cn, formatCurrency } from '@/lib/utils';
 import type { Invoice, InvoiceStatus } from '@/lib/types';
 import { parseISO, compareDesc } from 'date-fns';
 import { useLocale } from '@/hooks/use-locale';
@@ -51,16 +50,18 @@ export default function RecentInvoices({ invoices }: RecentInvoicesProps) {
     return `hsl(${h}, 70%, 80%)`;
   };
 
-  const getBadgeVariant = (status: InvoiceStatus): 'default' | 'secondary' | 'destructive' => {
+  const getStatusClass = (status: InvoiceStatus) => {
     switch (status) {
       case 'Paid':
-        return 'default';
+        return 'bg-green-100 text-green-800 border-green-200 hover:bg-green-200 dark:bg-green-900/50 dark:text-green-300 dark:border-green-700';
       case 'Unpaid':
-        return 'secondary';
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200 hover:bg-yellow-200 dark:bg-yellow-900/50 dark:text-yellow-300 dark:border-yellow-700';
       case 'Overdue':
-        return 'destructive';
+        return 'bg-red-100 text-red-800 border-red-200 hover:bg-red-200 dark:bg-red-900/50 dark:text-red-300 dark:border-red-700';
+      default:
+        return '';
     }
-  }
+  };
 
   return (
     <Card className="lg:col-span-3">
@@ -100,7 +101,9 @@ export default function RecentInvoices({ invoices }: RecentInvoicesProps) {
             </div>
             <div className="ml-auto flex flex-col items-end">
               <span className="font-medium">{formatCurrency(invoice.total)}</span>
-              <Badge variant={getBadgeVariant(invoice.status)} className="mt-1">{invoice.status}</Badge>
+               <Badge variant="outline" className={cn('mt-1', getStatusClass(invoice.status))}>
+                {t(`invoices.status.${invoice.status.toLowerCase()}`)}
+              </Badge>
             </div>
           </div>
         ))}
