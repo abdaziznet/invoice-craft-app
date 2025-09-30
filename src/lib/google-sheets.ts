@@ -394,7 +394,7 @@ export async function deleteProducts(productIds: string[]) {
 
 
 export async function getInvoices() {
-    const data = await getSheetData('Invoices!A:L');
+    const data = await getSheetData('Invoices!A:M');
     const invoices = mapToObjects(data);
     const customers = await getCustomers();
     const products = await getProducts();
@@ -436,7 +436,7 @@ export async function getInvoiceById(id: string): Promise<Invoice | null> {
 }
 
 
-export async function createInvoice(invoiceData: Omit<Invoice, 'id' | 'invoiceNumber' | 'createdAt' | 'customer' | 'items' | 'lineItems'> & { lineItems: Omit<InvoiceItem, 'id'|'product'>[], customerId: string}) {
+export async function createInvoice(invoiceData: Omit<Invoice, 'id' | 'invoiceNumber' | 'createdAt' | 'customer' | 'lineItems'> & { lineItems: Omit<InvoiceItem, 'id'|'product'>[], customerId: string}) {
   try {
     const invoicesData = (await getSheetData('Invoices!A:A')) || [['id']];
     const invoiceItemsData = (await getSheetData('InvoiceItems!A:A')) || [['id']];
@@ -492,9 +492,9 @@ export async function createInvoice(invoiceData: Omit<Invoice, 'id' | 'invoiceNu
   }
 }
 
-export async function updateInvoice(invoiceId: string, invoiceData: Omit<Invoice, 'id' | 'invoiceNumber' | 'createdAt' | 'customer' | 'items' | 'lineItems'> & { lineItems: Omit<InvoiceItem, 'id'|'product'>[], customerId: string}) {
+export async function updateInvoice(invoiceId: string, invoiceData: Omit<Invoice, 'id' | 'invoiceNumber' | 'createdAt' | 'customer' | 'lineItems'> & { lineItems: Omit<InvoiceItem, 'id'|'product'>[], customerId: string}) {
     try {
-        const invoicesData = await getSheetData('Invoices!A:L');
+        const invoicesData = await getSheetData('Invoices!A:M');
         if (!invoicesData) {
             throw new Error('Could not fetch invoices data.');
         }
@@ -595,50 +595,52 @@ export async function updateInvoice(invoiceId: string, invoiceData: Omit<Invoice
 
 export async function deleteInvoices(invoiceIds: string[]) {
     try {
-        const sheetTitle = 'Invoices';
         const sheetResponse = await sheets.spreadsheets.get({ spreadsheetId });
-        const sheet = sheetResponse.data.sheets?.find(s => s.properties?.title === sheetTitle);
-        const sheetId = sheet?.properties?.sheetId;
 
-        if (sheetId === undefined) {
-            throw new Error(`Sheet "${sheetTitle}" not found.`);
+        const invoiceSheetTitle = 'Invoices';
+        const invoiceSheet = sheetResponse.data.sheets?.find(s => s.properties?.title === invoiceSheetTitle);
+        const invoiceSheetId = invoiceSheet?.properties?.sheetId;
+
+        if (invoiceSheetId === undefined) {
+            throw new Error(`Sheet "${invoiceSheetTitle}" not found.`);
         }
+        
+        const invoiceItemsSheetTitle = 'InvoiceItems';
+        const invoiceItemsSheet = sheetResponse.data.sheets?.find(s => s.properties?.title === invoiceItemsSheetTitle);
+        const invoiceItemsSheetId = invoiceItemsSheet?.properties?.sheetId;
 
-        const data = await getSheetData('Invoices!A:A');
-        if (!data) {
-            throw new Error('Could not fetch invoices data.');
+        if (invoiceItemsSheetId === undefined) {
+          throw new Error(`Sheet "${invoiceItemsSheetTitle}" not found.`);
         }
 
         const requests = [];
-        // Iterate backwards to avoid index shifting issues
-        for (let i = data.length - 1; i >= 1; i--) {
-            const rowId = data[i][0];
-            if (invoiceIds.includes(rowId)) {
-                requests.push({
-                    deleteDimension: {
-                        range: {
-                            sheetId: sheetId,
-                            dimension: 'ROWS',
-                            startIndex: i,
-                            endIndex: i + 1,
+
+        // Prepare to delete invoice rows
+        const invoicesData = await getSheetData('Invoices!A:A');
+        if (invoicesData) {
+            for (let i = invoicesData.length - 1; i >= 1; i--) {
+                const rowId = invoicesData[i][0];
+                if (invoiceIds.includes(rowId)) {
+                    requests.push({
+                        deleteDimension: {
+                            range: {
+                                sheetId: invoiceSheetId,
+                                dimension: 'ROWS',
+                                startIndex: i,
+                                endIndex: i + 1,
+                            },
                         },
-                    },
-                });
+                    });
+                }
             }
         }
-        
-        const invoiceItemsSheet = sheetResponse.data.sheets?.find(s => s.properties?.title === 'InvoiceItems');
-        const invoiceItemsSheetId = invoiceItemsSheet?.properties?.sheetId;
-        
-        if (invoiceItemsSheetId === undefined) {
-          throw new Error(`Sheet "InvoiceItems" not found.`);
-        }
-        
-        const invoiceItemsData = await getSheetData('InvoiceItems!B:B');
+
+        // Prepare to delete invoice items rows
+        const invoiceItemsData = await getSheetData('InvoiceItems!A:B');
         if(invoiceItemsData){
             for (let i = invoiceItemsData.length - 1; i >= 1; i--) {
-                const rowId = invoiceItemsData[i][0];
-                if (invoiceIds.includes(rowId)) {
+                const associatedInvoiceId = invoiceItemsData[i][1];
+                if (invoiceIds.includes(associatedInvoiceId)) {
                     requests.push({
                         deleteDimension: {
                             range: {
