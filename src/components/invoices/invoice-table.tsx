@@ -226,30 +226,31 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
       <div className="rounded-md border">
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead className="w-[40px]">
+            <TableRow className="bg-primary hover:bg-primary/90">
+              <TableHead className="w-[40px] text-primary-foreground">
                 <Checkbox
                   onCheckedChange={(checked) => handleSelectAll(checked as boolean)}
                   checked={rowCount > 0 && numSelected === rowCount}
                   aria-label="Select all"
+                  className="border-primary-foreground data-[state=checked]:bg-primary-foreground data-[state=checked]:text-primary"
                  />
               </TableHead>
-              <TableHead>{t('invoices.table.header.invoice')}</TableHead>
-              <TableHead>{t('invoices.table.header.customer')}</TableHead>
-              <TableHead>{t('invoices.table.header.status')}</TableHead>
-              <TableHead className="hidden md:table-cell">
-                <Button variant="ghost" className="p-0 hover:bg-transparent">
+              <TableHead className="text-primary-foreground">{t('invoices.table.header.invoice')}</TableHead>
+              <TableHead className="text-primary-foreground">{t('invoices.table.header.customer')}</TableHead>
+              <TableHead className="text-primary-foreground">{t('invoices.table.header.status')}</TableHead>
+              <TableHead className="hidden md:table-cell text-primary-foreground">
+                <Button variant="ghost" className="p-0 hover:bg-transparent hover:text-primary-foreground/80 text-primary-foreground">
                   {t('invoices.table.header.dueDate')}
                   <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
               </TableHead>
-              <TableHead className="text-right">
-                 <Button variant="ghost" className="p-0 hover:bg-transparent">
+              <TableHead className="text-right text-primary-foreground">
+                 <Button variant="ghost" className="p-0 hover:bg-transparent hover:text-primary-foreground/80 text-primary-foreground">
                   {t('invoices.table.header.total')}
                   <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
               </TableHead>
-              <TableHead className="text-right w-[50px]">{t('invoices.table.header.actions')}</TableHead>
+              <TableHead className="text-right w-[50px] text-primary-foreground">{t('invoices.table.header.actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

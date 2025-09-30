@@ -147,18 +147,19 @@ export default function CustomerTable({ customers, onCustomerUpdated, onCustomer
       <div className="rounded-md border">
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead className="w-[40px]">
+            <TableRow className="bg-primary hover:bg-primary/90">
+              <TableHead className="w-[40px] text-primary-foreground">
                 <Checkbox 
                   onCheckedChange={(checked) => handleSelectAll(checked as boolean)}
                   checked={rowCount > 0 && numSelected === rowCount}
                   aria-label="Select all"
+                  className="border-primary-foreground data-[state=checked]:bg-primary-foreground data-[state=checked]:text-primary"
                 />
               </TableHead>
-              <TableHead>{t('customers.table.header.name')}</TableHead>
-              <TableHead className="hidden md:table-cell">{t('customers.table.header.email')}</TableHead>
-              <TableHead className="hidden lg:table-cell">{t('customers.table.header.phone')}</TableHead>
-              <TableHead className="text-right w-[50px]">{t('customers.table.header.actions')}</TableHead>
+              <TableHead className="text-primary-foreground">{t('customers.table.header.name')}</TableHead>
+              <TableHead className="hidden md:table-cell text-primary-foreground">{t('customers.table.header.email')}</TableHead>
+              <TableHead className="hidden lg:table-cell text-primary-foreground">{t('customers.table.header.phone')}</TableHead>
+              <TableHead className="text-right w-[50px] text-primary-foreground">{t('customers.table.header.actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
