@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -33,6 +34,7 @@ export default function RecentInvoices({ invoices }: RecentInvoicesProps) {
     .slice(0, 5);
 
   const getInitials = (name: string) => {
+    if (!name) return '??';
     const names = name.split(' ');
     if (names.length > 1) {
       return `${names[0][0]}${names[1][0]}`;
@@ -70,16 +72,22 @@ export default function RecentInvoices({ invoices }: RecentInvoicesProps) {
       <CardContent className="grid gap-8">
         {recentInvoices.map((invoice) => (
           <div key={invoice.id} className="flex items-center gap-4">
-            <Avatar className="hidden h-9 w-9 sm:flex">
-              <AvatarImage src={`https://picsum.photos/seed/${invoice.customer.id}/40/40`} alt="Avatar" data-ai-hint="person portrait"/>
-              <AvatarFallback>{getInitials(invoice.customer.name)}</AvatarFallback>
+             <Avatar className="hidden h-9 w-9 sm:flex">
+                {invoice.customer ? (
+                  <>
+                    <AvatarImage src={`https://picsum.photos/seed/${invoice.customer.id}/40/40`} alt="Avatar" data-ai-hint="person portrait"/>
+                    <AvatarFallback>{getInitials(invoice.customer.name)}</AvatarFallback>
+                  </>
+                ) : (
+                  <AvatarFallback>??</AvatarFallback>
+                )}
             </Avatar>
             <div className="grid gap-1">
               <p className="text-sm font-medium leading-none">
-                {invoice.customer.name}
+                {invoice.customer ? invoice.customer.name : 'Customer not found'}
               </p>
               <p className="text-sm text-muted-foreground">
-                {invoice.customer.email}
+                {invoice.customer ? invoice.customer.email : ''}
               </p>
             </div>
             <div className="ml-auto flex flex-col items-end">
