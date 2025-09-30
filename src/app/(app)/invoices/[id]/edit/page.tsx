@@ -1,5 +1,3 @@
-
-
 'use client';
 
 import * as React from 'react';
@@ -50,8 +48,8 @@ import {
 import { cn, formatCurrency } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { format, parseISO } from 'date-fns';
-import { getClients, getProducts, getInvoiceById, updateInvoice } from '@/lib/google-sheets';
-import type { Client, Product, Invoice, InvoiceStatus } from '@/lib/types';
+import { getCustomers, getProducts, getInvoiceById, updateInvoice } from '@/lib/google-sheets';
+import type { Customer, Product, Invoice, InvoiceStatus } from '@/lib/types';
 import Spinner from '@/components/ui/spinner';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
@@ -64,7 +62,7 @@ const lineItemSchema = z.object({
 });
 
 const invoiceSchema = z.object({
-  clientId: z.string().min(1, 'Client is required.'),
+  customerId: z.string().min(1, 'Customer is required.'),
   invoiceDate: z.date({ required_error: 'Invoice date is required.' }),
   dueDate: z.date({ required_error: 'Due date is required.' }),
   status: z.enum(['Paid', 'Unpaid', 'Overdue']),
@@ -81,7 +79,7 @@ export default function EditInvoicePage() {
   const { toast } = useToast();
   
   const [invoice, setInvoice] = React.useState<Invoice | null>(null);
-  const [clients, setClients] = React.useState<Client[]>([]);
+  const [customers, setCustomers] = React.useState<Customer[]>([]);
   const [products, setProducts] = React.useState<Product[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [isSaving, setIsSaving] = React.useState(false);
@@ -95,9 +93,9 @@ export default function EditInvoicePage() {
     if (!id) return;
     async function fetchData() {
       try {
-        const [invoiceData, clientsData, productsData] = await Promise.all([
+        const [invoiceData, customersData, productsData] = await Promise.all([
             getInvoiceById(id as string),
-            getClients(),
+            getCustomers(),
             getProducts(),
         ]);
         
@@ -107,11 +105,11 @@ export default function EditInvoicePage() {
         }
 
         setInvoice(invoiceData);
-        setClients(clientsData as Client[]);
+        setCustomers(customersData as Customer[]);
         setProducts(productsData as Product[]);
         
         form.reset({
-            clientId: invoiceData.client.id,
+            customerId: invoiceData.customer.id,
             invoiceDate: parseISO(invoiceData.createdAt),
             dueDate: parseISO(invoiceData.dueDate),
             status: invoiceData.status,
@@ -157,7 +155,7 @@ export default function EditInvoicePage() {
 
     try {
       const invoicePayload = {
-          clientId: data.clientId,
+          customerId: data.customerId,
           subtotal: subtotal,
           tax: includeTax ? 11 : 0,
           discount: invoice.discount, // Assuming discount is not editable for now
@@ -165,7 +163,7 @@ export default function EditInvoicePage() {
           status: data.status,
           dueDate: format(data.dueDate, 'yyyy-MM-dd'),
           notes: data.notes,
-          clientRelationship: invoice.clientRelationship,
+          customerRelationship: invoice.customerRelationship,
           paymentHistory: invoice.paymentHistory,
           lineItems: data.lineItems.map(item => ({
             productId: item.productId,
@@ -226,23 +224,23 @@ export default function EditInvoicePage() {
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <FormField
                   control={form.control}
-                  name="clientId"
+                  name="customerId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Client</FormLabel>
+                      <FormLabel>Customer</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         value={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select a client" />
+                            <SelectValue placeholder="Select a customer" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {clients.map((client) => (
-                            <SelectItem key={client.id} value={client.id}>
-                              {client.name}
+                          {customers.map((customer) => (
+                            <SelectItem key={customer.id} value={customer.id}>
+                              {customer.name}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -499,7 +497,7 @@ export default function EditInvoicePage() {
                     <FormItem>
                       <FormControl>
                         <Textarea
-                          placeholder="Add any additional notes for the client..."
+                          placeholder="Add any additional notes for the customer..."
                           className="resize-none"
                           {...field}
                           value={field.value ?? ''}

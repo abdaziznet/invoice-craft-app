@@ -1,7 +1,7 @@
 'use server';
 
 /**
- * @fileOverview This file defines a Genkit flow for suggesting personalized adjustments to payment reminders based on client relationships and payment history.
+ * @fileOverview This file defines a Genkit flow for suggesting personalized adjustments to payment reminders based on customer relationships and payment history.
  *
  * - paymentReminderAdjustments - A function that suggests adjustments to payment reminders.
  * - PaymentReminderAdjustmentsInput - The input type for the paymentReminderAdjustments function.
@@ -12,17 +12,17 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const PaymentReminderAdjustmentsInputSchema = z.object({
-  clientId: z.string().describe('The ID of the client.'),
+  customerId: z.string().describe('The ID of the customer.'),
   invoiceId: z.string().describe('The ID of the invoice.'),
   paymentHistory: z
     .string()
     .describe(
-      'A summary of the client past payment behavior, including on-time payments, late payments, and any disputes.'
+      'A summary of the customer past payment behavior, including on-time payments, late payments, and any disputes.'
     ),
-  clientRelationship: z
+  customerRelationship: z
     .string()
     .describe(
-      'A description of the relationship with the client (e.g., long-term, new, high-value)'
+      'A description of the relationship with the customer (e.g., long-term, new, high-value)'
     ),
   currentReminderMessage: z
     .string()
@@ -57,14 +57,14 @@ const prompt = ai.definePrompt({
   input: {schema: PaymentReminderAdjustmentsInputSchema},
   output: {schema: PaymentReminderAdjustmentsOutputSchema},
   prompt: `You are an expert in customer relations and communication. Your goal is to optimize payment reminder messages to improve the likelihood of on-time payments, 
-  taking into account the client's payment history and the relationship with the client. 
+  taking into account the customer's payment history and the relationship with the customer. 
 
-  Here is the information about the client and the invoice:
+  Here is the information about the customer and the invoice:
 
-  Client ID: {{{clientId}}}
+  Customer ID: {{{customerId}}}
   Invoice ID: {{{invoiceId}}}
   Payment History: {{{paymentHistory}}}
-  Client Relationship: {{{clientRelationship}}}
+  Customer Relationship: {{{customerRelationship}}}
   Current Reminder Message: {{{currentReminderMessage}}}
 
   Based on this information, suggest an adjusted payment reminder message. Explain your reasoning for the adjustments.

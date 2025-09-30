@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -20,35 +19,35 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import type { Client, Invoice } from '@/lib/types';
+import type { Customer, Invoice } from '@/lib/types';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import EditClientDialog from './edit-client-dialog';
+import EditCustomerDialog from './edit-customer-dialog';
 import DeleteConfirmationDialog from './delete-confirmation-dialog';
 import { useToast } from '@/hooks/use-toast';
-import { deleteClients, getInvoices } from '@/lib/google-sheets';
+import { deleteCustomers, getInvoices } from '@/lib/google-sheets';
 import Spinner from '../ui/spinner';
 import DataTablePagination from '../data-table-pagination';
 
-type ClientTableProps = {
-  clients: Client[];
-  onClientUpdated: () => void;
-  onClientDeleted: () => void;
+type CustomerTableProps = {
+  customers: Customer[];
+  onCustomerUpdated: () => void;
+  onCustomerDeleted: () => void;
 };
 
-export default function ClientTable({ clients, onClientUpdated, onClientDeleted }: ClientTableProps) {
+export default function CustomerTable({ customers, onCustomerUpdated, onCustomerDeleted }: CustomerTableProps) {
   const { toast } = useToast();
   const [isEditDialogOpen, setIsEditDialogOpen] = React.useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
-  const [selectedClient, setSelectedClient] = React.useState<Client | null>(null);
-  const [clientsToDelete, setClientsToDelete] = React.useState<string[]>([]);
-  const [selectedClientIds, setSelectedClientIds] = React.useState<string[]>([]);
+  const [selectedCustomer, setSelectedCustomer] = React.useState<Customer | null>(null);
+  const [customersToDelete, setCustomersToDelete] = React.useState<string[]>([]);
+  const [selectedCustomerIds, setSelectedCustomerIds] = React.useState<string[]>([]);
   const [isDeleting, setIsDeleting] = React.useState(false);
   const [invoices, setInvoices] = React.useState<Invoice[]>([]);
 
   const [page, setPage] = React.useState(1);
   const pageSize = parseInt(process.env.NEXT_PUBLIC_PAGE_SIZE || '10');
 
-  const paginatedClients = clients.slice((page - 1) * pageSize, page * pageSize);
+  const paginatedCustomers = customers.slice((page - 1) * pageSize, page * pageSize);
 
   React.useEffect(() => {
     async function fetchInvoices() {
@@ -66,49 +65,49 @@ export default function ClientTable({ clients, onClientUpdated, onClientDeleted 
     return name.substring(0, 2);
   }
 
-  const handleEditClick = (client: Client) => {
-    setSelectedClient(client);
+  const handleEditClick = (customer: Customer) => {
+    setSelectedCustomer(customer);
     setIsEditDialogOpen(true);
   };
   
-  const handleDeleteClick = (clientIds: string[]) => {
-    const clientsWithUnpaidInvoices = clientIds.filter(clientId => 
+  const handleDeleteClick = (customerIds: string[]) => {
+    const customersWithUnpaidInvoices = customerIds.filter(customerId => 
       invoices.some(invoice => 
-        invoice.client.id === clientId && (invoice.status === 'Unpaid' || invoice.status === 'Overdue')
+        invoice.customer.id === customerId && (invoice.status === 'Unpaid' || invoice.status === 'Overdue')
       )
     );
 
-    if (clientsWithUnpaidInvoices.length > 0) {
-      const clientNames = clients.filter(c => clientsWithUnpaidInvoices.includes(c.id)).map(c => c.name).join(', ');
+    if (customersWithUnpaidInvoices.length > 0) {
+      const customerNames = customers.filter(c => customersWithUnpaidInvoices.includes(c.id)).map(c => c.name).join(', ');
       toast({
         variant: 'destructive',
         title: 'Deletion Blocked',
-        description: `Cannot delete ${clientNames} because they have unpaid or overdue invoices.`,
+        description: `Cannot delete ${customerNames} because they have unpaid or overdue invoices.`,
       });
       return;
     }
     
-    setClientsToDelete(clientIds);
+    setCustomersToDelete(customerIds);
     setIsDeleteDialogOpen(true);
   }
 
   const confirmDelete = async () => {
     setIsDeleting(true);
     try {
-      await deleteClients(clientsToDelete);
+      await deleteCustomers(customersToDelete);
       toast({
-        title: 'Clients Deleted',
-        description: 'The selected clients have been successfully deleted.',
+        title: 'Customers Deleted',
+        description: 'The selected customers have been successfully deleted.',
       });
-      onClientDeleted();
-      setSelectedClientIds([]);
-      setClientsToDelete([]);
+      onCustomerDeleted();
+      setSelectedCustomerIds([]);
+      setCustomersToDelete([]);
     } catch (error) {
       console.error(error);
       toast({
         variant: 'destructive',
-        title: 'Failed to Delete Clients',
-        description: 'An error occurred while deleting the clients. Please try again.',
+        title: 'Failed to Delete Customers',
+        description: 'An error occurred while deleting the customers. Please try again.',
       });
     } finally {
       setIsDeleting(false);
@@ -118,29 +117,29 @@ export default function ClientTable({ clients, onClientUpdated, onClientDeleted 
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedClientIds(clients.map(c => c.id));
+      setSelectedCustomerIds(customers.map(c => c.id));
     } else {
-      setSelectedClientIds([]);
+      setSelectedCustomerIds([]);
     }
   }
 
-  const handleSelectRow = (clientId: string, checked: boolean) => {
+  const handleSelectRow = (customerId: string, checked: boolean) => {
     if (checked) {
-      setSelectedClientIds(prev => [...prev, clientId]);
+      setSelectedCustomerIds(prev => [...prev, customerId]);
     } else {
-      setSelectedClientIds(prev => prev.filter(id => id !== clientId));
+      setSelectedCustomerIds(prev => prev.filter(id => id !== customerId));
     }
   }
 
-  const numSelected = selectedClientIds.length;
-  const rowCount = clients.length;
+  const numSelected = selectedCustomerIds.length;
+  const rowCount = customers.length;
 
 
   return (
     <>
       <div className="mb-4 flex items-center gap-2 px-4 sm:px-0">
         {numSelected > 0 && (
-            <Button variant="destructive" size="sm" onClick={() => handleDeleteClick(selectedClientIds)}>
+            <Button variant="destructive" size="sm" onClick={() => handleDeleteClick(selectedCustomerIds)}>
                 <Trash2 className="mr-2 h-4 w-4" />
                 Delete Selected ({numSelected})
             </Button>
@@ -164,29 +163,29 @@ export default function ClientTable({ clients, onClientUpdated, onClientDeleted 
             </TableRow>
           </TableHeader>
           <TableBody>
-            {paginatedClients.map((client) => (
+            {paginatedCustomers.map((customer) => (
               <TableRow 
-                key={client.id}
-                data-state={selectedClientIds.includes(client.id) && "selected"}
+                key={customer.id}
+                data-state={selectedCustomerIds.includes(customer.id) && "selected"}
               >
                 <TableCell>
                   <Checkbox 
-                    onCheckedChange={(checked) => handleSelectRow(client.id, checked as boolean)}
-                    checked={selectedClientIds.includes(client.id)}
-                    aria-label={`Select row ${client.id}`}
+                    onCheckedChange={(checked) => handleSelectRow(customer.id, checked as boolean)}
+                    checked={selectedCustomerIds.includes(customer.id)}
+                    aria-label={`Select row ${customer.id}`}
                   />
                 </TableCell>
                 <TableCell className="font-medium">
                   <div className="flex items-center gap-3">
                     <Avatar className="h-9 w-9">
-                      <AvatarImage src={`https://picsum.photos/seed/${client.id}/40/40`} alt="Avatar" data-ai-hint="person portrait"/>
-                      <AvatarFallback>{getInitials(client.name)}</AvatarFallback>
+                      <AvatarImage src={`https://picsum.photos/seed/${customer.id}/40/40`} alt="Avatar" data-ai-hint="person portrait"/>
+                      <AvatarFallback>{getInitials(customer.name)}</AvatarFallback>
                     </Avatar>
-                    {client.name}
+                    {customer.name}
                   </div>
                 </TableCell>
-                <TableCell className="hidden md:table-cell">{client.email}</TableCell>
-                <TableCell className="hidden lg:table-cell">{client.phone}</TableCell>
+                <TableCell className="hidden md:table-cell">{customer.email}</TableCell>
+                <TableCell className="hidden lg:table-cell">{customer.phone}</TableCell>
                 <TableCell className="text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -197,10 +196,10 @@ export default function ClientTable({ clients, onClientUpdated, onClientDeleted 
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                      <DropdownMenuItem onClick={() => handleEditClick(client)}>Edit</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleEditClick(customer)}>Edit</DropdownMenuItem>
                       <DropdownMenuItem 
                         className="text-destructive focus:bg-destructive/10 focus:text-destructive"
-                        onClick={() => handleDeleteClick([client.id])}
+                        onClick={() => handleDeleteClick([customer.id])}
                       >
                         Delete
                       </DropdownMenuItem>
@@ -213,18 +212,18 @@ export default function ClientTable({ clients, onClientUpdated, onClientDeleted 
         </Table>
       </div>
       <DataTablePagination
-        count={clients.length}
+        count={customers.length}
         page={page}
         onPageChange={setPage}
         pageSize={pageSize}
       />
-      {selectedClient && (
-        <EditClientDialog
-          client={selectedClient}
+      {selectedCustomer && (
+        <EditCustomerDialog
+          customer={selectedCustomer}
           isOpen={isEditDialogOpen}
           onOpenChange={setIsEditDialogOpen}
-          onClientUpdated={() => {
-            onClientUpdated();
+          onCustomerUpdated={() => {
+            onCustomerUpdated();
             setIsEditDialogOpen(false);
           }}
         />
@@ -234,7 +233,7 @@ export default function ClientTable({ clients, onClientUpdated, onClientDeleted 
         onOpenChange={setIsDeleteDialogOpen}
         onConfirm={confirmDelete}
         isDeleting={isDeleting}
-        itemsDescription={clientsToDelete.length > 1 ? `${clientsToDelete.length} clients` : `client "${clients.find(c => c.id === clientsToDelete[0])?.name}"`}
+        itemsDescription={customersToDelete.length > 1 ? `${customersToDelete.length} customers` : `customer "${customers.find(c => c.id === customersToDelete[0])?.name}"`}
       />
     </>
   );

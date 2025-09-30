@@ -1,10 +1,7 @@
-
-
-
 'use server';
 import { google } from 'googleapis';
 import { JWT } from 'google-auth-library';
-import type { Client, Invoice, InvoiceItem, Product, CompanyProfile } from './types';
+import type { Customer, Invoice, InvoiceItem, Product, CompanyProfile } from './types';
 
 const spreadsheetId = process.env.GOOGLE_SHEET_ID;
 
@@ -28,7 +25,39 @@ async function getSheetData(range: string) {
     return response.data.values;
   } catch (error: any) {
     if (error.code === 400 && error.errors[0]?.message.includes('Unable to parse range')) {
-        return null; // Sheet or range doesn't exist
+        // Find or create sheet 'Customers'
+        const sheetTitle = range.split('!')[0];
+        const spreadsheetInfo = await sheets.spreadsheets.get({ spreadsheetId });
+        const sheetExists = spreadsheetInfo.data.sheets?.some(s => s.properties?.title === sheetTitle);
+
+        if (!sheetExists) {
+            await sheets.spreadsheets.batchUpdate({
+                spreadsheetId,
+                requestBody: {
+                    requests: [
+                        { addSheet: { properties: { title: sheetTitle } } }
+                    ]
+                }
+            });
+            let headers: string[] = [];
+            if (sheetTitle === 'Customers') headers = ['id', 'name', 'email', 'address', 'phone'];
+            else if (sheetTitle === 'Products') headers = ['id', 'name', 'unit', 'unitPrice'];
+            else if (sheetTitle === 'Invoices') headers = ['id', 'invoiceNumber', 'customerId', 'subtotal', 'tax', 'discount', 'total', 'status', 'dueDate', 'createdAt', 'notes', 'customerRelationship', 'paymentHistory'];
+            else if (sheetTitle === 'InvoiceItems') headers = ['id', 'invoiceId', 'productId', 'quantity', 'total'];
+            else if (sheetTitle === 'CompanyProfile') headers = ['key', 'value'];
+
+             if (headers.length > 0) {
+                await sheets.spreadsheets.values.update({
+                    spreadsheetId,
+                    range: `${sheetTitle}!A1`,
+                    valueInputOption: 'USER_ENTERED',
+                    requestBody: {
+                        values: [headers]
+                    }
+                });
+            }
+        }
+        return null;
     }
     console.error('Error fetching sheet data:', error);
     throw new Error('Could not fetch data from Google Sheets.');
@@ -122,65 +151,65 @@ export async function updateCompanyProfile(profileData: CompanyProfile) {
     }
 }
 
-export async function getClients() {
-  const data = await getSheetData('Clients!A:E');
+export async function getCustomers() {
+  const data = await getSheetData('Customers!A:E');
   return mapToObjects(data);
 }
 
-export async function createClient(clientData: Omit<Client, 'id'>) {
+export async function createCustomer(customerData: Omit<Customer, 'id'>) {
     try {
-        const clientsData = (await getSheetData('Clients!A:A')) || [['id']];
-        const newClientId = `cli-${clientsData.length}`;
+        const customersData = (await getSheetData('Customers!A:A')) || [['id']];
+        const newCustomerId = `cus-${customersData.length}`;
 
-        const newClientRow = [
-            newClientId,
-            clientData.name,
-            clientData.email,
-            clientData.address,
-            clientData.phone,
+        const newCustomerRow = [
+            newCustomerId,
+            customerData.name,
+            customerData.email,
+            customerData.address,
+            customerData.phone,
         ];
 
         await sheets.spreadsheets.values.append({
             spreadsheetId,
-            range: 'Clients!A:E',
+            range: 'Customers!A:E',
             valueInputOption: 'USER_ENTERED',
             requestBody: {
-                values: [newClientRow],
+                values: [newCustomerRow],
             },
         });
 
-        return { id: newClientId };
+        return { id: newCustomerId };
     } catch (error) {
-        console.error('Error creating client:', error);
-        throw new Error('Could not create client in Google Sheets.');
+        console.error('Error creating customer:', error);
+        throw new Error('Could not create customer in Google Sheets.');
     }
 }
 
-export async function updateClient(clientId: string, clientData: Partial<Omit<Client, 'id'>>) {
+export async function updateCustomer(customerId: string, customerData: Partial<Omit<Customer, 'id'>>) {
     try {
-        const clientsData = await getSheetData('Clients!A:E');
-        if (!clientsData) {
-            throw new Error('Could not fetch clients data.');
+        const customersData = await getSheetData('Customers!A:E');
+        if (!customersData) {
+            throw new Error('Could not fetch customers data.');
         }
 
-        const headers = clientsData[0];
-        const clientRowIndex = clientsData.findIndex(row => row[0] === clientId);
+        const headers = customersData[0];
+        const customerRowIndex = customersData.findIndex(row => row[0] === customerId);
 
-        if (clientRowIndex === -1) {
-            throw new Error('Client not found.');
+        if (customerRowIndex === -1) {
+            throw new Error('Customer not found.');
         }
 
         const updatedRow = headers.map((header: string) => {
-            if (header in clientData) {
-                return clientData[header as keyof typeof clientData];
+            if (header in customerData) {
+                return customerData[header as keyof typeof customerData];
             }
-            return clientsData[clientRowIndex][headers.indexOf(header)];
+            return customersData[customerRowIndex][headers.indexOf(header)];
         });
 
 
         await sheets.spreadsheets.values.update({
             spreadsheetId,
-            range: `Clients!A${clientRowIndex + 1}:${String.fromCharCode(65 + headers.length - 1)}${clientRowIndex + 1}`,
+            range: `Customers!A${customerRowIndex + 1}:${String.fromCharCode(65 + headers.length - 1)}${customerRowIndex + 1}`,
             valueInputOption: 'USER_ENTERED',
             requestBody: {
                 values: [updatedRow],
@@ -188,14 +217,14 @@ export async function updateClient(clientId: string, clientData: Partial<Omit<Cl
         });
 
     } catch (error) {
-        console.error('Error updating client:', error);
-        throw new Error('Could not update client in Google Sheets.');
+        console.error('Error updating customer:', error);
+        throw new Error('Could not update customer in Google Sheets.');
     }
 }
 
-export async function deleteClients(clientIds: string[]) {
+export async function deleteCustomers(customerIds: string[]) {
     try {
-        const sheetTitle = 'Clients';
+        const sheetTitle = 'Customers';
         const sheetResponse = await sheets.spreadsheets.get({ spreadsheetId });
         const sheet = sheetResponse.data.sheets?.find(s => s.properties?.title === sheetTitle);
         const sheetId = sheet?.properties?.sheetId;
@@ -204,16 +233,16 @@ export async function deleteClients(clientIds: string[]) {
             throw new Error(`Sheet "${sheetTitle}" not found.`);
         }
 
-        const data = await getSheetData('Clients!A:A');
+        const data = await getSheetData('Customers!A:A');
         if (!data) {
-            throw new Error('Could not fetch clients data.');
+            throw new Error('Could not fetch customers data.');
         }
 
         const requests = [];
         // Iterate backwards to avoid index shifting issues
         for (let i = data.length - 1; i >= 1; i--) {
             const rowId = data[i][0];
-            if (clientIds.includes(rowId)) {
+            if (customerIds.includes(rowId)) {
                 requests.push({
                     deleteDimension: {
                         range: {
@@ -237,8 +266,8 @@ export async function deleteClients(clientIds: string[]) {
         }
 
     } catch (error) {
-        console.error('Error deleting clients:', error);
-        throw new Error('Could not delete clients in Google Sheets.');
+        console.error('Error deleting customers:', error);
+        throw new Error('Could not delete customers in Google Sheets.');
     }
 }
 
@@ -367,7 +396,7 @@ export async function deleteProducts(productIds: string[]) {
 export async function getInvoices() {
     const data = await getSheetData('Invoices!A:L');
     const invoices = mapToObjects(data);
-    const clients = await getClients();
+    const customers = await getCustomers();
     const products = await getProducts();
 
     const invoiceItemsData = await getSheetData('InvoiceItems!A:D');
@@ -375,7 +404,7 @@ export async function getInvoices() {
 
 
     return invoices.map(inv => {
-        const client = clients.find(c => c.id === inv.clientId);
+        const customer = customers.find(c => c.id === inv.customerId);
         const lineItems = invoiceItems
             .filter(item => item.invoiceId === inv.id)
             .map(item => {
@@ -390,7 +419,7 @@ export async function getInvoices() {
 
         return {
             ...inv,
-            client,
+            customer,
             lineItems,
             subtotal: parseFloat(inv.subtotal),
             tax: parseFloat(inv.tax),
@@ -407,7 +436,7 @@ export async function getInvoiceById(id: string): Promise<Invoice | null> {
 }
 
 
-export async function createInvoice(invoiceData: Omit<Invoice, 'id' | 'invoiceNumber' | 'createdAt' | 'client' | 'items' | 'lineItems'> & { lineItems: Omit<InvoiceItem, 'id'|'product'>[], clientId: string}) {
+export async function createInvoice(invoiceData: Omit<Invoice, 'id' | 'invoiceNumber' | 'createdAt' | 'customer' | 'items' | 'lineItems'> & { lineItems: Omit<InvoiceItem, 'id'|'product'>[], customerId: string}) {
   try {
     const invoicesData = (await getSheetData('Invoices!A:A')) || [['id']];
     const invoiceItemsData = (await getSheetData('InvoiceItems!A:A')) || [['id']];
@@ -418,7 +447,7 @@ export async function createInvoice(invoiceData: Omit<Invoice, 'id' | 'invoiceNu
     const newInvoiceRow = [
         newInvoiceId,
         newInvoiceNumber,
-        invoiceData.clientId,
+        invoiceData.customerId,
         invoiceData.subtotal,
         invoiceData.tax,
         invoiceData.discount,
@@ -427,7 +456,7 @@ export async function createInvoice(invoiceData: Omit<Invoice, 'id' | 'invoiceNu
         invoiceData.dueDate,
         new Date().toISOString().split('T')[0],
         invoiceData.notes || '',
-        invoiceData.clientRelationship || 'New client',
+        invoiceData.customerRelationship || 'New customer',
         invoiceData.paymentHistory || 'No payment history',
     ];
 
@@ -463,7 +492,7 @@ export async function createInvoice(invoiceData: Omit<Invoice, 'id' | 'invoiceNu
   }
 }
 
-export async function updateInvoice(invoiceId: string, invoiceData: Omit<Invoice, 'id' | 'invoiceNumber' | 'createdAt' | 'client' | 'items' | 'lineItems'> & { lineItems: Omit<InvoiceItem, 'id'|'product'>[], clientId: string}) {
+export async function updateInvoice(invoiceId: string, invoiceData: Omit<Invoice, 'id' | 'invoiceNumber' | 'createdAt' | 'customer' | 'items' | 'lineItems'> & { lineItems: Omit<InvoiceItem, 'id'|'product'>[], customerId: string}) {
     try {
         const invoicesData = await getSheetData('Invoices!A:L');
         if (!invoicesData) {
@@ -481,7 +510,7 @@ export async function updateInvoice(invoiceId: string, invoiceData: Omit<Invoice
         const updatedRow = [
             originalData[0], // id
             originalData[1], // invoiceNumber
-            invoiceData.clientId,
+            invoiceData.customerId,
             invoiceData.subtotal,
             invoiceData.tax,
             invoiceData.discount,
@@ -490,7 +519,7 @@ export async function updateInvoice(invoiceId: string, invoiceData: Omit<Invoice
             invoiceData.dueDate,
             originalData[9], // createdAt
             invoiceData.notes,
-            invoiceData.clientRelationship,
+            invoiceData.customerRelationship,
             invoiceData.paymentHistory
         ];
         

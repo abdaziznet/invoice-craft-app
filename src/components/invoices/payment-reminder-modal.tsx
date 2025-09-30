@@ -35,7 +35,7 @@ export default function PaymentReminderModal({
   const [isLoading, setIsLoading] = useState(false);
   const [aiResponse, setAiResponse] = useState<PaymentReminderAdjustmentsOutput | null>(null);
 
-  const defaultReminder = `Hi ${invoice.client.name},\n\nThis is a friendly reminder that invoice #${invoice.invoiceNumber} for ${formatCurrency(invoice.total)} was due on ${invoice.dueDate}.\n\nPlease let us know if you have any questions.\n\nBest,\nInvoiceCraft Team`;
+  const defaultReminder = `Hi ${invoice.customer.name},\n\nThis is a friendly reminder that invoice #${invoice.invoiceNumber} for ${formatCurrency(invoice.total)} was due on ${invoice.dueDate}.\n\nPlease let us know if you have any questions.\n\nBest,\nInvoiceCraft Team`;
 
   const [currentMessage, setCurrentMessage] = useState(defaultReminder);
 
@@ -44,10 +44,10 @@ export default function PaymentReminderModal({
     setAiResponse(null);
     try {
       const response = await paymentReminderAdjustments({
-        clientId: invoice.client.id,
+        customerId: invoice.customer.id,
         invoiceId: invoice.id,
         paymentHistory: invoice.paymentHistory,
-        clientRelationship: invoice.clientRelationship,
+        customerRelationship: invoice.customerRelationship,
         currentReminderMessage: currentMessage,
       });
       setAiResponse(response);

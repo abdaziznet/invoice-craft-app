@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -26,72 +25,72 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { updateClient } from '@/lib/google-sheets';
+import { updateCustomer } from '@/lib/google-sheets';
 import Spinner from '@/components/ui/spinner';
-import type { Client } from '@/lib/types';
+import type { Customer } from '@/lib/types';
 import { useLocale } from '@/hooks/use-locale';
 
-const clientSchema = z.object({
+const customerSchema = z.object({
   name: z.string().min(1, 'Name is required.'),
   email: z.string().email('Invalid email address.'),
   phone: z.string().regex(/^62\d+$/, { message: "Phone number must start with '62'." }),
   address: z.string().min(1, 'Address is required.'),
 });
 
-type ClientFormValues = z.infer<typeof clientSchema>;
+type CustomerFormValues = z.infer<typeof customerSchema>;
 
-type EditClientDialogProps = {
-    client: Client;
+type EditCustomerDialogProps = {
+    customer: Customer;
     isOpen: boolean;
     onOpenChange: (isOpen: boolean) => void;
-    onClientUpdated: () => void;
+    onCustomerUpdated: () => void;
 };
 
-export default function EditClientDialog({ client, isOpen, onOpenChange, onClientUpdated }: EditClientDialogProps) {
+export default function EditCustomerDialog({ customer, isOpen, onOpenChange, onCustomerUpdated }: EditCustomerDialogProps) {
   const { toast } = useToast();
   const { t } = useLocale();
   const [isSaving, setIsSaving] = React.useState(false);
 
-  const form = useForm<ClientFormValues>({
-    resolver: zodResolver(clientSchema),
+  const form = useForm<CustomerFormValues>({
+    resolver: zodResolver(customerSchema),
     defaultValues: {
-      name: client.name || '',
-      email: client.email || '',
-      phone: client.phone || '',
-      address: client.address || '',
+      name: customer.name || '',
+      email: customer.email || '',
+      phone: customer.phone || '',
+      address: customer.address || '',
     },
   });
 
   React.useEffect(() => {
     form.reset({
-      name: client.name || '',
-      email: client.email || '',
-      phone: client.phone || '',
-      address: client.address || '',
+      name: customer.name || '',
+      email: customer.email || '',
+      phone: customer.phone || '',
+      address: customer.address || '',
     });
-  }, [client, form]);
+  }, [customer, form]);
   
   const handleOpenChange = (open: boolean) => {
     if (isSaving) return;
     onOpenChange(open);
   }
 
-  const onSubmit = async (data: ClientFormValues) => {
+  const onSubmit = async (data: CustomerFormValues) => {
     setIsSaving(true);
     try {
-      await updateClient(client.id, data);
+      await updateCustomer(customer.id, data);
       toast({
-        title: t('clients.toast.updatedTitle'),
-        description: t('clients.toast.updatedDesc'),
+        title: t('customers.toast.updatedTitle'),
+        description: t('customers.toast.updatedDesc'),
       });
-      onClientUpdated();
+      onCustomerUpdated();
       handleOpenChange(false);
     } catch (error) {
       console.error(error);
       toast({
         variant: 'destructive',
-        title: t('clients.toast.updateErrorTitle'),
-        description: t('clients.toast.updateErrorDesc'),
+        title: t('customers.toast.updateErrorTitle'),
+        description: t('customers.toast.updateErrorDesc'),
       });
     } finally {
       setIsSaving(false);
@@ -102,9 +101,9 @@ export default function EditClientDialog({ client, isOpen, onOpenChange, onClien
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
         <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-                <DialogTitle>{t('clients.editDialog.title')}</DialogTitle>
+                <DialogTitle>{t('customers.editDialog.title')}</DialogTitle>
                 <DialogDescription>
-                    {t('clients.editDialog.description')}
+                    {t('customers.editDialog.description')}
                 </DialogDescription>
             </DialogHeader>
             <Form {...form}>
@@ -114,7 +113,7 @@ export default function EditClientDialog({ client, isOpen, onOpenChange, onClien
                         name="name"
                         render={({ field }) => (
                         <FormItem>
-                            <FormLabel>{t('clients.form.name')}</FormLabel>
+                            <FormLabel>{t('customers.form.name')}</FormLabel>
                             <FormControl>
                             <Input placeholder="John Doe" {...field} />
                             </FormControl>
@@ -127,7 +126,7 @@ export default function EditClientDialog({ client, isOpen, onOpenChange, onClien
                         name="email"
                         render={({ field }) => (
                         <FormItem>
-                            <FormLabel>{t('clients.form.email')}</FormLabel>
+                            <FormLabel>{t('customers.form.email')}</FormLabel>
                             <FormControl>
                             <Input placeholder="john.doe@example.com" {...field} />
                             </FormControl>
@@ -140,7 +139,7 @@ export default function EditClientDialog({ client, isOpen, onOpenChange, onClien
                         name="phone"
                         render={({ field }) => (
                         <FormItem>
-                            <FormLabel>{t('clients.form.phone')}</FormLabel>
+                            <FormLabel>{t('customers.form.phone')}</FormLabel>
                             <FormControl>
                             <Input placeholder="6281234567890" {...field} />
                             </FormControl>
@@ -153,7 +152,7 @@ export default function EditClientDialog({ client, isOpen, onOpenChange, onClien
                         name="address"
                         render={({ field }) => (
                         <FormItem>
-                            <FormLabel>{t('clients.form.address')}</FormLabel>
+                            <FormLabel>{t('customers.form.address')}</FormLabel>
                             <FormControl>
                             <Textarea
                                 placeholder="123 Main Street, Anytown, USA 12345"

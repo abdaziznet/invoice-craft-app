@@ -48,8 +48,8 @@ import {
 import { cn, formatCurrency } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { format, addDays } from 'date-fns';
-import { getClients, getProducts, createInvoice } from '@/lib/google-sheets';
-import type { Client, Product, InvoiceStatus } from '@/lib/types';
+import { getCustomers, getProducts, createInvoice } from '@/lib/google-sheets';
+import type { Customer, Product, InvoiceStatus } from '@/lib/types';
 import Spinner from '@/components/ui/spinner';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
@@ -64,7 +64,7 @@ const lineItemSchema = z.object({
 });
 
 const invoiceSchema = z.object({
-  clientId: z.string().min(1, 'Client is required.'),
+  customerId: z.string().min(1, 'Customer is required.'),
   invoiceDate: z.date({ required_error: 'Invoice date is required.' }),
   dueDate: z.date({ required_error: 'Due date is required.' }),
   status: z.enum(['Paid', 'Unpaid', 'Overdue']),
@@ -78,16 +78,16 @@ export default function NewInvoicePage() {
   const router = useRouter();
   const { toast } = useToast();
   const { t } = useLocale();
-  const [clients, setClients] = React.useState<Client[]>([]);
+  const [customers, setCustomers] = React.useState<Customer[]>([]);
   const [products, setProducts] = React.useState<Product[]>([]);
   const [isSaving, setIsSaving] = React.useState(false);
   const [includeTax, setIncludeTax] = React.useState(true);
 
   React.useEffect(() => {
     async function fetchData() {
-      const clientsData = await getClients();
+      const customersData = await getCustomers();
       const productsData = await getProducts();
-      setClients(clientsData as Client[]);
+      setCustomers(customersData as Customer[]);
       setProducts(productsData as Product[]);
     }
     fetchData();
@@ -129,7 +129,7 @@ export default function NewInvoicePage() {
     setIsSaving(true);
     try {
       const invoicePayload = {
-          clientId: data.clientId,
+          customerId: data.customerId,
           subtotal: subtotal,
           tax: includeTax ? 11 : 0,
           discount: 0, // Not implemented in form yet
@@ -137,7 +137,7 @@ export default function NewInvoicePage() {
           status: data.status,
           dueDate: format(data.dueDate, 'yyyy-MM-dd'),
           notes: data.notes,
-          clientRelationship: '', // Will be populated by default in sheets service
+          customerRelationship: '', // Will be populated by default in sheets service
           paymentHistory: '', // Will be populated by default in sheets service
           lineItems: data.lineItems.map(item => ({
             productId: item.productId,
@@ -190,23 +190,23 @@ export default function NewInvoicePage() {
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <FormField
                   control={form.control}
-                  name="clientId"
+                  name="customerId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t('invoices.form.client')}</FormLabel>
+                      <FormLabel>{t('invoices.form.customer')}</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder={t('invoices.form.selectClient')} />
+                            <SelectValue placeholder={t('invoices.form.selectCustomer')} />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {clients.map((client) => (
-                            <SelectItem key={client.id} value={client.id}>
-                              {client.name}
+                          {customers.map((customer) => (
+                            <SelectItem key={customer.id} value={customer.id}>
+                              {customer.name}
                             </SelectItem>
                           ))}
                         </SelectContent>

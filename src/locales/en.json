@@ -1,9 +1,8 @@
-
 {
   "nav": {
     "dashboard": "Dashboard",
     "invoices": "Invoices",
-    "clients": "Clients",
+    "customers": "Customers",
     "products": "Products",
     "settings": "Settings",
     "support": "Support",
@@ -33,18 +32,18 @@
     "recentInvoices": "Recent Invoices",
     "recentInvoicesDesc": "You have {{count}} invoices in total."
   },
-  "clients": {
-    "title": "Clients",
-    "description": "Manage your client database.",
-    "searchPlaceholder": "Search clients...",
-    "addNew": "Add New Client",
+  "customers": {
+    "title": "Customers",
+    "description": "Manage your customer database.",
+    "searchPlaceholder": "Search customers...",
+    "addNew": "Add New Customer",
     "addDialog": {
-      "title": "Add New Client",
-      "description": "Fill out the form below to add a new client to your database."
+      "title": "Add New Customer",
+      "description": "Fill out the form below to add a new customer to your database."
     },
     "editDialog": {
-      "title": "Edit Client",
-      "description": "Update the client details below."
+      "title": "Edit Customer",
+      "description": "Update the customer details below."
     },
     "form": {
       "name": "Full Name",
@@ -53,14 +52,14 @@
       "address": "Address"
     },
     "toast": {
-      "createdTitle": "Client Created",
-      "createdDesc": "The new client has been successfully saved.",
-      "createErrorTitle": "Failed to Save Client",
-      "createErrorDesc": "An error occurred while saving the client. Please try again.",
-      "updatedTitle": "Client Updated",
-      "updatedDesc": "The client has been successfully updated.",
-      "updateErrorTitle": "Failed to Update Client",
-      "updateErrorDesc": "An error occurred while updating the client. Please try again."
+      "createdTitle": "Customer Created",
+      "createdDesc": "The new customer has been successfully saved.",
+      "createErrorTitle": "Failed to Save Customer",
+      "createErrorDesc": "An error occurred while saving the customer. Please try again.",
+      "updatedTitle": "Customer Updated",
+      "updatedDesc": "The customer has been successfully updated.",
+      "updateErrorTitle": "Failed to Update Customer",
+      "updateErrorDesc": "An error occurred while updating the customer. Please try again."
     }
   },
   "products": {
@@ -129,8 +128,8 @@
     },
     "form": {
       "detailsTitle": "Invoice Details",
-      "client": "Client",
-      "selectClient": "Select a client",
+      "customer": "Customer",
+      "selectCustomer": "Select a customer",
       "invoiceDate": "Invoice Date",
       "pickDate": "Pick a date",
       "dueDate": "Due Date",
@@ -144,7 +143,7 @@
       "selectItem": "Select item",
       "addItem": "Add Item",
       "notesTitle": "Notes",
-      "notesPlaceholder": "Add any additional notes for the client...",
+      "notesPlaceholder": "Add any additional notes for the customer...",
       "summaryTitle": "Summary",
       "subtotal": "Subtotal",
       "includeTax": "Include Tax (11%)"
@@ -155,7 +154,7 @@
       "deleteDescSingle": "invoice \"{{number}}\"",
       "header": {
         "invoice": "Invoice",
-        "client": "Client",
+        "customer": "Customer",
         "status": "Status",
         "dueDate": "Due Date",
         "total": "Total",
@@ -209,12 +208,23 @@
     }
   },
   "months": {
-    "short": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    "short": [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec"
+    ]
   },
   "deleteDialog": {
     "title": "Are you absolutely sure?",
     "description": "This action cannot be undone. This will permanently delete the {{items}} and remove their data from our servers."
   }
 }
-
-    

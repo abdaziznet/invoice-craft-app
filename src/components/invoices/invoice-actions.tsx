@@ -71,7 +71,7 @@ export default function InvoiceActions({ invoice }: InvoiceActionsProps) {
       const shareData = {
         files: [file],
         title: `Invoice ${invoice.invoiceNumber}`,
-        text: `Hi ${invoice.client.name}, here is your invoice #${invoice.invoiceNumber} for ${formatCurrency(invoice.total)}.`,
+        text: `Hi ${invoice.customer.name}, here is your invoice #${invoice.invoiceNumber} for ${formatCurrency(invoice.total)}.`,
       };
 
       if (navigator.canShare && navigator.canShare(shareData)) {
@@ -83,8 +83,8 @@ export default function InvoiceActions({ invoice }: InvoiceActionsProps) {
             description: "Your browser doesn't support sharing files directly. Opening WhatsApp with a link instead.",
           });
          const invoiceUrl = `${window.location.origin}/invoices/${invoice.id}`;
-         const message = `Hi ${invoice.client.name}, here is your invoice #${invoice.invoiceNumber} for ${formatCurrency(invoice.total)}. You can view it here: ${invoiceUrl}`;
-         const whatsappUrl = `https://wa.me/${invoice.client.phone}?text=${encodeURIComponent(message)}`;
+         const message = `Hi ${invoice.customer.name}, here is your invoice #${invoice.invoiceNumber} for ${formatCurrency(invoice.total)}. You can view it here: ${invoiceUrl}`;
+         const whatsappUrl = `https://wa.me/${invoice.customer.phone}?text=${encodeURIComponent(message)}`;
          window.open(whatsappUrl, '_blank');
       }
 

@@ -1,5 +1,4 @@
-
-export type Client = {
+export type Customer = {
   id: string;
   name: string;
   email: string;
@@ -26,7 +25,7 @@ export type InvoiceStatus = 'Paid' | 'Unpaid' | 'Overdue';
 export type Invoice = {
   id:string;
   invoiceNumber: string;
-  client: Client;
+  customer: Customer;
   lineItems: InvoiceItem[];
   subtotal: number;
   tax: number; // percentage
@@ -37,7 +36,7 @@ export type Invoice = {
   createdAt: string;
   notes?: string;
   // Fields for GenAI feature
-  clientRelationship: string; 
+  customerRelationship: string; 
   paymentHistory: string; 
 };
 

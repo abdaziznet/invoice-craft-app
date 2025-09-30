@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -12,6 +11,7 @@ import {
   Package,
   Settings,
   Users,
+  Search,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -29,22 +29,25 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
+import { Input } from '@/components/ui/input';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { useAuth } from '@/hooks/use-auth';
 import { cn } from '@/lib/utils';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { useSearch } from '@/hooks/use-search';
 import { useLocale } from '@/hooks/use-locale';
 
 export default function Header() {
   const { user, signOut } = useAuth();
   const pathname = usePathname();
+  const { searchTerm, setSearchTerm } = useSearch();
   const logo = PlaceHolderImages.find((img) => img.id === 'logo');
   const { t } = useLocale();
 
   const navItems = [
     { href: '/dashboard', icon: LayoutDashboard, label: t('nav.dashboard') },
     { href: '/invoices', icon: FileText, label: t('nav.invoices') },
-    { href: '/clients', icon: Users, label: t('nav.clients') },
+    { href: '/customers', icon: Users, label: t('nav.customers') },
     { href: '/products', icon: Package, label: t('nav.products') },
   ];
 

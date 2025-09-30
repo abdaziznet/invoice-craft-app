@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -26,32 +25,32 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { createClient } from '@/lib/google-sheets';
+import { createCustomer } from '@/lib/google-sheets';
 import Spinner from '@/components/ui/spinner';
 import { useLocale } from '@/hooks/use-locale';
 
-const clientSchema = z.object({
+const customerSchema = z.object({
   name: z.string().min(1, 'Name is required.'),
   email: z.string().email('Invalid email address.'),
   phone: z.string().regex(/^62\d+$/, { message: "Phone number must start with '62'." }),
   address: z.string().min(1, 'Address is required.'),
 });
 
-type ClientFormValues = z.infer<typeof clientSchema>;
+type CustomerFormValues = z.infer<typeof customerSchema>;
 
-type AddClientDialogProps = {
+type AddCustomerDialogProps = {
     isOpen: boolean;
     onOpenChange: (isOpen: boolean) => void;
-    onClientAdded: () => void;
+    onCustomerAdded: () => void;
 };
 
-export default function AddClientDialog({ isOpen, onOpenChange, onClientAdded }: AddClientDialogProps) {
+export default function AddCustomerDialog({ isOpen, onOpenChange, onCustomerAdded }: AddCustomerDialogProps) {
   const { toast } = useToast();
   const { t } = useLocale();
   const [isSaving, setIsSaving] = React.useState(false);
 
-  const form = useForm<ClientFormValues>({
-    resolver: zodResolver(clientSchema),
+  const form = useForm<CustomerFormValues>({
+    resolver: zodResolver(customerSchema),
     defaultValues: {
       name: '',
       email: '',
@@ -68,22 +67,22 @@ export default function AddClientDialog({ isOpen, onOpenChange, onClientAdded }:
     }
   }
 
-  const onSubmit = async (data: ClientFormValues) => {
+  const onSubmit = async (data: CustomerFormValues) => {
     setIsSaving(true);
     try {
-      await createClient(data);
+      await createCustomer(data);
       toast({
-        title: t('clients.toast.createdTitle'),
-        description: t('clients.toast.createdDesc'),
+        title: t('customers.toast.createdTitle'),
+        description: t('customers.toast.createdDesc'),
       });
-      onClientAdded();
+      onCustomerAdded();
       handleOpenChange(false);
     } catch (error) {
       console.error(error);
       toast({
         variant: 'destructive',
-        title: t('clients.toast.createErrorTitle'),
-        description: t('clients.toast.createErrorDesc'),
+        title: t('customers.toast.createErrorTitle'),
+        description: t('customers.toast.createErrorDesc'),
       });
     } finally {
       setIsSaving(false);
@@ -94,9 +93,9 @@ export default function AddClientDialog({ isOpen, onOpenChange, onClientAdded }:
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
         <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-                <DialogTitle>{t('clients.addDialog.title')}</DialogTitle>
+                <DialogTitle>{t('customers.addDialog.title')}</DialogTitle>
                 <DialogDescription>
-                    {t('clients.addDialog.description')}
+                    {t('customers.addDialog.description')}
                 </DialogDescription>
             </DialogHeader>
             <Form {...form}>
@@ -106,7 +105,7 @@ export default function AddClientDialog({ isOpen, onOpenChange, onClientAdded }:
                         name="name"
                         render={({ field }) => (
                         <FormItem>
-                            <FormLabel>{t('clients.form.name')}</FormLabel>
+                            <FormLabel>{t('customers.form.name')}</FormLabel>
                             <FormControl>
                             <Input placeholder="John Doe" {...field} />
                             </FormControl>
@@ -119,7 +118,7 @@ export default function AddClientDialog({ isOpen, onOpenChange, onClientAdded }:
                         name="email"
                         render={({ field }) => (
                         <FormItem>
-                            <FormLabel>{t('clients.form.email')}</FormLabel>
+                            <FormLabel>{t('customers.form.email')}</FormLabel>
                             <FormControl>
                             <Input placeholder="john.doe@example.com" {...field} />
                             </FormControl>
@@ -132,7 +131,7 @@ export default function AddClientDialog({ isOpen, onOpenChange, onClientAdded }:
                         name="phone"
                         render={({ field }) => (
                         <FormItem>
-                            <FormLabel>{t('clients.form.phone')}</FormLabel>
+                            <FormLabel>{t('customers.form.phone')}</FormLabel>
                             <FormControl>
                             <Input placeholder="6281234567890" {...field} />
                             </FormControl>
@@ -145,7 +144,7 @@ export default function AddClientDialog({ isOpen, onOpenChange, onClientAdded }:
                         name="address"
                         render={({ field }) => (
                         <FormItem>
-                            <FormLabel>{t('clients.form.address')}</FormLabel>
+                            <FormLabel>{t('customers.form.address')}</FormLabel>
                             <FormControl>
                             <Textarea
                                 placeholder="123 Main Street, Anytown, USA 12345"

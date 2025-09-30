@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -72,15 +71,15 @@ export default function RecentInvoices({ invoices }: RecentInvoicesProps) {
         {recentInvoices.map((invoice) => (
           <div key={invoice.id} className="flex items-center gap-4">
             <Avatar className="hidden h-9 w-9 sm:flex">
-              <AvatarImage src={`https://picsum.photos/seed/${invoice.client.id}/40/40`} alt="Avatar" data-ai-hint="person portrait"/>
-              <AvatarFallback>{getInitials(invoice.client.name)}</AvatarFallback>
+              <AvatarImage src={`https://picsum.photos/seed/${invoice.customer.id}/40/40`} alt="Avatar" data-ai-hint="person portrait"/>
+              <AvatarFallback>{getInitials(invoice.customer.name)}</AvatarFallback>
             </Avatar>
             <div className="grid gap-1">
               <p className="text-sm font-medium leading-none">
-                {invoice.client.name}
+                {invoice.customer.name}
               </p>
               <p className="text-sm text-muted-foreground">
-                {invoice.client.email}
+                {invoice.customer.email}
               </p>
             </div>
             <div className="ml-auto flex flex-col items-end">

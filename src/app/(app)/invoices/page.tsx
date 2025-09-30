@@ -1,4 +1,3 @@
-
 'use client';
 
 import { PlusCircle, Download, Search } from 'lucide-react';
@@ -37,7 +36,7 @@ export default function InvoicesPage() {
     if (!searchTerm) return invoices;
     return invoices.filter(invoice => 
       invoice.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      invoice.client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      invoice.customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       invoice.status.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [invoices, searchTerm]);
@@ -50,8 +49,8 @@ export default function InvoicesPage() {
   const handleExport = () => {
     const headers = [
       'Invoice Number',
-      'Client Name',
-      'Client Email',
+      'Customer Name',
+      'Customer Email',
       'Status',
       'Due Date',
       'Total',
@@ -60,8 +59,8 @@ export default function InvoicesPage() {
 
     const data = allInvoices.map((invoice) => [
       invoice.invoiceNumber,
-      invoice.client.name,
-      invoice.client.email,
+      invoice.customer.name,
+      invoice.customer.email,
       invoice.status,
       invoice.dueDate,
       invoice.total,

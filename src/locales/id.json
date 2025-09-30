@@ -1,9 +1,8 @@
-
 {
   "nav": {
     "dashboard": "Dasbor",
     "invoices": "Faktur",
-    "clients": "Klien",
+    "customers": "Pelanggan",
     "products": "Produk",
     "settings": "Pengaturan",
     "support": "Dukungan",
@@ -33,18 +32,18 @@
     "recentInvoices": "Faktur Terbaru",
     "recentInvoicesDesc": "Anda memiliki total {{count}} faktur."
   },
-  "clients": {
-    "title": "Klien",
-    "description": "Kelola basis data klien Anda.",
-    "searchPlaceholder": "Cari klien...",
-    "addNew": "Tambah Klien Baru",
+  "customers": {
+    "title": "Pelanggan",
+    "description": "Kelola basis data pelanggan Anda.",
+    "searchPlaceholder": "Cari pelanggan...",
+    "addNew": "Tambah Pelanggan Baru",
     "addDialog": {
-      "title": "Tambah Klien Baru",
-      "description": "Isi formulir di bawah untuk menambahkan klien baru ke database Anda."
+      "title": "Tambah Pelanggan Baru",
+      "description": "Isi formulir di bawah untuk menambahkan pelanggan baru ke database Anda."
     },
     "editDialog": {
-      "title": "Edit Klien",
-      "description": "Perbarui detail klien di bawah ini."
+      "title": "Edit Pelanggan",
+      "description": "Perbarui detail pelanggan di bawah ini."
     },
     "form": {
       "name": "Nama Lengkap",
@@ -53,14 +52,14 @@
       "address": "Alamat"
     },
     "toast": {
-      "createdTitle": "Klien Dibuat",
-      "createdDesc": "Klien baru telah berhasil disimpan.",
-      "createErrorTitle": "Gagal Menyimpan Klien",
-      "createErrorDesc": "Terjadi kesalahan saat menyimpan klien. Silakan coba lagi.",
-      "updatedTitle": "Klien Diperbarui",
-      "updatedDesc": "Klien telah berhasil diperbarui.",
-      "updateErrorTitle": "Gagal Memperbarui Klien",
-      "updateErrorDesc": "Terjadi kesalahan saat memperbarui klien. Silakan coba lagi."
+      "createdTitle": "Pelanggan Dibuat",
+      "createdDesc": "Pelanggan baru telah berhasil disimpan.",
+      "createErrorTitle": "Gagal Menyimpan Pelanggan",
+      "createErrorDesc": "Terjadi kesalahan saat menyimpan pelanggan. Silakan coba lagi.",
+      "updatedTitle": "Pelanggan Diperbarui",
+      "updatedDesc": "Pelanggan telah berhasil diperbarui.",
+      "updateErrorTitle": "Gagal Memperbarui Pelanggan",
+      "updateErrorDesc": "Terjadi kesalahan saat memperbarui pelanggan. Silakan coba lagi."
     }
   },
   "products": {
@@ -129,8 +128,8 @@
     },
     "form": {
       "detailsTitle": "Detail Faktur",
-      "client": "Klien",
-      "selectClient": "Pilih klien",
+      "customer": "Pelanggan",
+      "selectCustomer": "Pilih pelanggan",
       "invoiceDate": "Tanggal Faktur",
       "pickDate": "Pilih tanggal",
       "dueDate": "Tanggal Jatuh Tempo",
@@ -144,7 +143,7 @@
       "selectItem": "Pilih item",
       "addItem": "Tambah Item",
       "notesTitle": "Catatan",
-      "notesPlaceholder": "Tambahkan catatan tambahan untuk klien...",
+      "notesPlaceholder": "Tambahkan catatan tambahan untuk pelanggan...",
       "summaryTitle": "Ringkasan",
       "subtotal": "Subtotal",
       "includeTax": "Sertakan Pajak (11%)"
@@ -155,7 +154,7 @@
       "deleteDescSingle": "faktur \"{{number}}\"",
       "header": {
         "invoice": "Faktur",
-        "client": "Klien",
+        "customer": "Pelanggan",
         "status": "Status",
         "dueDate": "Jatuh Tempo",
         "total": "Total",
@@ -209,12 +208,23 @@
     }
   },
   "months": {
-    "short": ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"]
+    "short": [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "Mei",
+      "Jun",
+      "Jul",
+      "Agu",
+      "Sep",
+      "Okt",
+      "Nov",
+      "Des"
+    ]
   },
   "deleteDialog": {
     "title": "Apakah Anda benar-benar yakin?",
     "description": "Tindakan ini tidak dapat dibatalkan. Ini akan menghapus {{items}} secara permanen dan menghapus datanya dari server kami."
   }
 }
-
-    

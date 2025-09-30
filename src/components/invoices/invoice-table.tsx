@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -25,7 +24,7 @@ import { formatCurrency } from '@/lib/utils';
 import { Checkbox } from '../ui/checkbox';
 import PaymentReminderModal from './payment-reminder-modal';
 import { cn } from '@/lib/utils';
-import DeleteConfirmationDialog from '../clients/delete-confirmation-dialog';
+import DeleteConfirmationDialog from '../customers/delete-confirmation-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { deleteInvoices } from '@/lib/google-sheets';
 import { useRouter } from 'next/navigation';
@@ -134,7 +133,7 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
       const shareData = {
         files: [file],
         title: `Invoice ${invoice.invoiceNumber}`,
-        text: `Hi ${invoice.client.name}, here is your invoice #${invoice.invoiceNumber} for ${formatCurrency(invoice.total)}.`,
+        text: `Hi ${invoice.customer.name}, here is your invoice #${invoice.invoiceNumber} for ${formatCurrency(invoice.total)}.`,
       };
 
       if (navigator.canShare && navigator.canShare(shareData)) {
@@ -145,8 +144,8 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
             description: t('invoices.table.toast.shareUnsupportedDesc'),
           });
          const invoiceUrl = `${window.location.origin}/invoices/${invoice.id}`;
-         const message = `Hi ${invoice.client.name}, here is your invoice #${invoice.invoiceNumber} for ${formatCurrency(invoice.total)}. You can view it here: ${invoiceUrl}`;
-         const whatsappUrl = `https://wa.me/${invoice.client.phone}?text=${encodeURIComponent(message)}`;
+         const message = `Hi ${invoice.customer.name}, here is your invoice #${invoice.invoiceNumber} for ${formatCurrency(invoice.total)}. You can view it here: ${invoiceUrl}`;
+         const whatsappUrl = `https://wa.me/${invoice.customer.phone}?text=${encodeURIComponent(message)}`;
          window.open(whatsappUrl, '_blank');
       }
 
@@ -227,7 +226,7 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
                  />
               </TableHead>
               <TableHead>{t('invoices.table.header.invoice')}</TableHead>
-              <TableHead>{t('invoices.table.header.client')}</TableHead>
+              <TableHead>{t('invoices.table.header.customer')}</TableHead>
               <TableHead>{t('invoices.table.header.status')}</TableHead>
               <TableHead className="hidden md:table-cell">
                 <Button variant="ghost" className="p-0 hover:bg-transparent">
@@ -258,7 +257,7 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
                   />
                 </TableCell>
                 <TableCell className="font-medium">{invoice.invoiceNumber}</TableCell>
-                <TableCell>{invoice.client.name}</TableCell>
+                <TableCell>{invoice.customer.name}</TableCell>
                 <TableCell>
                   <Badge className={cn(getStatusClass(invoice.status))} variant="outline">{invoice.status}</Badge>
                 </TableCell>

@@ -1,5 +1,3 @@
-
-
 'use client';
 import { getCompanyProfile, getInvoiceById } from '@/lib/google-sheets';
 import { notFound, useParams } from 'next/navigation';
@@ -106,7 +104,7 @@ export default function InvoiceDetailPage() {
             Invoice {invoice.invoiceNumber}
           </h1>
            <p className="text-muted-foreground">
-            Details for invoice to {invoice.client.name}.
+            Details for invoice to {invoice.customer.name}.
           </p>
         </div>
          <div className="ml-auto">
@@ -143,15 +141,15 @@ export default function InvoiceDetailPage() {
           <div className="grid grid-cols-2 gap-6 mb-8">
             <div>
               <h3 className="font-semibold mb-2">Bill To:</h3>
-              <p className="font-medium text-primary">{invoice.client.name}</p>
+              <p className="font-medium text-primary">{invoice.customer.name}</p>
               <p className="text-sm text-muted-foreground whitespace-pre-line">
-                {invoice.client.address}
+                {invoice.customer.address}
               </p>
               <p className="text-sm text-muted-foreground">
-                {invoice.client.email}
+                {invoice.customer.email}
               </p>
               <p className="text-sm text-muted-foreground">
-                {invoice.client.phone}
+                {invoice.customer.phone}
               </p>
             </div>
             <div className="text-right">
