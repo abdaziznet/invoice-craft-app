@@ -200,10 +200,10 @@ const generatePdfFlow = ai.defineFlow(
       font: boldFont,
       size: fontSize,
     });
-    
+    y -= 15;
     if (invoice.customer) {
         page.drawText(invoice.customer.name, {
-          x: margin + 40,
+          x: margin,
           y: y,
           font: font,
           size: fontSize,
@@ -399,6 +399,4 @@ const generatePdfFlow = ai.defineFlow(
       pdfBase64: Buffer.from(pdfBytes).toString('base64'),
     };
   }
-);
-
-    
+);  
