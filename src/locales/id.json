@@ -105,12 +105,50 @@
       "unpaid": "Belum Lunas",
       "overdue": "Jatuh Tempo"
     },
+    "status": {
+      "paid": "Lunas",
+      "unpaid": "Belum Lunas",
+      "overdue": "Jatuh Tempo"
+    },
     "paidTitle": "Faktur Lunas",
     "paidDescription": "Faktur-faktur ini telah berhasil dibayar.",
     "unpaidTitle": "Faktur Belum Lunas",
     "unpaidDescription": "Faktur-faktur ini sedang menunggu pembayaran.",
     "overdueTitle": "Faktur Jatuh Tempo",
-    "overdueDescription": "Faktur-faktur ini telah melewati tanggal jatuh tempo."
+    "overdueDescription": "Faktur-faktur ini telah melewati tanggal jatuh tempo.",
+    "new": {
+      "title": "Buat Faktur Baru",
+      "description": "Isi formulir di bawah ini untuk membuat faktur baru.",
+      "saveButton": "Simpan Faktur",
+      "toast": {
+        "createdTitle": "Faktur Dibuat",
+        "createdDesc": "Faktur baru telah berhasil disimpan.",
+        "createErrorTitle": "Gagal Menyimpan Faktur",
+        "createErrorDesc": "Terjadi kesalahan saat menyimpan faktur. Silakan coba lagi."
+      }
+    },
+    "form": {
+      "detailsTitle": "Detail Faktur",
+      "client": "Klien",
+      "selectClient": "Pilih klien",
+      "invoiceDate": "Tanggal Faktur",
+      "pickDate": "Pilih tanggal",
+      "dueDate": "Tanggal Jatuh Tempo",
+      "status": "Status",
+      "selectStatus": "Pilih status",
+      "lineItemsTitle": "Rincian Item",
+      "item": "Produk/Layanan",
+      "quantity": "Jumlah",
+      "unitPrice": "Harga Satuan",
+      "total": "Total",
+      "selectItem": "Pilih item",
+      "addItem": "Tambah Item",
+      "notesTitle": "Catatan",
+      "notesPlaceholder": "Tambahkan catatan tambahan untuk klien...",
+      "summaryTitle": "Ringkasan",
+      "subtotal": "Subtotal",
+      "includeTax": "Sertakan Pajak (11%)"
+    }
   },
   "settings": {
     "title": "Pengaturan",

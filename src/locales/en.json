@@ -105,12 +105,50 @@
       "unpaid": "Unpaid",
       "overdue": "Overdue"
     },
+    "status": {
+      "paid": "Paid",
+      "unpaid": "Unpaid",
+      "overdue": "Overdue"
+    },
     "paidTitle": "Paid Invoices",
     "paidDescription": "These invoices have been successfully paid.",
     "unpaidTitle": "Unpaid Invoices",
     "unpaidDescription": "These invoices are awaiting payment.",
     "overdueTitle": "Overdue Invoices",
-    "overdueDescription": "These invoices have passed their due date."
+    "overdueDescription": "These invoices have passed their due date.",
+    "new": {
+      "title": "Create New Invoice",
+      "description": "Fill out the form below to create a new invoice.",
+      "saveButton": "Save Invoice",
+      "toast": {
+        "createdTitle": "Invoice Created",
+        "createdDesc": "The new invoice has been successfully saved.",
+        "createErrorTitle": "Failed to Save Invoice",
+        "createErrorDesc": "An error occurred while saving the invoice. Please try again."
+      }
+    },
+    "form": {
+      "detailsTitle": "Invoice Details",
+      "client": "Client",
+      "selectClient": "Select a client",
+      "invoiceDate": "Invoice Date",
+      "pickDate": "Pick a date",
+      "dueDate": "Due Date",
+      "status": "Status",
+      "selectStatus": "Select status",
+      "lineItemsTitle": "Line Items",
+      "item": "Product/Service",
+      "quantity": "Quantity",
+      "unitPrice": "Unit Price",
+      "total": "Total",
+      "selectItem": "Select item",
+      "addItem": "Add Item",
+      "notesTitle": "Notes",
+      "notesPlaceholder": "Add any additional notes for the client...",
+      "summaryTitle": "Summary",
+      "subtotal": "Subtotal",
+      "includeTax": "Include Tax (11%)"
+    }
   },
   "settings": {
     "title": "Settings",
