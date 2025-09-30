@@ -138,7 +138,7 @@ export default function ClientTable({ clients, onClientUpdated, onClientDeleted 
 
   return (
     <>
-      <div className="mb-4 flex items-center gap-2">
+      <div className="mb-4 flex items-center gap-2 px-4 sm:px-0">
         {numSelected > 0 && (
             <Button variant="destructive" size="sm" onClick={() => handleDeleteClick(selectedClientIds)}>
                 <Trash2 className="mr-2 h-4 w-4" />
@@ -158,8 +158,8 @@ export default function ClientTable({ clients, onClientUpdated, onClientDeleted 
                 />
               </TableHead>
               <TableHead>Name</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Phone</TableHead>
+              <TableHead className="hidden md:table-cell">Email</TableHead>
+              <TableHead className="hidden lg:table-cell">Phone</TableHead>
               <TableHead className="text-right w-[50px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -185,8 +185,8 @@ export default function ClientTable({ clients, onClientUpdated, onClientDeleted 
                     {client.name}
                   </div>
                 </TableCell>
-                <TableCell>{client.email}</TableCell>
-                <TableCell>{client.phone}</TableCell>
+                <TableCell className="hidden md:table-cell">{client.email}</TableCell>
+                <TableCell className="hidden lg:table-cell">{client.phone}</TableCell>
                 <TableCell className="text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>

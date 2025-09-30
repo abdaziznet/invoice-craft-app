@@ -88,29 +88,31 @@ export default function InvoicesPage() {
 
   return (
     <Tabs defaultValue="all">
-      <div className="flex items-center">
-        <TabsList>
+      <div className="flex flex-col md:flex-row md:items-center gap-4">
+        <TabsList className="grid grid-cols-2 sm:grid-cols-4 w-full md:w-auto">
           <TabsTrigger value="all">{t('invoices.tabs.all')}</TabsTrigger>
           <TabsTrigger value="paid">{t('invoices.tabs.paid')}</TabsTrigger>
           <TabsTrigger value="unpaid">{t('invoices.tabs.unpaid')}</TabsTrigger>
           <TabsTrigger value="overdue" className="text-destructive">{t('invoices.tabs.overdue')}</TabsTrigger>
         </TabsList>
-        <div className="ml-auto flex items-center gap-2">
-           <div className="relative">
+        <div className="flex-1 md:ml-auto md:flex-grow-0">
+            <div className="relative">
              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
              <Input
                 type="search"
                 placeholder={t('invoices.searchPlaceholder')}
-                className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[336px]"
+                className="w-full rounded-lg bg-background pl-8"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
            </div>
-          <Button size="sm" variant="outline" onClick={handleExport}>
+        </div>
+        <div className="flex items-center gap-2 flex-wrap md:flex-nowrap md:flex-grow-0">
+          <Button size="sm" variant="outline" onClick={handleExport} className="w-full sm:w-auto">
             <Download className="mr-2 h-4 w-4" />
             {t('common.export')}
           </Button>
-          <Button size="sm" asChild>
+          <Button size="sm" asChild className="w-full sm:w-auto">
             <Link href="/invoices/new">
               <PlusCircle className="mr-2 h-4 w-4" />
               {t('invoices.create')}

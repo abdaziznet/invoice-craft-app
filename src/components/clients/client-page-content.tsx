@@ -75,13 +75,13 @@ export default function ClientPageContent({
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
         <div>
           <h1 className="text-2xl font-semibold md:text-3xl">{t('clients.title')}</h1>
           <p className="text-muted-foreground">{t('clients.description')}</p>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="relative">
+        <div className="flex flex-col md:flex-row items-center gap-2">
+          <div className="relative w-full md:w-auto">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
@@ -91,18 +91,18 @@ export default function ClientPageContent({
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <Button size="sm" variant="outline" onClick={handleExport}>
+          <Button size="sm" variant="outline" onClick={handleExport} className="w-full md:w-auto">
             <Download className="mr-2 h-4 w-4" />
             {t('common.export')}
           </Button>
-          <Button onClick={() => setIsAddDialogOpen(true)}>
+          <Button onClick={() => setIsAddDialogOpen(true)} className="w-full md:w-auto">
             <PlusCircle className="mr-2 h-4 w-4" />
             {t('clients.addNew')}
           </Button>
         </div>
       </div>
       <Card>
-        <CardContent className="p-6">
+        <CardContent className="p-0 sm:p-6">
           <ClientTable
             clients={filteredClients}
             onClientUpdated={refreshClients}

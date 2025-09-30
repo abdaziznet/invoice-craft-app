@@ -207,7 +207,7 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
 
   return (
     <>
-      <div className="mb-4 flex items-center gap-2">
+      <div className="mb-4 flex items-center gap-2 px-4 sm:px-0">
         {numSelected > 0 && (
             <Button variant="destructive" size="sm" onClick={handleBulkDeleteClick}>
                 <Trash2 className="mr-2 h-4 w-4" />
@@ -229,7 +229,7 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
               <TableHead>{t('invoices.table.header.invoice')}</TableHead>
               <TableHead>{t('invoices.table.header.client')}</TableHead>
               <TableHead>{t('invoices.table.header.status')}</TableHead>
-              <TableHead>
+              <TableHead className="hidden md:table-cell">
                 <Button variant="ghost" className="p-0 hover:bg-transparent">
                   {t('invoices.table.header.dueDate')}
                   <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -262,7 +262,7 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
                 <TableCell>
                   <Badge className={cn(getStatusClass(invoice.status))} variant="outline">{invoice.status}</Badge>
                 </TableCell>
-                <TableCell>{invoice.dueDate}</TableCell>
+                <TableCell className="hidden md:table-cell">{invoice.dueDate}</TableCell>
                 <TableCell className="text-right">{formatCurrency(invoice.total)}</TableCell>
                 <TableCell className="text-right">
                   {isProcessing === invoice.id ? <Spinner/> : (
@@ -330,5 +330,3 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
     </>
   );
 }
-
-    

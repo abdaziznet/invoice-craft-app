@@ -106,7 +106,7 @@ export default function ProductTable({ products, onProductUpdated, onProductDele
 
   return (
     <>
-      <div className="mb-4 flex items-center gap-2">
+      <div className="mb-4 flex items-center gap-2 px-4 sm:px-0">
         {numSelected > 0 && (
             <Button variant="destructive" size="sm" onClick={handleBulkDeleteClick}>
                 <Trash2 className="mr-2 h-4 w-4" />
@@ -126,7 +126,7 @@ export default function ProductTable({ products, onProductUpdated, onProductDele
                 />
               </TableHead>
               <TableHead>Name</TableHead>
-              <TableHead>Unit</TableHead>
+              <TableHead className="hidden sm:table-cell">Unit</TableHead>
               <TableHead className="text-right">Unit Price</TableHead>
               <TableHead className="text-right w-[50px]">Actions</TableHead>
             </TableRow>
@@ -145,7 +145,7 @@ export default function ProductTable({ products, onProductUpdated, onProductDele
                   />
                 </TableCell>
                 <TableCell className="font-medium">{product.name}</TableCell>
-                <TableCell className="text-muted-foreground">{product.unit}</TableCell>
+                <TableCell className="text-muted-foreground hidden sm:table-cell">{product.unit}</TableCell>
                 <TableCell className="text-right">{formatCurrency(product.unitPrice)}</TableCell>
                 <TableCell className="text-right">
                   <DropdownMenu>
