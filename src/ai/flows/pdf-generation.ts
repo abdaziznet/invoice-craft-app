@@ -84,7 +84,7 @@ const generatePdfFlow = ai.defineFlow(
 
     // Header Section
     let rightY = y;
-
+    
     // Right side: Invoice Title and Info
     const invoiceTitle = 'Invoice';
     const titleWidth = boldFont.widthOfTextAtSize(invoiceTitle, headerFontSize);
@@ -121,7 +121,7 @@ const generatePdfFlow = ai.defineFlow(
       leftX += logoDims.width + 15;
     }
     
-    let leftY = topY - (logoDims.height / 2) + (boldFont.heightOfTextAtSize(subHeaderFontSize) / 2);
+    let leftY = topY - (logoDims.height / 2) + (boldFont.heightAtSize(subHeaderFontSize) / 2);
 
     page.drawText(companyProfile.name, {
       x: leftX,
