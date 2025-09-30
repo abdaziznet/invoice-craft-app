@@ -15,9 +15,14 @@ import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import { getCompanyProfile, getInvoiceById } from '@/lib/google-sheets';
 import { formatCurrency } from '@/lib/utils';
 import { format, parseISO } from 'date-fns';
+import en from '@/locales/en.json';
+import id from '@/locales/id.json';
+
+const translations = { en, id };
 
 const GeneratePdfInputSchema = z.object({
   invoiceId: z.string(),
+  language: z.enum(['en', 'id']),
 });
 export type GeneratePdfInput = z.infer<typeof GeneratePdfInputSchema>;
 
@@ -38,7 +43,16 @@ const generatePdfFlow = ai.defineFlow(
     inputSchema: GeneratePdfInputSchema,
     outputSchema: GeneratePdfOutputSchema,
   },
-  async ({ invoiceId }) => {
+  async ({ invoiceId, language }) => {
+    const t = (key: string) => {
+        const keys = key.split('.');
+        let result = translations[language] as any;
+        for (const k of keys) {
+            result = result?.[k];
+        }
+        return result || key;
+    };
+    
     const invoice = await getInvoiceById(invoiceId);
     if (!invoice) {
       throw new Error('Invoice not found');
@@ -87,7 +101,7 @@ const generatePdfFlow = ai.defineFlow(
     let rightY = y;
     
     // Right side: Invoice Title and Info
-    const invoiceTitle = 'Invoice';
+    const invoiceTitle = t('invoices.pdf.title');
     const titleWidth = boldFont.widthOfTextAtSize(invoiceTitle, headerFontSize);
     page.drawText(invoiceTitle, {
       x: width - margin - titleWidth,
@@ -144,10 +158,11 @@ const generatePdfFlow = ai.defineFlow(
       leftY -= 15;
     });
 
+    const statusText = t(`invoices.status.${invoice.status.toLowerCase()}`);
     const metaInfo = [
-      { label: 'Status:', value: invoice.status },
-      { label: 'Invoice Date:', value: format(parseISO(invoice.createdAt), 'PPP') },
-      { label: 'Due Date:', value: format(parseISO(invoice.dueDate), 'PPP') },
+      { label: `${t('invoices.pdf.status')}:`, value: statusText },
+      { label: `${t('invoices.pdf.invoiceDate')}:`, value: format(parseISO(invoice.createdAt), 'PPP') },
+      { label: `${t('invoices.pdf.dueDate')}:`, value: format(parseISO(invoice.dueDate), 'PPP') },
     ];
 
     metaInfo.forEach(info => {
@@ -179,7 +194,7 @@ const generatePdfFlow = ai.defineFlow(
     y = Math.min(leftY, rightY) - 20;
 
     // Billing Info
-    page.drawText('Bill To:', {
+    page.drawText(t('invoices.pdf.billTo'), {
       x: margin,
       y: y,
       font: boldFont,
@@ -234,7 +249,7 @@ const generatePdfFlow = ai.defineFlow(
       color: rgb(0.95, 0.95, 0.95),
     });
 
-    const tableHeaders = ['Item', 'Quantity', 'Unit Price', 'Total'];
+    const tableHeaders = [t('invoices.form.item'), t('invoices.form.quantity'), t('invoices.form.unitPrice'), t('invoices.form.total')];
     const colWidths = [
       contentWidth * 0.5,
       contentWidth * 0.15,
@@ -300,17 +315,17 @@ const generatePdfFlow = ai.defineFlow(
     const summaryValueXEnd = width - margin;
 
     const summaryItems = [
-      { label: 'Subtotal', value: formatCurrency(invoice.subtotal) },
+      { label: t('invoices.form.subtotal'), value: formatCurrency(invoice.subtotal) },
     ];
     
     if (invoice.tax > 0) {
         summaryItems.push({
-            label: `Tax (${invoice.tax}%)`,
+            label: `${t('invoices.pdf.tax')} (${invoice.tax}%)`,
             value: formatCurrency((invoice.subtotal * invoice.tax) / 100),
         });
     }
     if (invoice.discount > 0) {
-      summaryItems.push({ label: 'Discount', value: `- ${formatCurrency(invoice.discount)}` });
+      summaryItems.push({ label: t('invoices.pdf.discount'), value: `- ${formatCurrency(invoice.discount)}` });
     }
 
     summaryItems.forEach(item => {
@@ -336,7 +351,7 @@ const generatePdfFlow = ai.defineFlow(
 
     const totalText = formatCurrency(invoice.total);
     const totalWidth = boldFont.widthOfTextAtSize(totalText, subHeaderFontSize);
-    page.drawText('Total', { x: summaryLabelX, y: y, font: boldFont, size: subHeaderFontSize });
+    page.drawText(t('invoices.form.total'), { x: summaryLabelX, y: y, font: boldFont, size: subHeaderFontSize });
     page.drawText(totalText, {
       x: summaryValueXEnd - totalWidth,
       y: y,
@@ -350,7 +365,7 @@ const generatePdfFlow = ai.defineFlow(
     // Notes
     if (invoice.notes) {
       const notesX = margin;
-      page.drawText('Notes', { x: notesX, y: y, font: boldFont, size: fontSize });
+      page.drawText(t('invoices.form.notesTitle'), { x: notesX, y: y, font: boldFont, size: fontSize });
       y -= 15;
 
       const notesLines = invoice.notes.split('\n');
@@ -368,7 +383,7 @@ const generatePdfFlow = ai.defineFlow(
 
     // Footer
     const footerY = margin / 2;
-    const footerText = 'Thank you for your business!';
+    const footerText = t('invoices.pdf.footer');
     const textWidth = font.widthOfTextAtSize(footerText, smallFontSize);
     page.drawText(footerText, {
       x: (width - textWidth) / 2,
@@ -385,3 +400,5 @@ const generatePdfFlow = ai.defineFlow(
     };
   }
 );
+
+    

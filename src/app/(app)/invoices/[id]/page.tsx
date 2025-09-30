@@ -30,6 +30,7 @@ import { useEffect, useState } from 'react';
 import type { Invoice } from '@/lib/types';
 import Spinner from '@/components/ui/spinner';
 import Image from 'next/image';
+import { useLocale } from '@/hooks/use-locale';
 
 const getStatusClass = (status: InvoiceStatus) => {
   switch (status) {
@@ -46,6 +47,7 @@ const getStatusClass = (status: InvoiceStatus) => {
 
 export default function InvoiceDetailPage() {
   const params = useParams();
+  const { t } = useLocale();
   
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [companyProfile, setCompanyProfile] = useState<CompanyProfile | null>(null);
@@ -101,10 +103,10 @@ export default function InvoiceDetailPage() {
         </Button>
         <div>
            <h1 className="text-2xl font-semibold md:text-3xl">
-            Invoice {invoice.invoiceNumber}
+            {t('invoices.detail.title')} {invoice.invoiceNumber}
           </h1>
            <p className="text-muted-foreground">
-            Details for invoice to {invoice.customer.name}.
+            {t('invoices.detail.description', { customerName: invoice.customer?.name || 'N/A'})}
           </p>
         </div>
          <div className="ml-auto">
@@ -132,7 +134,7 @@ export default function InvoiceDetailPage() {
               </div>
             </div>
             <div className="text-right">
-                <h1 className="text-3xl font-bold">Invoice</h1>
+                <h1 className="text-3xl font-bold">{t('invoices.pdf.title')}</h1>
                 <p className="text-muted-foreground">#{invoice.invoiceNumber}</p>
             </div>
           </div>
@@ -140,34 +142,40 @@ export default function InvoiceDetailPage() {
         <CardContent className="p-6">
           <div className="grid grid-cols-2 gap-6 mb-8">
             <div>
-              <h3 className="font-semibold mb-2">Bill To:</h3>
-              <p className="font-medium text-primary">{invoice.customer.name}</p>
-              <p className="text-sm text-muted-foreground whitespace-pre-line">
-                {invoice.customer.address}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                {invoice.customer.email}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                {invoice.customer.phone}
-              </p>
+              <h3 className="font-semibold mb-2">{t('invoices.pdf.billTo')}</h3>
+              {invoice.customer ? (
+                <>
+                    <p className="font-medium text-primary">{invoice.customer.name}</p>
+                    <p className="text-sm text-muted-foreground whitespace-pre-line">
+                        {invoice.customer.address}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                        {invoice.customer.email}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                        {invoice.customer.phone}
+                    </p>
+                </>
+              ) : (
+                <p className="text-sm text-destructive">{t('invoices.detail.customerNotFound')}</p>
+              )}
             </div>
             <div className="text-right">
               <div className="grid grid-cols-2 gap-y-2">
-                <span className="font-semibold">Status:</span>
+                <span className="font-semibold">{t('invoices.pdf.status')}:</span>
                 <Badge
                   variant="outline"
                   className={cn('justify-self-end', getStatusClass(invoice.status))}
                 >
-                  {invoice.status}
+                  {t(`invoices.status.${invoice.status.toLowerCase()}`)}
                 </Badge>
 
-                <span className="font-semibold">Invoice Date:</span>
+                <span className="font-semibold">{t('invoices.pdf.invoiceDate')}:</span>
                 <span className="text-muted-foreground">
                   {format(parseISO(invoice.createdAt), 'PPP')}
                 </span>
 
-                <span className="font-semibold">Due Date:</span>
+                <span className="font-semibold">{t('invoices.pdf.dueDate')}:</span>
                 <span className="text-muted-foreground">
                   {format(parseISO(invoice.dueDate), 'PPP')}
                 </span>
@@ -178,12 +186,12 @@ export default function InvoiceDetailPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="bg-muted/50">Item</TableHead>
-                <TableHead className="w-[120px] text-center bg-muted/50">Quantity</TableHead>
+                <TableHead className="bg-muted/50">{t('invoices.form.item')}</TableHead>
+                <TableHead className="w-[120px] text-center bg-muted/50">{t('invoices.form.quantity')}</TableHead>
                 <TableHead className="w-[150px] text-right bg-muted/50">
-                  Unit Price
+                  {t('invoices.form.unitPrice')}
                 </TableHead>
-                <TableHead className="w-[150px] text-right bg-muted/50">Total</TableHead>
+                <TableHead className="w-[150px] text-right bg-muted/50">{t('invoices.form.total')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -208,38 +216,40 @@ export default function InvoiceDetailPage() {
             <div className="space-y-2">
               {invoice.notes && (
                 <div>
-                  <h4 className="font-semibold">Notes</h4>
+                  <h4 className="font-semibold">{t('invoices.form.notesTitle')}</h4>
                   <p className="text-sm text-muted-foreground whitespace-pre-line">{invoice.notes}</p>
                 </div>
               )}
             </div>
             <div className="space-y-2 text-right">
               <div className="flex justify-between">
-                <span className="font-medium">Subtotal</span>
+                <span className="font-medium">{t('invoices.form.subtotal')}</span>
                 <span>{formatCurrency(invoice.subtotal)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="font-medium">Tax ({invoice.tax}%)</span>
+                <span className="font-medium">{t('invoices.pdf.tax')} ({invoice.tax}%)</span>
                 <span>{formatCurrency((invoice.subtotal * invoice.tax) / 100)}</span>
               </div>
                {invoice.discount > 0 && (
                  <div className="flex justify-between">
-                    <span className="font-medium">Discount</span>
+                    <span className="font-medium">{t('invoices.pdf.discount')}</span>
                     <span>- {formatCurrency(invoice.discount)}</span>
                  </div>
                )}
               <Separator className="my-1" />
               <div className="flex justify-between font-bold text-lg">
-                <span>Total</span>
+                <span>{t('invoices.form.total')}</span>
                 <span>{formatCurrency(invoice.total)}</span>
               </div>
             </div>
           </div>
         </CardContent>
         <CardFooter className="p-6 text-center text-xs text-muted-foreground">
-            Thank you for your business!
+            {t('invoices.pdf.footer')}
         </CardFooter>
       </Card>
     </div>
   );
 }
+
+    

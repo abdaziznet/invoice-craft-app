@@ -1,3 +1,4 @@
+
 {
   "nav": {
     "dashboard": "Dashboard",
@@ -186,8 +187,7 @@
       "notesPlaceholder": "Add any additional notes for the customer...",
       "summaryTitle": "Summary",
       "subtotal": "Subtotal",
-      "includeTax": "Include Tax (11%)",
-      "total": "Total"
+      "includeTax": "Include Tax (11%)"
     },
     "table": {
       "deleteSelected": "Delete Selected ({{count}})",
@@ -221,6 +221,27 @@
         "deleteErrorTitle": "Failed to Delete Invoices",
         "deleteErrorDesc": "An error occurred while deleting the invoices. Please try again."
       }
+    },
+    "actions": {
+      "share": "Share Invoice",
+      "preparing": "Preparing...",
+      "printExport": "Print / Export PDF",
+      "generating": "Generating..."
+    },
+    "pdf": {
+      "title": "Invoice",
+      "status": "Status",
+      "invoiceDate": "Invoice Date",
+      "dueDate": "Due Date",
+      "billTo": "Bill To:",
+      "tax": "Tax",
+      "discount": "Discount",
+      "footer": "Thank you for your business!"
+    },
+    "detail": {
+      "title": "Invoice",
+      "description": "Details for invoice to {{customerName}}.",
+      "customerNotFound": "Customer has been deleted."
     }
   },
   "settings": {
@@ -269,3 +290,5 @@
     "description": "This action cannot be undone. This will permanently delete the {{items}} and remove their data from our servers."
   }
 }
+
+    

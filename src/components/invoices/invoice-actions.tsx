@@ -10,6 +10,7 @@ import { formatCurrency } from '@/lib/utils';
 import { generatePdf } from '@/ai/flows/pdf-generation';
 import Spinner from '../ui/spinner';
 import { saveAs } from 'file-saver';
+import { useLocale } from '@/hooks/use-locale';
 
 
 type InvoiceActionsProps = {
@@ -39,13 +40,14 @@ const b64toBlob = (b64Data: string, contentType='', sliceSize=512) => {
 
 export default function InvoiceActions({ invoice }: InvoiceActionsProps) {
   const { toast } = useToast();
+  const { lang, t } = useLocale();
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
 
   const handleExportPdf = async () => {
     setIsGeneratingPdf(true);
     try {
-      const response = await generatePdf({ invoiceId: invoice.id });
+      const response = await generatePdf({ invoiceId: invoice.id, language: lang });
       const blob = b64toBlob(response.pdfBase64, 'application/pdf');
       saveAs(blob, `invoice-${invoice.invoiceNumber}.pdf`);
 
@@ -53,8 +55,8 @@ export default function InvoiceActions({ invoice }: InvoiceActionsProps) {
       console.error("Failed to generate PDF", error);
       toast({
         variant: 'destructive',
-        title: 'PDF Generation Failed',
-        description: 'Could not generate PDF for this invoice.',
+        title: t('invoices.table.toast.pdfErrorTitle'),
+        description: t('invoices.table.toast.pdfErrorDesc'),
       })
     } finally {
         setIsGeneratingPdf(false);
@@ -63,14 +65,19 @@ export default function InvoiceActions({ invoice }: InvoiceActionsProps) {
 
   const handleShare = async () => {
     setIsSharing(true);
+    if (!invoice.customer) {
+        toast({ variant: 'destructive', title: 'Customer Missing', description: 'Cannot share invoice for a deleted customer.' });
+        setIsSharing(false);
+        return;
+    }
     try {
-      const response = await generatePdf({ invoiceId: invoice.id });
+      const response = await generatePdf({ invoiceId: invoice.id, language: lang });
       const blob = b64toBlob(response.pdfBase64, 'application/pdf');
       const file = new File([blob], `invoice-${invoice.invoiceNumber}.pdf`, { type: 'application/pdf' });
       
       const shareData = {
         files: [file],
-        title: `Invoice ${invoice.invoiceNumber}`,
+        title: `${t('invoices.pdf.title')} ${invoice.invoiceNumber}`,
         text: `Hi ${invoice.customer.name}, here is your invoice #${invoice.invoiceNumber} for ${formatCurrency(invoice.total)}.`,
       };
 
@@ -79,8 +86,8 @@ export default function InvoiceActions({ invoice }: InvoiceActionsProps) {
       } else {
          // Fallback for desktop or unsupported browsers
          toast({
-            title: "Web Share not supported",
-            description: "Your browser doesn't support sharing files directly. Opening WhatsApp with a link instead.",
+            title: t('invoices.table.toast.shareUnsupportedTitle'),
+            description: t('invoices.table.toast.shareUnsupportedDesc'),
           });
          const invoiceUrl = `${window.location.origin}/invoices/${invoice.id}`;
          const message = `Hi ${invoice.customer.name}, here is your invoice #${invoice.invoiceNumber} for ${formatCurrency(invoice.total)}. You can view it here: ${invoiceUrl}`;
@@ -92,8 +99,8 @@ export default function InvoiceActions({ invoice }: InvoiceActionsProps) {
        console.error("Failed to share invoice", error);
        toast({
          variant: 'destructive',
-         title: 'Sharing Failed',
-         description: 'Could not share the invoice. Please try again.',
+         title: t('invoices.table.toast.shareErrorTitle'),
+         description: t('invoices.table.toast.shareErrorDesc'),
        })
     } finally {
         setIsSharing(false);
@@ -104,12 +111,14 @@ export default function InvoiceActions({ invoice }: InvoiceActionsProps) {
     <div className="flex gap-2">
       <Button variant="outline" onClick={handleShare} disabled={isSharing}>
         {isSharing ? <Spinner className="mr-2 h-4 w-4" /> : <Share2 className="mr-2 h-4 w-4" />}
-        {isSharing ? 'Preparing...' : 'Share Invoice'}
+        {isSharing ? t('invoices.actions.preparing') : t('invoices.actions.share')}
       </Button>
       <Button variant="outline" onClick={handleExportPdf} disabled={isGeneratingPdf}>
         {isGeneratingPdf ? <Spinner className="mr-2"/> : <Printer className="mr-2 h-4 w-4" />}
-        {isGeneratingPdf ? 'Generating...' : 'Print / Export PDF'}
+        {isGeneratingPdf ? t('invoices.actions.generating') : t('invoices.actions.printExport')}
       </Button>
     </div>
   );
 }
+
+    

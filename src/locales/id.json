@@ -1,3 +1,4 @@
+
 {
   "nav": {
     "dashboard": "Dasbor",
@@ -186,8 +187,7 @@
       "notesPlaceholder": "Tambahkan catatan tambahan untuk pelanggan...",
       "summaryTitle": "Ringkasan",
       "subtotal": "Subtotal",
-      "includeTax": "Sertakan Pajak (11%)",
-      "total": "Total"
+      "includeTax": "Sertakan Pajak (11%)"
     },
     "table": {
       "deleteSelected": "Hapus yang Dipilih ({{count}})",
@@ -221,6 +221,27 @@
         "deleteErrorTitle": "Gagal Menghapus Faktur",
         "deleteErrorDesc": "Terjadi kesalahan saat menghapus faktur. Silakan coba lagi."
       }
+    },
+    "actions": {
+      "share": "Bagikan Faktur",
+      "preparing": "Menyiapkan...",
+      "printExport": "Cetak / Ekspor PDF",
+      "generating": "Membuat..."
+    },
+    "pdf": {
+      "title": "Faktur",
+      "status": "Status",
+      "invoiceDate": "Tanggal Faktur",
+      "dueDate": "Tanggal Jatuh Tempo",
+      "billTo": "Ditagihkan kepada:",
+      "tax": "Pajak",
+      "discount": "Diskon",
+      "footer": "Terima kasih atas bisnis Anda!"
+    },
+    "detail": {
+      "title": "Faktur",
+      "description": "Detail untuk faktur kepada {{customerName}}.",
+      "customerNotFound": "Pelanggan telah dihapus."
     }
   },
   "settings": {
@@ -269,3 +290,5 @@
     "description": "Tindakan ini tidak dapat dibatalkan. Ini akan menghapus {{items}} secara permanen dan menghapus datanya dari server kami."
   }
 }
+
+    
