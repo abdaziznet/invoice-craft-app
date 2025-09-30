@@ -2,7 +2,7 @@
 'use client';
 
 import * as React from 'react';
-import { PlusCircle, Search } from 'lucide-react';
+import { PlusCircle, Search, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import ClientTable from '@/components/clients/client-table';
@@ -42,6 +42,34 @@ export default function ClientPageContent({
     );
   }, [clients, searchTerm]);
 
+  const handleExport = () => {
+    const headers = ['ID', 'Name', 'Email', 'Phone', 'Address'];
+    const data = filteredClients.map(client => [
+      client.id,
+      client.name,
+      client.email,
+      client.phone,
+      `"${client.address.replace(/"/g, '""')}"`,
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...data.map(row => row.join(',')),
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    if (link.href) {
+      URL.revokeObjectURL(link.href);
+    }
+    const url = URL.createObjectURL(blob);
+    link.href = url;
+    link.setAttribute('download', 'clients.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
 
   return (
     <div>
@@ -61,6 +89,10 @@ export default function ClientPageContent({
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
+          <Button size="sm" variant="outline" onClick={handleExport}>
+            <Download className="mr-2 h-4 w-4" />
+            Export
+          </Button>
           <Button onClick={() => setIsAddDialogOpen(true)}>
             <PlusCircle className="mr-2 h-4 w-4" />
             Add New Client
