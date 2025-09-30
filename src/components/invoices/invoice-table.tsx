@@ -269,7 +269,7 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
                 <TableCell className="font-medium hidden sm:table-cell">{invoice.invoiceNumber}</TableCell>
                 <TableCell>{invoice.customer ? invoice.customer.name : 'Customer not found'}</TableCell>
                 <TableCell>
-                  <Badge className={cn(getStatusClass(invoice.status))} variant="outline">{invoice.status}</Badge>
+                  <Badge className={cn(getStatusClass(invoice.status))} variant="outline">{t(`invoices.status.${invoice.status.toLowerCase()}`)}</Badge>
                 </TableCell>
                 <TableCell className="hidden md:table-cell">{invoice.dueDate}</TableCell>
                 <TableCell className="text-right text-xs md:text-sm">{formatCurrency(invoice.total)}</TableCell>
