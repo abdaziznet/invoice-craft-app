@@ -166,6 +166,18 @@
         "createErrorDesc": "Terjadi kesalahan saat menyimpan faktur. Silakan coba lagi."
       }
     },
+    "edit": {
+      "title": "Edit Faktur {{number}}",
+      "description": "Perbarui formulir di bawah untuk mengedit faktur.",
+      "toast": {
+        "updatedTitle": "Faktur Diperbarui",
+        "updatedDesc": "Faktur telah berhasil diperbarui.",
+        "updateErrorTitle": "Gagal Memperbarui Faktur",
+        "updateErrorDesc": "Terjadi kesalahan saat menyimpan faktur. Silakan coba lagi.",
+        "loadErrorTitle": "Kesalahan",
+        "loadErrorDesc": "Gagal memuat data faktur."
+      }
+    },
     "form": {
       "detailsTitle": "Detail Faktur",
       "customer": "Pelanggan",
@@ -289,5 +301,3 @@
     "description": "Tindakan ini tidak dapat dibatalkan. Ini akan menghapus {{items}} secara permanen dan menghapus datanya dari server kami."
   }
 }
-
-    

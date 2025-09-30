@@ -166,6 +166,18 @@
         "createErrorDesc": "An error occurred while saving the invoice. Please try again."
       }
     },
+    "edit": {
+      "title": "Edit Invoice {{number}}",
+      "description": "Update the form below to edit the invoice.",
+      "toast": {
+        "updatedTitle": "Invoice Updated",
+        "updatedDesc": "The invoice has been successfully updated.",
+        "updateErrorTitle": "Failed to Update Invoice",
+        "updateErrorDesc": "An error occurred while saving the invoice. Please try again.",
+        "loadErrorTitle": "Error",
+        "loadErrorDesc": "Failed to load invoice data."
+      }
+    },
     "form": {
       "detailsTitle": "Invoice Details",
       "customer": "Customer",
@@ -289,5 +301,3 @@
     "description": "This action cannot be undone. This will permanently delete the {{items}} and remove their data from our servers."
   }
 }
-
-    

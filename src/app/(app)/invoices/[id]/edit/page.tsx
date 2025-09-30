@@ -53,6 +53,7 @@ import type { Customer, Product, Invoice, InvoiceStatus } from '@/lib/types';
 import Spinner from '@/components/ui/spinner';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { useLocale } from '@/hooks/use-locale';
 
 const lineItemSchema = z.object({
   productId: z.string().min(1, 'Product is required.'),
@@ -80,6 +81,7 @@ export default function EditInvoicePage() {
   const params = useParams();
   const { id } = params;
   const { toast } = useToast();
+  const { t } = useLocale();
   
   const [invoice, setInvoice] = React.useState<Invoice | null>(null);
   const [customers, setCustomers] = React.useState<Customer[]>([]);
@@ -128,14 +130,14 @@ export default function EditInvoicePage() {
 
       } catch (error) {
         console.error("Failed to fetch data:", error);
-        toast({ variant: 'destructive', title: 'Error', description: 'Failed to load invoice data.'})
+        toast({ variant: 'destructive', title: t('invoices.edit.toast.loadErrorTitle'), description: t('invoices.edit.toast.loadErrorDesc')})
         notFound();
       } finally {
         setIsLoading(false);
       }
     }
     fetchData();
-  }, [id, form, toast]);
+  }, [id, form, toast, t]);
 
 
   const { fields, append, remove } = useFieldArray({
@@ -178,16 +180,16 @@ export default function EditInvoicePage() {
       await updateInvoice(invoice.id, invoicePayload);
       
       toast({
-        title: 'Invoice Updated',
-        description: 'The invoice has been successfully updated.',
+        title: t('invoices.edit.toast.updatedTitle'),
+        description: t('invoices.edit.toast.updatedDesc'),
       });
       router.push('/invoices');
     } catch (error) {
       console.error(error);
       toast({
         variant: 'destructive',
-        title: 'Failed to Update Invoice',
-        description: 'An error occurred while saving the invoice. Please try again.',
+        title: t('invoices.edit.toast.updateErrorTitle'),
+        description: t('invoices.edit.toast.updateErrorDesc'),
       });
     } finally {
       setIsSaving(false);
@@ -210,10 +212,10 @@ export default function EditInvoicePage() {
         </Button>
         <div>
           <h1 className="text-2xl font-semibold md:text-3xl">
-            Edit Invoice {invoice.invoiceNumber}
+            {t('invoices.edit.title', { number: invoice.invoiceNumber })}
           </h1>
           <p className="text-muted-foreground">
-            Update the form below to edit the invoice.
+            {t('invoices.edit.description')}
           </p>
         </div>
       </div>
@@ -221,7 +223,7 @@ export default function EditInvoicePage() {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <Card>
             <CardHeader>
-              <CardTitle>Invoice Details</CardTitle>
+              <CardTitle>{t('invoices.form.detailsTitle')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -230,14 +232,14 @@ export default function EditInvoicePage() {
                   name="customerId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Customer</FormLabel>
+                      <FormLabel>{t('invoices.form.customer')}</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         value={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select a customer" />
+                            <SelectValue placeholder={t('invoices.form.selectCustomer')} />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -257,7 +259,7 @@ export default function EditInvoicePage() {
                   name="invoiceDate"
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
-                      <FormLabel>Invoice Date</FormLabel>
+                      <FormLabel>{t('invoices.form.invoiceDate')}</FormLabel>
                       <Popover>
                         <PopoverTrigger asChild>
                           <FormControl>
@@ -271,7 +273,7 @@ export default function EditInvoicePage() {
                               {field.value ? (
                                 format(field.value, 'PPP')
                               ) : (
-                                <span>Pick a date</span>
+                                <span>{t('invoices.form.pickDate')}</span>
                               )}
                               <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                             </Button>
@@ -296,7 +298,7 @@ export default function EditInvoicePage() {
                   name="dueDate"
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
-                      <FormLabel>Due Date</FormLabel>
+                      <FormLabel>{t('invoices.form.dueDate')}</FormLabel>
                       <Popover>
                         <PopoverTrigger asChild>
                           <FormControl>
@@ -310,7 +312,7 @@ export default function EditInvoicePage() {
                               {field.value ? (
                                 format(field.value, 'PPP')
                               ) : (
-                                <span>Pick a date</span>
+                                <span>{t('invoices.form.pickDate')}</span>
                               )}
                               <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                             </Button>
@@ -335,17 +337,17 @@ export default function EditInvoicePage() {
                   name="status"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Status</FormLabel>
+                      <FormLabel>{t('invoices.form.status')}</FormLabel>
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select status" />
+                            <SelectValue placeholder={t('invoices.form.selectStatus')} />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="Paid">Paid</SelectItem>
-                          <SelectItem value="Unpaid">Unpaid</SelectItem>
-                           <SelectItem value="Overdue">Overdue</SelectItem>
+                          <SelectItem value="Paid">{t('invoices.status.paid')}</SelectItem>
+                          <SelectItem value="Unpaid">{t('invoices.status.unpaid')}</SelectItem>
+                           <SelectItem value="Overdue">{t('invoices.status.overdue')}</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -358,19 +360,19 @@ export default function EditInvoicePage() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Line Items</CardTitle>
+              <CardTitle>{t('invoices.form.lineItemsTitle')}</CardTitle>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Product/Service</TableHead>
-                    <TableHead className="w-[120px]">Quantity</TableHead>
+                    <TableHead>{t('invoices.form.item')}</TableHead>
+                    <TableHead className="w-[120px]">{t('invoices.form.quantity')}</TableHead>
                     <TableHead className="w-[150px] text-right">
-                      Unit Price
+                      {t('invoices.form.unitPrice')}
                     </TableHead>
                     <TableHead className="w-[150px] text-right">
-                      Total
+                      {t('invoices.form.total')}
                     </TableHead>
                     <TableHead className="w-[50px]"></TableHead>
                   </TableRow>
@@ -407,7 +409,7 @@ export default function EditInvoicePage() {
                                 value={field.value}
                               >
                                 <SelectTrigger>
-                                  <SelectValue placeholder="Select item" />
+                                  <SelectValue placeholder={t('invoices.form.selectItem')} />
                                 </SelectTrigger>
                                 <SelectContent>
                                   {products.map((product) => (
@@ -482,7 +484,7 @@ export default function EditInvoicePage() {
                   })
                 }
               >
-                <PlusCircle className="mr-2 h-4 w-4" /> Add Item
+                <PlusCircle className="mr-2 h-4 w-4" /> {t('invoices.form.addItem')}
               </Button>
             </CardContent>
           </Card>
@@ -490,7 +492,7 @@ export default function EditInvoicePage() {
           <div className="grid gap-4 md:grid-cols-2">
             <Card>
               <CardHeader>
-                <CardTitle>Notes</CardTitle>
+                <CardTitle>{t('invoices.form.notesTitle')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <FormField
@@ -500,7 +502,7 @@ export default function EditInvoicePage() {
                     <FormItem>
                       <FormControl>
                         <Textarea
-                          placeholder="Add any additional notes for the customer..."
+                          placeholder={t('invoices.form.notesPlaceholder')}
                           className="resize-none"
                           {...field}
                           value={field.value ?? ''}
@@ -515,16 +517,16 @@ export default function EditInvoicePage() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Summary</CardTitle>
+                <CardTitle>{t('invoices.form.summaryTitle')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex justify-between">
-                  <span>Subtotal</span>
+                  <span>{t('invoices.form.subtotal')}</span>
                   <span>{formatCurrency(subtotal)}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Label htmlFor="include-tax">Include Tax (11%)</Label>
+                    <Label htmlFor="include-tax">{t('invoices.form.includeTax')}</Label>
                     <Switch 
                       id="include-tax" 
                       checked={includeTax} 
@@ -534,7 +536,7 @@ export default function EditInvoicePage() {
                   <span>{formatCurrency(tax)}</span>
                 </div>
                 <div className="flex justify-between font-semibold text-lg">
-                  <span>Total</span>
+                  <span>{t('invoices.form.total')}</span>
                   <span>{formatCurrency(total)}</span>
                 </div>
               </CardContent>
@@ -543,11 +545,11 @@ export default function EditInvoicePage() {
 
           <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={() => router.push('/invoices')} disabled={isSaving}>
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button type="submit" disabled={isSaving}>
               {isSaving ? <Spinner className="mr-2 h-4 w-4" /> : <Save className="mr-2 h-4 w-4" />}
-              Save Changes
+              {t('common.saveChanges')}
             </Button>
           </div>
         </form>
