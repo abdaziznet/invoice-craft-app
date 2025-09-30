@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DollarSign, FileText, Clock } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
@@ -8,20 +9,33 @@ type StatsCardsProps = {
 };
 
 export default function StatsCards({ invoices }: StatsCardsProps) {
-  const totalRevenue = invoices
-    .filter((inv) => inv.status === 'Paid')
-    .reduce((acc, inv) => acc + inv.total, 0);
+  const paidInvoices = invoices.filter((inv) => inv.status === 'Paid');
+  const totalRevenue = paidInvoices.reduce((acc, inv) => acc + inv.total, 0);
 
-  const pendingPayments = invoices
-    .filter((inv) => inv.status !== 'Paid')
-    .reduce((acc, inv) => acc + inv.total, 0);
+  const unpaidInvoices = invoices.filter((inv) => inv.status === 'Unpaid' || inv.status === 'Overdue');
+  const pendingPayments = unpaidInvoices.reduce((acc, inv) => acc + inv.total, 0);
     
   const totalInvoices = invoices.length;
 
   const stats = [
-    { title: 'Total Revenue', value: formatCurrency(totalRevenue), icon: DollarSign },
-    { title: 'Pending Payments', value: formatCurrency(pendingPayments), icon: Clock },
-    { title: 'Total Invoices', value: `+${totalInvoices}`, icon: FileText },
+    { 
+        title: 'Total Revenue', 
+        value: formatCurrency(totalRevenue), 
+        icon: DollarSign,
+        description: `Based on ${paidInvoices.length} paid invoices`
+    },
+    { 
+        title: 'Pending Payments', 
+        value: formatCurrency(pendingPayments), 
+        icon: Clock,
+        description: `Based on ${unpaidInvoices.length} unpaid invoices`
+    },
+    { 
+        title: 'Total Invoices', 
+        value: `+${totalInvoices}`, 
+        icon: FileText,
+        description: `Across all statuses`
+    },
   ];
 
   return (
@@ -35,7 +49,7 @@ export default function StatsCards({ invoices }: StatsCardsProps) {
           <CardContent>
             <div className="text-2xl font-bold">{stat.value}</div>
             <p className="text-xs text-muted-foreground">
-              Based on {totalInvoices} invoices
+              {stat.description}
             </p>
           </CardContent>
         </Card>

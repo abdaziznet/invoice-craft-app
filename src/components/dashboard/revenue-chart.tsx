@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
@@ -34,6 +35,16 @@ export default function RevenueChart({ invoices }: RevenueChartProps) {
     { name: 'Nov', total: monthlyRevenue[10] },
     { name: 'Dec', total: monthlyRevenue[11] },
   ];
+  
+  const yAxisTickFormatter = (value: number) => {
+    if (value >= 1000000) {
+      return `${formatCurrency(value / 1000000)}M`;
+    }
+    if (value >= 1000) {
+      return `${formatCurrency(value / 1000)}K`;
+    }
+    return formatCurrency(value);
+  };
 
   return (
     <Card className="lg:col-span-4">
@@ -56,7 +67,7 @@ export default function RevenueChart({ invoices }: RevenueChartProps) {
               fontSize={12}
               tickLine={false}
               axisLine={false}
-              tickFormatter={(value) => `${formatCurrency(value as number).slice(0, -4)}jt`}
+              tickFormatter={yAxisTickFormatter}
             />
             <Tooltip
               cursor={{ fill: 'hsl(var(--muted))' }}
