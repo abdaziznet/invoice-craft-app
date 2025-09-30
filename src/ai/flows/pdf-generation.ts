@@ -185,7 +185,7 @@ const generatePdfFlow = ai.defineFlow(
       size: fontSize,
     });
     //y -= 15;
-    page.drawText(invoice.client.name, {
+    page.drawText(invoice.customer.name, {
       x: margin + 40,
       y: y,
       font: font,
@@ -195,7 +195,7 @@ const generatePdfFlow = ai.defineFlow(
     y -= 15;
 
     // Handle multi-line address
-    const addressLines = invoice.client.address.split('\n');
+    const addressLines = invoice.customer.address.split('\n');
     addressLines.forEach(line => {
       page.drawText(line, {
         x: margin,
