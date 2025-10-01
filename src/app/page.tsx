@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { Chrome } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
@@ -11,6 +10,7 @@ import Spinner from '@/components/ui/spinner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getCompanyProfile } from '@/lib/google-sheets';
 import type { CompanyProfile } from '@/lib/types';
+import GoogleIcon from '@/components/icons/google-icon';
 
 export default function LoginPage() {
   const { user, loading, signInWithGoogle } = useAuth();
@@ -75,7 +75,7 @@ export default function LoginPage() {
               variant="default"
               size="lg"
             >
-              <Chrome className="mr-2 h-5 w-5" />
+              <GoogleIcon className="mr-2 h-5 w-5" />
               Sign in with Google
             </Button>
           </div>
