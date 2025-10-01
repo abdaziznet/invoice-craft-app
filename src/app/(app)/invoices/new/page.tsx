@@ -332,7 +332,7 @@ export default function NewInvoicePage() {
                   <TableRow>
                     <TableHead>{t('invoices.form.item')}</TableHead>
                     <TableHead className="w-[120px]">{t('invoices.form.quantity')}</TableHead>
-                    <TableHead className="w-[150px] text-right">
+                    <TableHead className="w-[150px]">
                       {t('invoices.form.unitPrice')}
                     </TableHead>
                     <TableHead className="w-[150px] text-right">
@@ -412,8 +412,28 @@ export default function NewInvoicePage() {
                             )}
                           />
                         </TableCell>
-                        <TableCell className="text-right">
-                          {formatCurrency(watchLineItems[index]?.unitPrice || 0)}
+                        <TableCell>
+                          <Controller
+                            control={form.control}
+                            name={`lineItems.${index}.unitPrice`}
+                            render={({ field }) => (
+                              <Input
+                                type="number"
+                                {...field}
+                                onChange={(e) => {
+                                  const unitPrice = Number(e.target.value);
+                                  const quantity = form.getValues(
+                                    `lineItems.${index}.quantity`
+                                  );
+                                  field.onChange(unitPrice);
+                                  form.setValue(
+                                    `lineItems.${index}.total`,
+                                    unitPrice * quantity
+                                  );
+                                }}
+                              />
+                            )}
+                          />
                         </TableCell>
                         <TableCell className="text-right">
                           {formatCurrency(watchLineItems[index]?.total || 0)}
@@ -520,3 +540,5 @@ export default function NewInvoicePage() {
     </div>
   );
 }
+
+    
