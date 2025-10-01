@@ -450,7 +450,7 @@ export async function getInvoices() {
                     quantity: parseInt(item.quantity, 10),
                     unitPrice: parseFloat(item.unitPrice),
                     total: parseFloat(item.total),
-                }
+                } as InvoiceItem;
             });
 
         return {
@@ -492,7 +492,7 @@ export async function getInvoiceById(id: string): Promise<Invoice | null> {
                 quantity: parseInt(item.quantity, 10),
                 unitPrice: parseFloat(item.unitPrice),
                 total: parseFloat(item.total),
-            }
+            } as InvoiceItem;
         });
         
     const fullInvoice: Invoice = {
@@ -746,3 +746,6 @@ export async function deleteInvoices(invoiceIds: string[]) {
 
 
 
+
+
+    
