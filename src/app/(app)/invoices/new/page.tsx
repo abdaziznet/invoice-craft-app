@@ -145,6 +145,7 @@ export default function NewInvoicePage() {
           lineItems: data.lineItems.map(item => ({
             productId: item.productId,
             quantity: item.quantity,
+            unitPrice: item.unitPrice,
             total: item.total
           }))
       };

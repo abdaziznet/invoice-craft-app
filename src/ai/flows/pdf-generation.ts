@@ -278,12 +278,11 @@ const generatePdfFlow = ai.defineFlow(
 
     // Table Body
     invoice.lineItems.forEach(item => {
-      const itemTotal = item.product.unitPrice * item.quantity;
       const rowData = [
         item.product.name,
         item.quantity.toString(),
-        formatCurrency(item.product.unitPrice),
-        formatCurrency(itemTotal),
+        formatCurrency(item.unitPrice),
+        formatCurrency(item.total),
       ];
 
       currentX = margin + 10;

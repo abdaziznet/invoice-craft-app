@@ -17,6 +17,7 @@ export type InvoiceItem = {
   id: string;
   product: Product;
   quantity: number;
+  unitPrice: number; // The price at the time of invoice creation
   total: number;
 };
 

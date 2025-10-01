@@ -122,8 +122,8 @@ export default function EditInvoicePage() {
             lineItems: invoiceData.lineItems.map(item => ({
                 productId: item.product.id,
                 quantity: item.quantity,
-                unitPrice: item.product.unitPrice,
-                total: item.product.unitPrice * item.quantity,
+                unitPrice: item.unitPrice,
+                total: item.total,
             }))
         });
         setIncludeTax(invoiceData.tax > 0);
@@ -173,6 +173,7 @@ export default function EditInvoicePage() {
           lineItems: data.lineItems.map(item => ({
             productId: item.productId,
             quantity: item.quantity,
+            unitPrice: item.unitPrice,
             total: item.total
           }))
       };

@@ -200,10 +200,10 @@ export default function InvoiceDetailPage() {
                   <TableCell className="font-medium">{item.product.name}</TableCell>
                   <TableCell className="text-center">{item.quantity}</TableCell>
                   <TableCell className="text-right">
-                    {formatCurrency(item.product.unitPrice)}
+                    {formatCurrency(item.unitPrice)}
                   </TableCell>
                   <TableCell className="text-right">
-                    {formatCurrency(item.product.unitPrice * item.quantity)}
+                    {formatCurrency(item.total)}
                   </TableCell>
                 </TableRow>
               ))}
