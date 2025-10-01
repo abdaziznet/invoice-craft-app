@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -30,7 +31,7 @@ export const AuthContext = createContext<AuthContextType | undefined>(
   undefined
 );
 
-const WHITELISTED_EMAIL = 'file.azis@gmail.com';
+const WHITELISTED_EMAILS = ['file.azis@gmail.com', 'mail.tasliman@gmail.com'];
 
 const MissingApiKeyError = () => (
     <div className="flex h-screen flex-col items-center justify-center bg-background text-foreground">
@@ -62,7 +63,7 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const router = useRouter();
   const { toast } = useToast();
 
-  const isWhitelisted = user?.email === WHITELISTED_EMAIL;
+  const isWhitelisted = user?.email ? WHITELISTED_EMAILS.includes(user.email) : false;
 
   useEffect(() => {
     if (!firebaseConfig.apiKey) {
