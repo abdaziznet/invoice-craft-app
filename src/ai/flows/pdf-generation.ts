@@ -398,6 +398,6 @@ const generatePdfFlow = ai.defineFlow(
       pdfBase64: Buffer.from(pdfBytes).toString('base64'),
     };
   }
-);  
+);
 
     
