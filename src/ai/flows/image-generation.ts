@@ -45,11 +45,11 @@ const generateImageFlow = ai.defineFlow(
     }
 
     const interRegular = await fetch(
-        new URL('../../../assets/fonts/Inter-Regular.ttf', import.meta.url)
-      ).then((res) => res.arrayBuffer());
+      new URL('https://rsms.me/inter/font-files/Inter-Regular.woff', import.meta.url)
+    ).then((res) => res.arrayBuffer());
   
     const interBold = await fetch(
-        new URL('../../../assets/fonts/Inter-Bold.ttf', import.meta.url)
+      new URL('https://rsms.me/inter/font-files/Inter-Bold.woff', import.meta.url)
     ).then((res) => res.arrayBuffer());
     
 
