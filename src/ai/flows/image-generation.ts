@@ -1,3 +1,4 @@
+
 'use server';
 
 import { ai } from '@/ai/genkit';
@@ -43,6 +44,15 @@ const generateImageFlow = ai.defineFlow(
       throw new Error('Invoice not found');
     }
 
+    const interRegular = await fetch(
+        new URL('../../../assets/fonts/Inter-Regular.ttf', import.meta.url)
+      ).then((res) => res.arrayBuffer());
+  
+    const interBold = await fetch(
+        new URL('../../../assets/fonts/Inter-Bold.ttf', import.meta.url)
+    ).then((res) => res.arrayBuffer());
+    
+
     const imageResponse = new ImageResponse(
       React.createElement(InvoiceImageTemplate, { invoice, companyProfile }),
       {
@@ -52,17 +62,13 @@ const generateImageFlow = ai.defineFlow(
         fonts: [
           {
             name: 'Inter',
-            data: await fetch(
-              'https://fonts.gstatic.com/s/inter/v13/UcC73FwrK3iLTeHuS_fvQtMwCp50KnMa1ZL7W0Q5nw.woff2'
-            ).then((res) => res.arrayBuffer()),
+            data: interRegular,
             weight: 400,
             style: 'normal',
           },
           {
             name: 'Inter',
-            data: await fetch(
-              'https://fonts.gstatic.com/s/inter/v13/UcC73FwrK3iLTeHuS_fvQtMwCp50KnMa1ZL7W0Q5nw.woff2'
-            ).then((res) => res.arrayBuffer()),
+            data: interBold,
             weight: 700,
             style: 'normal',
           },
