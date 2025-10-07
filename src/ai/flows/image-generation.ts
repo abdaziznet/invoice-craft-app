@@ -6,6 +6,8 @@ import { getCompanyProfile, getInvoiceById } from '@/lib/google-sheets';
 import { ImageResponse } from '@vercel/og';
 import InvoiceImageTemplate from '@/components/invoices/invoice-image-template';
 import * as React from 'react';
+import fs from 'fs';
+import path from 'path';
 
 const GenerateImageInputSchema = z.object({
   invoiceId: z.string(),
@@ -40,14 +42,10 @@ const generateImageFlow = ai.defineFlow(
     if (!invoice) {
       throw new Error('Invoice not found');
     }
-    
-    const baseUrl = process.env.NODE_ENV === 'production' 
-      ? 'https://invoice-craft-gcp-sa.web.app' 
-      : 'http://localhost:9002';
 
-    const interRegular = await fetch(new URL('/fonts/Inter-Regular.ttf', baseUrl)).then((res) => res.arrayBuffer());
-    const interBold = await fetch(new URL('/fonts/Inter-Bold.ttf', baseUrl)).then((res) => res.arrayBuffer());
-
+    // ✅ Load font from local public directory
+    const interRegular = fs.readFileSync(path.join(process.cwd(), 'public/fonts/Inter-Regular.ttf'));
+    const interBold = fs.readFileSync(path.join(process.cwd(), 'public/fonts/Inter-Bold.ttf'));
 
     const imageResponse = new ImageResponse(
       React.createElement(InvoiceImageTemplate, { invoice, companyProfile }),
@@ -56,18 +54,8 @@ const generateImageFlow = ai.defineFlow(
         height: 630,
         format,
         fonts: [
-          {
-            name: 'Inter',
-            data: interRegular,
-            weight: 400,
-            style: 'normal',
-          },
-          {
-            name: 'Inter',
-            data: interBold,
-            weight: 700,
-            style: 'normal',
-          },
+          { name: 'Inter', data: interRegular, weight: 400, style: 'normal' },
+          { name: 'Inter', data: interBold, weight: 700, style: 'normal' },
         ],
       }
     );
@@ -75,9 +63,6 @@ const generateImageFlow = ai.defineFlow(
     const imageBuffer = await imageResponse.arrayBuffer();
     const imageUrl = `data:image/${format};base64,${Buffer.from(imageBuffer).toString('base64')}`;
 
-    return {
-      imageUrl,
-      format,
-    };
+    return { imageUrl, format };
   }
 );
