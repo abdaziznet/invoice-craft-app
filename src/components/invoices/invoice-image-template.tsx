@@ -11,7 +11,7 @@ export default function InvoiceImageTemplate({
   invoice,
   companyProfile
 }: InvoiceImageTemplateProps) {
-  const { customer, lineItems, subtotal, tax, total, dueDate, invoiceNumber } = invoice;
+  const { customer, lineItems, subtotal, tax, total, dueDate, invoiceNumber, notes } = invoice;
 
   return (
     <div
@@ -28,7 +28,7 @@ export default function InvoiceImageTemplate({
     >
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '2px solid #e5e7eb', paddingBottom: '20px' }}>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
+        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
           {companyProfile.logoUrl && (
             <img src={companyProfile.logoUrl} alt={companyProfile.name} style={{ width: '60px', height: '60px', marginRight: '20px', borderRadius: '8px' }} />
           )}
@@ -51,11 +51,11 @@ export default function InvoiceImageTemplate({
           <p style={{ fontSize: '14px', color: '#6b7280', margin: 0, whiteSpace: 'pre-wrap', maxWidth: '300px' }}>{customer.address}</p>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', fontSize: '14px' }}>
-            <div style={{ display: 'flex', width: '220px', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', flexDirection: 'row', width: '220px', justifyContent: 'space-between' }}>
                 <p style={{ fontWeight: 700, margin: 0 }}>Invoice Date:</p>
                 <p style={{ margin: 0 }}>{format(parseISO(invoice.createdAt), 'PPP')}</p>
             </div>
-            <div style={{ display: 'flex', width: '220px', justifyContent: 'space-between', marginTop: '8px' }}>
+            <div style={{ display: 'flex', flexDirection: 'row', width: '220px', justifyContent: 'space-between', marginTop: '8px' }}>
                 <p style={{ fontWeight: 700, margin: 0 }}>Due Date:</p>
                 <p style={{ margin: 0 }}>{format(parseISO(dueDate), 'PPP')}</p>
             </div>
@@ -86,9 +86,20 @@ export default function InvoiceImageTemplate({
           )}
         </div>
       </div>
-
-      {/* Footer Summary */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
+      
+      {/* Footer: Notes & Summary */}
+      <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginTop: '20px' }}>
+        {/* Notes Section */}
+        <div style={{ display: 'flex', flexDirection: 'column', maxWidth: '50%', fontSize: '12px' }}>
+            {notes && (
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <p style={{ fontWeight: 700, margin: '0 0 4px 0' }}>Notes</p>
+                    <p style={{ margin: 0, color: '#6b7280', whiteSpace: 'pre-wrap' }}>{notes}</p>
+                </div>
+            )}
+        </div>
+        
+        {/* Summary Section */}
         <div style={{ display: 'flex', flexDirection: 'column', width: '280px', fontSize: '14px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0' }}>
             <p style={{ margin: 0 }}>Subtotal</p>
