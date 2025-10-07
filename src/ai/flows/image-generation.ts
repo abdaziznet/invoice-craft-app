@@ -2,7 +2,7 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
-import { getInvoiceById } from '@/lib/google-sheets';
+import { getCompanyProfile, getInvoiceById } from '@/lib/google-sheets';
 import { ImageResponse } from '@vercel/og';
 import InvoiceImageTemplate from '@/components/invoices/invoice-image-template';
 import * as React from 'react';
@@ -34,17 +34,39 @@ const generateImageFlow = ai.defineFlow(
     outputSchema: GenerateImageOutputSchema,
   },
   async ({ invoiceId, format }) => {
-    const invoice = await getInvoiceById(invoiceId);
+    const [invoice, companyProfile] = await Promise.all([
+      getInvoiceById(invoiceId),
+      getCompanyProfile(),
+    ]);
+
     if (!invoice) {
       throw new Error('Invoice not found');
     }
 
     const imageResponse = new ImageResponse(
-      React.createElement(InvoiceImageTemplate, { invoice }),
+      React.createElement(InvoiceImageTemplate, { invoice, companyProfile }),
       {
         width: 1200,
         height: 630,
         format,
+        fonts: [
+          {
+            name: 'Inter',
+            data: await fetch(
+              'https://fonts.gstatic.com/s/inter/v13/UcC73FwrK3iLTeHuS_fvQtMwCp50KnMa1ZL7W0Q5nw.woff2'
+            ).then((res) => res.arrayBuffer()),
+            weight: 400,
+            style: 'normal',
+          },
+          {
+            name: 'Inter',
+            data: await fetch(
+              'https://fonts.gstatic.com/s/inter/v13/UcC73FwrK3iLTeHuS_fvQtMwCp50KnMa1ZL7W0Q5nw.woff2'
+            ).then((res) => res.arrayBuffer()),
+            weight: 700,
+            style: 'normal',
+          },
+        ],
       }
     );
     

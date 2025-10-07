@@ -1,44 +1,17 @@
 import { formatCurrency } from '@/lib/utils';
-import type { Invoice, InvoiceStatus } from '@/lib/types';
+import type { CompanyProfile, Invoice } from '@/lib/types';
 import { format, parseISO } from 'date-fns';
 
 type InvoiceImageTemplateProps = {
   invoice: Invoice;
-};
-
-const getStatusStyles = (status: InvoiceStatus) => {
-  switch (status) {
-    case 'Paid':
-      return {
-        backgroundColor: '#e6fffa',
-        color: '#00796b',
-        borderColor: '#4db6ac',
-      };
-    case 'Unpaid':
-      return {
-        backgroundColor: '#fffbeb',
-        color: '#b45309',
-        borderColor: '#fcd34d',
-      };
-    case 'Overdue':
-      return {
-        backgroundColor: '#fee2e2',
-        color: '#b91c1c',
-        borderColor: '#fca5a5',
-      };
-    default:
-      return {
-        backgroundColor: '#f3f4f6',
-        color: '#4b5563',
-        borderColor: '#d1d5db',
-      };
-  }
+  companyProfile: CompanyProfile;
 };
 
 export default function InvoiceImageTemplate({
   invoice,
+  companyProfile
 }: InvoiceImageTemplateProps) {
-  const statusStyles = getStatusStyles(invoice.status);
+  const { customer, lineItems, subtotal, tax, total, dueDate, invoiceNumber } = invoice;
 
   return (
     <div
@@ -48,77 +21,87 @@ export default function InvoiceImageTemplate({
         width: '100%',
         height: '100%',
         backgroundColor: 'white',
-        padding: '50px',
+        padding: '40px',
         fontFamily: '"Inter", sans-serif',
         color: '#1f2937',
       }}
     >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <h1 style={{ fontSize: '48px', fontWeight: 700, margin: 0 }}>
-            Invoice Summary
-          </h1>
-          <p style={{ fontSize: '24px', color: '#6b7280', marginTop: '8px' }}>
-            #{invoice.invoiceNumber}
-          </p>
+      {/* Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '2px solid #e5e7eb', paddingBottom: '20px' }}>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          {companyProfile.logoUrl && (
+            <img src={companyProfile.logoUrl} alt={companyProfile.name} style={{ width: '60px', height: '60px', marginRight: '20px', borderRadius: '8px' }} />
+          )}
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <p style={{ fontSize: '24px', fontWeight: 700, margin: 0 }}>{companyProfile.name}</p>
+            <p style={{ fontSize: '14px', color: '#6b7280', margin: 0, whiteSpace: 'pre-wrap', maxWidth: '250px' }}>{companyProfile.address}</p>
+          </div>
         </div>
-        <div
-          style={{
-            display: 'flex',
-            padding: '12px 24px',
-            borderRadius: '9999px',
-            fontSize: '24px',
-            fontWeight: 600,
-            border: `2px solid ${statusStyles.borderColor}`,
-            ...statusStyles,
-          }}
-        >
-          {invoice.status}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+          <p style={{ fontSize: '40px', fontWeight: 700, margin: 0, textTransform: 'uppercase' }}>Invoice</p>
+          <p style={{ fontSize: '16px', color: '#6b7280', margin: 0 }}>#{invoiceNumber}</p>
         </div>
       </div>
 
-      <div style={{ marginTop: '60px', display: 'flex', flexDirection: 'column' }}>
-        <p style={{ fontSize: '22px', color: '#6b7280', margin: 0 }}>
-          Billed to
-        </p>
-        <p style={{ fontSize: '32px', fontWeight: 600, marginTop: '4px' }}>
-          {invoice.customer.name}
-        </p>
+      {/* Bill To & Dates */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '30px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <p style={{ fontSize: '14px', fontWeight: 700, color: '#6b7280', margin: 0 }}>BILL TO</p>
+          <p style={{ fontSize: '20px', fontWeight: 600, margin: '4px 0 0 0' }}>{customer.name}</p>
+          <p style={{ fontSize: '14px', color: '#6b7280', margin: 0, whiteSpace: 'pre-wrap', maxWidth: '300px' }}>{customer.address}</p>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', fontSize: '14px' }}>
+            <div style={{ display: 'flex', width: '220px', justifyContent: 'space-between' }}>
+                <p style={{ fontWeight: 700, margin: 0 }}>Invoice Date:</p>
+                <p style={{ margin: 0 }}>{format(parseISO(invoice.createdAt), 'PPP')}</p>
+            </div>
+            <div style={{ display: 'flex', width: '220px', justifyContent: 'space-between', marginTop: '8px' }}>
+                <p style={{ fontWeight: 700, margin: 0 }}>Due Date:</p>
+                <p style={{ margin: 0 }}>{format(parseISO(dueDate), 'PPP')}</p>
+            </div>
+        </div>
       </div>
 
-      <div
-        style={{
-          marginTop: 'auto',
-          borderTop: '2px solid #e5e7eb',
-          paddingTop: '30px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'flex-end',
-        }}
-      >
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <p style={{ fontSize: '22px', color: '#6b7280', margin: 0 }}>
-            Due Date
-          </p>
-          <p style={{ fontSize: '32px', fontWeight: 600, marginTop: '4px' }}>
-            {format(parseISO(invoice.dueDate), 'PPP')}
-          </p>
+      {/* Line Items Table */}
+      <div style={{ display: 'flex', flexDirection: 'column', marginTop: '30px', flexGrow: 1 }}>
+        <div style={{ display: 'flex', backgroundColor: '#f9fafb', padding: '10px', fontSize: '12px', fontWeight: 700, color: '#6b7280' }}>
+          <p style={{ flex: '1 1 50%', margin: 0 }}>ITEM</p>
+          <p style={{ flex: '0 0 15%', textAlign: 'right', margin: 0 }}>QTY</p>
+          <p style={{ flex: '0 0 20%', textAlign: 'right', margin: 0 }}>PRICE</p>
+          <p style={{ flex: '0 0 15%', textAlign: 'right', margin: 0 }}>TOTAL</p>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'right' }}>
-          <p style={{ fontSize: '28px', color: '#6b7280', margin: 0 }}>
-            Total Amount
-          </p>
-          <p
-            style={{
-              fontSize: '64px',
-              fontWeight: 800,
-              color: '#0369a1',
-              marginTop: '4px',
-              lineHeight: 1,
-            }}
-          >
-            {formatCurrency(invoice.total)}
-          </p>
+        <div style={{ display: 'flex', flexDirection: 'column', fontSize: '14px', border: '1px solid #f3f4f6', borderTop: 'none' }}>
+          {lineItems.slice(0, 3).map((item, index) => (
+            <div key={item.id} style={{ display: 'flex', padding: '10px', borderTop: index === 0 ? 'none' : '1px solid #f3f4f6' }}>
+              <p style={{ flex: '1 1 50%', margin: 0 }}>{item.product.name}</p>
+              <p style={{ flex: '0 0 15%', textAlign: 'right', margin: 0 }}>{item.quantity}</p>
+              <p style={{ flex: '0 0 20%', textAlign: 'right', margin: 0 }}>{formatCurrency(item.unitPrice)}</p>
+              <p style={{ flex: '0 0 15%', textAlign: 'right', margin: 0 }}>{formatCurrency(item.total)}</p>
+            </div>
+          ))}
+          {lineItems.length > 3 && (
+            <div style={{ display: 'flex', padding: '10px', borderTop: '1px solid #f3f4f6', color: '#6b7280', fontSize: '12px' }}>
+                <p style={{margin: 0}}>...and {lineItems.length - 3} more items</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Footer Summary */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', width: '280px', fontSize: '14px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0' }}>
+            <p style={{ margin: 0 }}>Subtotal</p>
+            <p style={{ margin: 0 }}>{formatCurrency(subtotal)}</p>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0' }}>
+            <p style={{ margin: 0 }}>Tax ({tax}%)</p>
+            <p style={{ margin: 0 }}>{formatCurrency((subtotal * tax) / 100)}</p>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0', borderTop: '2px solid #e5e7eb', marginTop: '8px' }}>
+            <p style={{ margin: 0, fontSize: '18px', fontWeight: 700 }}>Total</p>
+            <p style={{ margin: 0, fontSize: '18px', fontWeight: 700 }}>{formatCurrency(total)}</p>
+          </div>
         </div>
       </div>
     </div>
