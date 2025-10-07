@@ -32,18 +32,9 @@ export function ProductCombobox({
   onChange,
 }: ProductComboboxProps) {
   const [open, setOpen] = React.useState(false);
-  const [search, setSearch] = React.useState('');
   const { t } = useLocale();
   const selectedProduct = products.find((p) => p.id === value);
 
-  const filteredProducts = React.useMemo(() => {
-    if (!search) {
-      return [];
-    }
-    return products.filter((product) =>
-      product.name.toLowerCase().includes(search.toLowerCase())
-    );
-  }, [products, search]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -64,18 +55,16 @@ export function ProductCombobox({
         <Command>
           <CommandInput 
             placeholder={t('products.searchPlaceholder')}
-            value={search}
-            onValueChange={setSearch}
           />
           <CommandList>
             <CommandEmpty>No product found.</CommandEmpty>
             <CommandGroup>
-              {filteredProducts.map((product) => (
+              {products.map((product) => (
                 <CommandItem
                   key={product.id}
                   value={product.id}
                   onSelect={(currentValue) => {
-                    onChange(currentValue);
+                    onChange(currentValue === value ? "" : currentValue);
                     setOpen(false);
                   }}
                 >
