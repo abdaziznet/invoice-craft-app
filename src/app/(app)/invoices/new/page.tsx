@@ -54,6 +54,7 @@ import Spinner from '@/components/ui/spinner';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useLocale } from '@/hooks/use-locale';
+import { ProductCombobox } from '@/components/invoices/product-combobox';
 
 
 const lineItemSchema = z.object({
@@ -347,46 +348,23 @@ export default function NewInvoicePage() {
                     return (
                       <TableRow key={item.id}>
                         <TableCell>
-                          <Controller
+                           <Controller
                             control={form.control}
                             name={`lineItems.${index}.productId`}
                             render={({ field }) => (
-                              <Select
-                                onValueChange={(value) => {
-                                  const product = products.find(
-                                    (p) => p.id === value
-                                  );
+                              <ProductCombobox
+                                products={products}
+                                value={field.value}
+                                onChange={(productId) => {
+                                  const product = products.find(p => p.id === productId);
                                   if (product) {
-                                    field.onChange(value);
-                                    form.setValue(
-                                      `lineItems.${index}.unitPrice`,
-                                      product.unitPrice
-                                    );
-                                    const quantity = form.getValues(
-                                      `lineItems.${index}.quantity`
-                                    );
-                                    form.setValue(
-                                      `lineItems.${index}.total`,
-                                      product.unitPrice * quantity
-                                    );
+                                    field.onChange(productId);
+                                    form.setValue(`lineItems.${index}.unitPrice`, product.unitPrice);
+                                    const quantity = form.getValues(`lineItems.${index}.quantity`);
+                                    form.setValue(`lineItems.${index}.total`, product.unitPrice * quantity);
                                   }
                                 }}
-                                defaultValue={field.value}
-                              >
-                                <SelectTrigger>
-                                  <SelectValue placeholder={t('invoices.form.selectItem')} />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {products.map((product) => (
-                                    <SelectItem
-                                      key={product.id}
-                                      value={product.id}
-                                    >
-                                      {product.name}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
+                              />
                             )}
                           />
                         </TableCell>
@@ -541,5 +519,3 @@ export default function NewInvoicePage() {
     </div>
   );
 }
-
-    
