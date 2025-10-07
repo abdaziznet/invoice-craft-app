@@ -15,7 +15,12 @@
     "saveChanges": "Simpan Perubahan",
     "delete": "Hapus",
     "deleting": "Menghapus...",
-    "viewAll": "Lihat Semua"
+    "viewAll": "Lihat Semua",
+    "copy": "Salin",
+    "share": "Bagikan",
+    "sharing": "Membagikan...",
+    "download": "Unduh",
+    "downloading": "Mengunduh..."
   },
   "dashboard": {
     "title": "Dasbor",
@@ -218,32 +223,30 @@
         "edit": "Edit",
         "exportPdf": "Ekspor ke PDF",
         "share": "Bagikan",
+        "shareExport": "Bagikan / Ekspor",
         "generateReminder": "Buat Pengingat"
       },
       "toast": {
         "pdfErrorTitle": "Gagal Membuat PDF",
         "pdfErrorDesc": "Tidak dapat membuat PDF untuk faktur ini.",
         "shareUnsupportedTitle": "Web Share tidak didukung",
-        "shareUnsupportedDesc": "Beralih ke berbagi tautan melalui WhatsApp.",
+        "shareUnsupportedDesc": "Beralih ke mengunduh file sebagai gantinya.",
         "shareErrorTitle": "Gagal Berbagi",
         "shareErrorDesc": "Tidak dapat membagikan faktur. Silakan coba lagi."
       }
     },
     "actions": {
-      "share": "Bagikan Faktur",
+      "shareExport": "Bagikan / Ekspor",
       "preparing": "Menyiapkan...",
       "printExport": "Cetak / Ekspor PDF",
       "generating": "Membuat..."
     },
     "shareDialog": {
-      "title": "Bagikan Faktur",
-      "description": "Pilih cara Anda ingin membagikan faktur {{invoiceNumber}}.",
-      "shareLink": "Bagikan Tautan",
-      "shareLinkDesc": "Salin URL unik ke halaman faktur.",
-      "sharePdf": "Bagikan sebagai PDF",
-      "sharePdfDesc": "Bagikan versi PDF dari faktur.",
-      "shareImage": "Bagikan sebagai Gambar",
-      "shareImageDesc": "Bagikan ringkasan gambar dari faktur.",
+      "title": "Bagikan / Ekspor Faktur",
+      "description": "Pilih cara Anda ingin membagikan atau mengekspor faktur {{invoiceNumber}}.",
+      "shareLink": "Tautan yang Dapat Dibagikan",
+      "sharePdf": "Dokumen PDF",
+      "shareImageJpg": "Gambar (JPG)",
       "generating": "Membuat...",
       "copySuccess": "Tautan disalin ke papan klip!",
       "copyError": "Gagal menyalin tautan."

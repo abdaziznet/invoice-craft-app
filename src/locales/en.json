@@ -15,7 +15,12 @@
     "saveChanges": "Save Changes",
     "delete": "Delete",
     "deleting": "Deleting...",
-    "viewAll": "View All"
+    "viewAll": "View All",
+    "copy": "Copy",
+    "share": "Share",
+    "sharing": "Sharing...",
+    "download": "Download",
+    "downloading": "Downloading..."
   },
   "dashboard": {
     "title": "Dashboard",
@@ -218,32 +223,30 @@
         "edit": "Edit",
         "exportPdf": "Export as PDF",
         "share": "Share",
+        "shareExport": "Share / Export",
         "generateReminder": "Generate Reminder"
       },
       "toast": {
         "pdfErrorTitle": "PDF Generation Failed",
         "pdfErrorDesc": "Could not generate PDF for this invoice.",
         "shareUnsupportedTitle": "Web Share not supported",
-        "shareUnsupportedDesc": "Falling back to sharing a link via WhatsApp.",
+        "shareUnsupportedDesc": "Falling back to downloading the file instead.",
         "shareErrorTitle": "Sharing Failed",
         "shareErrorDesc": "Could not share the invoice. Please try again."
       }
     },
     "actions": {
-      "share": "Share Invoice",
+      "shareExport": "Share / Export",
       "preparing": "Preparing...",
       "printExport": "Print / Export PDF",
       "generating": "Generating..."
     },
     "shareDialog": {
-      "title": "Share Invoice",
-      "description": "Choose how you'd like to share invoice {{invoiceNumber}}.",
-      "shareLink": "Share Link",
-      "shareLinkDesc": "Copy a unique URL to the invoice page.",
-      "sharePdf": "Share as PDF",
-      "sharePdfDesc": "Share a PDF version of the invoice.",
-      "shareImage": "Share as Image",
-      "shareImageDesc": "Share an image summary of the invoice.",
+      "title": "Share / Export Invoice",
+      "description": "Choose how you'd like to share or export invoice {{invoiceNumber}}.",
+      "shareLink": "Shareable Link",
+      "sharePdf": "PDF Document",
+      "shareImageJpg": "Image (JPG)",
       "generating": "Generating...",
       "copySuccess": "Link copied to clipboard!",
       "copyError": "Failed to copy link."
