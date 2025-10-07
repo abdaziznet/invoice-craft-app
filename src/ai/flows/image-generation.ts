@@ -1,4 +1,3 @@
-
 'use server';
 
 import { ai } from '@/ai/genkit';
@@ -7,6 +6,8 @@ import { getCompanyProfile, getInvoiceById } from '@/lib/google-sheets';
 import { ImageResponse } from '@vercel/og';
 import InvoiceImageTemplate from '@/components/invoices/invoice-image-template';
 import * as React from 'react';
+import fs from 'fs';
+import path from 'path';
 
 const GenerateImageInputSchema = z.object({
   invoiceId: z.string(),
@@ -14,17 +15,12 @@ const GenerateImageInputSchema = z.object({
 });
 
 export type GenerateImageInput = z.infer<typeof GenerateImageInputSchema>;
+export type GenerateImageOutput = {
+  imageUrl: string;
+  format: 'png' | 'jpeg';
+};
 
-const GenerateImageOutputSchema = z.object({
-  imageUrl: z.string(),
-  format: z.enum(['png', 'jpeg']),
-});
-
-export type GenerateImageOutput = z.infer<typeof GenerateImageOutputSchema>;
-
-export async function generateImage(
-  input: GenerateImageInput
-): Promise<GenerateImageOutput> {
+export async function generateImage(input: GenerateImageInput): Promise<GenerateImageOutput> {
   return generateImageFlow(input);
 }
 
@@ -32,7 +28,10 @@ const generateImageFlow = ai.defineFlow(
   {
     name: 'generateImageFlow',
     inputSchema: GenerateImageInputSchema,
-    outputSchema: GenerateImageOutputSchema,
+    outputSchema: z.object({
+      imageUrl: z.string(),
+      format: z.enum(['png', 'jpeg']),
+    }),
   },
   async ({ invoiceId, format }) => {
     const [invoice, companyProfile] = await Promise.all([
@@ -44,15 +43,14 @@ const generateImageFlow = ai.defineFlow(
       throw new Error('Invoice not found');
     }
 
-    const interRegular = await fetch(
-      new URL('https://rsms.me/inter/font-files/Inter-Regular.woff', import.meta.url)
-    ).then((res) => res.arrayBuffer());
-  
-    const interBold = await fetch(
-      new URL('https://rsms.me/inter/font-files/Inter-Bold.woff', import.meta.url)
-    ).then((res) => res.arrayBuffer());
-    
+    // ✅ Gunakan font lokal (pastikan file ada di folder public/fonts)
+    const interRegularPath = path.join(process.cwd(), 'public/fonts/Inter-Regular.woff2');
+    const interBoldPath = path.join(process.cwd(), 'public/fonts/Inter-Bold.woff2');
 
+    const interRegular = fs.readFileSync(interRegularPath);
+    const interBold = fs.readFileSync(interBoldPath);
+
+    // ✅ Buat gambar
     const imageResponse = new ImageResponse(
       React.createElement(InvoiceImageTemplate, { invoice, companyProfile }),
       {
@@ -75,13 +73,13 @@ const generateImageFlow = ai.defineFlow(
         ],
       }
     );
-    
-    // Convert the image to a data URL
+
+    // ✅ Ubah ke Base64
     const imageBuffer = await imageResponse.arrayBuffer();
     const imageUrl = `data:image/${format};base64,${Buffer.from(imageBuffer).toString('base64')}`;
 
     return {
-      imageUrl: imageUrl,
+      imageUrl,
       format,
     };
   }
