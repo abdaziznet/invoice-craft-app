@@ -40,9 +40,13 @@ const generateImageFlow = ai.defineFlow(
     if (!invoice) {
       throw new Error('Invoice not found');
     }
+    
+    const baseUrl = process.env.NODE_ENV === 'production' 
+      ? 'https://invoice-craft-gcp-sa.web.app' 
+      : 'http://localhost:9002';
 
-    const interRegular = await fetch('https://github.com/google/fonts/raw/main/ofl/inter/Inter-Regular.ttf').then((res) => res.arrayBuffer());
-    const interBold = await fetch('https://github.com/google/fonts/raw/main/ofl/inter/Inter-Bold.ttf').then((res) => res.arrayBuffer());
+    const interRegular = await fetch(new URL('/fonts/Inter-Regular.ttf', baseUrl)).then((res) => res.arrayBuffer());
+    const interBold = await fetch(new URL('/fonts/Inter-Bold.ttf', baseUrl)).then((res) => res.arrayBuffer());
 
 
     const imageResponse = new ImageResponse(
