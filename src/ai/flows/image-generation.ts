@@ -43,14 +43,12 @@ const generateImageFlow = ai.defineFlow(
       throw new Error('Invoice not found');
     }
 
-    // ✅ Gunakan font lokal (pastikan file ada di folder public/fonts)
-    const interRegularPath = path.join(process.cwd(), 'public/fonts/Inter-Regular.ttf');
-    const interBoldPath = path.join(process.cwd(), 'public/fonts/Inter-Bold.ttf');
+    const interRegularPath = path.join(process.cwd(), 'src/assets/fonts/Inter-Regular.ttf');
+    const interBoldPath = path.join(process.cwd(), 'src/assets/fonts/Inter-Bold.ttf');
 
     const interRegular = fs.readFileSync(interRegularPath);
     const interBold = fs.readFileSync(interBoldPath);
 
-    // ✅ Buat gambar
     const imageResponse = new ImageResponse(
       React.createElement(InvoiceImageTemplate, { invoice, companyProfile }),
       {
@@ -74,7 +72,6 @@ const generateImageFlow = ai.defineFlow(
       }
     );
 
-    // ✅ Ubah ke Base64
     const imageBuffer = await imageResponse.arrayBuffer();
     const imageUrl = `data:image/${format};base64,${Buffer.from(imageBuffer).toString('base64')}`;
 
