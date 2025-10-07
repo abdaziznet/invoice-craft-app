@@ -6,8 +6,6 @@ import { getCompanyProfile, getInvoiceById } from '@/lib/google-sheets';
 import { ImageResponse } from '@vercel/og';
 import InvoiceImageTemplate from '@/components/invoices/invoice-image-template';
 import * as React from 'react';
-import fs from 'fs';
-import path from 'path';
 
 const GenerateImageInputSchema = z.object({
   invoiceId: z.string(),
@@ -43,10 +41,15 @@ const generateImageFlow = ai.defineFlow(
       throw new Error('Invoice not found');
     }
 
-    // ✅ Load font from local public directory
-    const interRegular = fs.readFileSync(path.join(process.cwd(), 'public/fonts/Inter-Regular.ttf'));
-    const interBold = fs.readFileSync(path.join(process.cwd(), 'public/fonts/Inter-Bold.ttf'));
+    const baseUrl = process.env.NODE_ENV === 'production'
+        ? `https://` + (process.env.NEXT_PUBLIC_VERCEL_URL || 'localhost:9002')
+        : 'http://localhost:9002';
 
+    const [interRegular, interBold] = await Promise.all([
+      fetch(new URL('/fonts/Inter-Regular.ttf', baseUrl)).then((res) => res.arrayBuffer()),
+      fetch(new URL('/fonts/Inter-Bold.ttf', baseUrl)).then((res) => res.arrayBuffer()),
+    ]);
+    
     const imageResponse = new ImageResponse(
       React.createElement(InvoiceImageTemplate, { invoice, companyProfile }),
       {
