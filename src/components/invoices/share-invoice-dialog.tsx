@@ -117,12 +117,16 @@ export default function ShareInvoiceDialog({ invoice, isOpen, onOpenChange }: Sh
         const file = new File([imageBlob], `invoice-${invoice.invoiceNumber}.png`, { type: 'image/png' });
 
         await handleShare(file, `Invoice summary for ${invoice.invoiceNumber}`);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error sharing image:', error);
+      let description = 'Could not generate an image for this invoice.';
+      if (typeof error.message === 'string' && error.message.includes('SERVICE_DISABLED')) {
+          description = 'The Generative Language API is not enabled for your project. Please enable it in your Google Cloud Console and try again.';
+      }
       toast({
         variant: 'destructive',
         title: 'Image Generation Failed',
-        description: 'Could not generate an image for this invoice.',
+        description,
       });
     } finally {
       setLoadingAction(null);
