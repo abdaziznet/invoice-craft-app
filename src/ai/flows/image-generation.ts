@@ -3,7 +3,9 @@
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 import { getInvoiceById } from '@/lib/google-sheets';
-import { formatCurrency } from '@/lib/utils';
+import { ImageResponse } from '@vercel/og';
+import InvoiceImageTemplate from '@/components/invoices/invoice-image-template';
+import * as React from 'react';
 
 const GenerateImageInputSchema = z.object({
   invoiceId: z.string(),
@@ -35,37 +37,20 @@ const generateImageFlow = ai.defineFlow(
       throw new Error('Invoice not found');
     }
 
-    const prompt = `Generate a visually appealing and professional image that summarizes an invoice.
-
-    The image should be clean, modern, and easy to read. Use a clear hierarchy of information.
+    const imageResponse = new ImageResponse(
+      React.createElement(InvoiceImageTemplate, { invoice }),
+      {
+        width: 1200,
+        height: 630,
+      }
+    );
     
-    Invoice Details:
-    - Invoice Number: ${invoice.invoiceNumber}
-    - Customer Name: ${invoice.customer.name}
-    - Total Amount: ${formatCurrency(invoice.total)}
-    - Due Date: ${invoice.dueDate}
-    - Status: ${invoice.status}
-    
-    The overall tone should be professional but friendly. The image should prominently feature the total amount and the due date.
-    Use icons to represent key information where appropriate (e.g., a calendar for the due date, a tag for the invoice number).
-    The status should be color-coded: green for Paid, yellow for Unpaid, red for Overdue.
-    
-    Do not include any text other than the invoice details provided above. The output should be just the generated image.`;
-
-    const { media } = await ai.generate({
-        model: 'googleai/imagen-4.0-fast-generate-001',
-        prompt,
-        config: {
-            aspectRatio: '16:9',
-        },
-    });
-
-    if (!media.url) {
-        throw new Error('Image generation failed');
-    }
+    // Convert the image to a data URL
+    const imageBuffer = await imageResponse.arrayBuffer();
+    const imageUrl = `data:image/png;base64,${Buffer.from(imageBuffer).toString('base64')}`;
 
     return {
-      imageUrl: media.url,
+      imageUrl: imageUrl,
     };
   }
 );
