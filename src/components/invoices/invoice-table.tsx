@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -35,6 +34,7 @@ import { saveAs } from 'file-saver';
 import Spinner from '../ui/spinner';
 import DataTablePagination from '../data-table-pagination';
 import { useLocale } from '@/hooks/use-locale';
+import ShareInvoiceDialog from './share-invoice-dialog';
 
 
 type InvoiceTableProps = {
@@ -66,7 +66,8 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
   const router = useRouter();
   const { lang, t } = useLocale();
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isReminderModalOpen, setIsReminderModalOpen] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [selectedInvoiceIds, setSelectedInvoiceIds] = useState<string[]>([]);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -93,7 +94,12 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
 
   const handleGenerateReminder = (invoice: Invoice) => {
     setSelectedInvoice(invoice);
-    setIsModalOpen(true);
+    setIsReminderModalOpen(true);
+  };
+
+  const handleShareClick = (invoice: Invoice) => {
+    setSelectedInvoice(invoice);
+    setIsShareModalOpen(true);
   };
   
   const handleDeleteClick = (invoice: Invoice) => {
@@ -123,53 +129,6 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
         setIsProcessing(null);
     }
   };
-
-  const handleShare = async (invoice: Invoice) => {
-    if (!invoice.customer) {
-      toast({
-        variant: 'destructive',
-        title: 'Customer Not Found',
-        description: 'Cannot share invoice because the customer data is missing.',
-      });
-      return;
-    }
-    setIsProcessing(invoice.id);
-    try {
-      const response = await generatePdf({ invoiceId: invoice.id, language: lang });
-      const blob = b64toBlob(response.pdfBase64, 'application/pdf');
-      const file = new File([blob], `invoice-${invoice.invoiceNumber}.pdf`, { type: 'application/pdf' });
-      
-      const shareData = {
-        files: [file],
-        title: `Invoice ${invoice.invoiceNumber}`,
-        text: `Hi ${invoice.customer.name}, here is your invoice #${invoice.invoiceNumber} for ${formatCurrency(invoice.total)}.`,
-      };
-
-      if (navigator.canShare && navigator.canShare(shareData)) {
-        await navigator.share(shareData);
-      } else {
-         toast({
-            title: t('invoices.table.toast.shareUnsupportedTitle'),
-            description: t('invoices.table.toast.shareUnsupportedDesc'),
-          });
-         const invoiceUrl = `${window.location.origin}/invoices/${invoice.id}`;
-         const message = `Hi ${invoice.customer.name}, here is your invoice #${invoice.invoiceNumber} for ${formatCurrency(invoice.total)}. You can view it here: ${invoiceUrl}`;
-         const whatsappUrl = `https://wa.me/${invoice.customer.phone}?text=${encodeURIComponent(message)}`;
-         window.open(whatsappUrl, '_blank');
-      }
-
-    } catch (error) {
-       console.error("Failed to share invoice", error);
-       toast({
-         variant: 'destructive',
-         title: t('invoices.table.toast.shareErrorTitle'),
-         description: t('invoices.table.toast.shareErrorDesc'),
-       })
-    } finally {
-        setIsProcessing(null);
-    }
-  };
-
 
   const confirmDelete = async () => {
     setIsDeleting(true);
@@ -293,7 +252,7 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
                       <DropdownMenuItem onClick={() => handleExportPdf(invoice)}>
                          {t('invoices.table.actions.exportPdf')}
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleShare(invoice)}>
+                      <DropdownMenuItem onClick={() => handleShareClick(invoice)}>
                          <Share2 className="mr-2 h-4 w-4" /> {t('invoices.table.actions.share')}
                       </DropdownMenuItem>
                       {invoice.status === 'Overdue' && (
@@ -325,8 +284,15 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
       {selectedInvoice && (
         <PaymentReminderModal
           invoice={selectedInvoice}
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
+          isOpen={isReminderModalOpen}
+          onClose={() => setIsReminderModalOpen(false)}
+        />
+      )}
+       {selectedInvoice && (
+        <ShareInvoiceDialog
+          invoice={selectedInvoice}
+          isOpen={isShareModalOpen}
+          onOpenChange={setIsShareModalOpen}
         />
       )}
       <DeleteConfirmationDialog

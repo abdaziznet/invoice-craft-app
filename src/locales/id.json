@@ -226,11 +226,7 @@
         "shareUnsupportedTitle": "Web Share tidak didukung",
         "shareUnsupportedDesc": "Beralih ke berbagi tautan melalui WhatsApp.",
         "shareErrorTitle": "Gagal Berbagi",
-        "shareErrorDesc": "Tidak dapat membagikan faktur. Silakan coba lagi.",
-        "deletedTitle": "Faktur Dihapus",
-        "deletedDesc": "Faktur yang dipilih telah berhasil dihapus.",
-        "deleteErrorTitle": "Gagal Menghapus Faktur",
-        "deleteErrorDesc": "Terjadi kesalahan saat menghapus faktur. Silakan coba lagi."
+        "shareErrorDesc": "Tidak dapat membagikan faktur. Silakan coba lagi."
       }
     },
     "actions": {
@@ -238,6 +234,19 @@
       "preparing": "Menyiapkan...",
       "printExport": "Cetak / Ekspor PDF",
       "generating": "Membuat..."
+    },
+    "shareDialog": {
+      "title": "Bagikan Faktur",
+      "description": "Pilih cara Anda ingin membagikan faktur {{invoiceNumber}}.",
+      "shareLink": "Bagikan Tautan",
+      "shareLinkDesc": "Salin URL unik ke halaman faktur.",
+      "sharePdf": "Bagikan sebagai PDF",
+      "sharePdfDesc": "Bagikan versi PDF dari faktur.",
+      "shareImage": "Bagikan sebagai Gambar",
+      "shareImageDesc": "Bagikan ringkasan gambar dari faktur.",
+      "generating": "Membuat...",
+      "copySuccess": "Tautan disalin ke papan klip!",
+      "copyError": "Gagal menyalin tautan."
     },
     "pdf": {
       "title": "Faktur",

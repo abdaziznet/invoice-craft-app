@@ -226,11 +226,7 @@
         "shareUnsupportedTitle": "Web Share not supported",
         "shareUnsupportedDesc": "Falling back to sharing a link via WhatsApp.",
         "shareErrorTitle": "Sharing Failed",
-        "shareErrorDesc": "Could not share the invoice. Please try again.",
-        "deletedTitle": "Invoices Deleted",
-        "deletedDesc": "The selected invoices have been successfully deleted.",
-        "deleteErrorTitle": "Failed to Delete Invoices",
-        "deleteErrorDesc": "An error occurred while deleting the invoices. Please try again."
+        "shareErrorDesc": "Could not share the invoice. Please try again."
       }
     },
     "actions": {
@@ -238,6 +234,19 @@
       "preparing": "Preparing...",
       "printExport": "Print / Export PDF",
       "generating": "Generating..."
+    },
+    "shareDialog": {
+      "title": "Share Invoice",
+      "description": "Choose how you'd like to share invoice {{invoiceNumber}}.",
+      "shareLink": "Share Link",
+      "shareLinkDesc": "Copy a unique URL to the invoice page.",
+      "sharePdf": "Share as PDF",
+      "sharePdfDesc": "Share a PDF version of the invoice.",
+      "shareImage": "Share as Image",
+      "shareImageDesc": "Share an image summary of the invoice.",
+      "generating": "Generating...",
+      "copySuccess": "Link copied to clipboard!",
+      "copyError": "Failed to copy link."
     },
     "pdf": {
       "title": "Invoice",
