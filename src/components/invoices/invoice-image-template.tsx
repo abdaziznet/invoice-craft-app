@@ -54,7 +54,7 @@ export default function InvoiceImageTemplate({
       }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <div>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
           <h1 style={{ fontSize: '48px', fontWeight: 700, margin: 0 }}>
             Invoice Summary
           </h1>
@@ -64,6 +64,7 @@ export default function InvoiceImageTemplate({
         </div>
         <div
           style={{
+            display: 'flex',
             padding: '12px 24px',
             borderRadius: '9999px',
             fontSize: '24px',
