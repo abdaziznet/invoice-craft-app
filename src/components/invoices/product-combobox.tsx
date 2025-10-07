@@ -62,9 +62,9 @@ export function ProductCombobox({
               {products.map((product) => (
                 <CommandItem
                   key={product.id}
-                  value={product.id}
-                  onSelect={(currentValue) => {
-                    onChange(currentValue === value ? "" : currentValue);
+                  value={product.name} // The value `cmdk` uses for searching. Should be the product name.
+                  onSelect={() => {
+                    onChange(product.id === value ? "" : product.id);
                     setOpen(false);
                   }}
                 >
