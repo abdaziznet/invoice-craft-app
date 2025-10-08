@@ -6,8 +6,6 @@ import { getCompanyProfile, getInvoiceById } from '@/lib/google-sheets';
 import { ImageResponse } from '@vercel/og';
 import InvoiceImageTemplate from '@/components/invoices/invoice-image-template';
 import * as React from 'react';
-import fs from 'fs';
-import path from 'path';
 
 const GenerateImageInputSchema = z.object({
   invoiceId: z.string(),
@@ -34,26 +32,15 @@ const generateImageFlow = ai.defineFlow(
     }),
   },
   async ({ invoiceId, format }) => {
-    const [invoice, companyProfile] = await Promise.all([
+    const [invoice, companyProfile, interRegularFont, interBoldFont] = await Promise.all([
       getInvoiceById(invoiceId),
       getCompanyProfile(),
+      fetch('https://rsms.me/inter/font-files/Inter-Regular.ttf').then((res) => res.arrayBuffer()),
+      fetch('https://rsms.me/inter/font-files/Inter-Bold.ttf').then((res) => res.arrayBuffer()),
     ]);
 
     if (!invoice) {
       throw new Error('Invoice not found');
-    }
-
-    // Load fonts dari file system
-    const fontPath = path.join(process.cwd(), 'public', 'fonts');
-    
-    let interRegular: Buffer;
-    let interBold: Buffer;
-    
-    try {
-      interRegular = fs.readFileSync(path.join(fontPath, 'Inter-Regular.ttf'));
-      interBold = fs.readFileSync(path.join(fontPath, 'Inter-Bold.ttf'));
-    } catch (error) {
-      throw new Error(`Failed to load fonts: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
     
     const imageResponse = new ImageResponse(
@@ -65,15 +52,15 @@ const generateImageFlow = ai.defineFlow(
         fonts: [
           { 
             name: 'Inter', 
-            data: interRegular, 
+            data: interRegularFont, 
             weight: 400, 
-            style: 'normal' as const
+            style: 'normal'
           },
           { 
             name: 'Inter', 
-            data: interBold, 
+            data: interBoldFont, 
             weight: 700, 
-            style: 'normal' as const
+            style: 'normal'
           },
         ],
       }
