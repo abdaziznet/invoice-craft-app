@@ -32,11 +32,9 @@ const generateImageFlow = ai.defineFlow(
     }),
   },
   async ({ invoiceId, format }) => {
-    const [invoice, companyProfile, interRegularFont, interBoldFont] = await Promise.all([
+    const [invoice, companyProfile] = await Promise.all([
       getInvoiceById(invoiceId),
       getCompanyProfile(),
-      fetch('https://rsms.me/inter/font-files/Inter-Regular.ttf').then((res) => res.arrayBuffer()),
-      fetch('https://rsms.me/inter/font-files/Inter-Bold.ttf').then((res) => res.arrayBuffer()),
     ]);
 
     if (!invoice) {
@@ -49,20 +47,6 @@ const generateImageFlow = ai.defineFlow(
         width: 1200,
         height: 630,
         format,
-        fonts: [
-          { 
-            name: 'Inter', 
-            data: interRegularFont, 
-            weight: 400, 
-            style: 'normal' as const
-          },
-          { 
-            name: 'Inter', 
-            data: interBoldFont, 
-            weight: 700, 
-            style: 'normal' as const
-          },
-        ],
       }
     );
 
