@@ -6,6 +6,8 @@ import { getCompanyProfile, getInvoiceById } from '@/lib/google-sheets';
 import { ImageResponse } from '@vercel/og';
 import InvoiceImageTemplate from '@/components/invoices/invoice-image-template';
 import * as React from 'react';
+import fs from 'fs';
+import path from 'path';
 
 const GenerateImageInputSchema = z.object({
   invoiceId: z.string(),
@@ -41,14 +43,18 @@ const generateImageFlow = ai.defineFlow(
       throw new Error('Invoice not found');
     }
 
-    const baseUrl = process.env.NODE_ENV === 'production'
-        ? `https://` + (process.env.NEXT_PUBLIC_VERCEL_URL || 'localhost:9002')
-        : 'http://localhost:9002';
-
-    const [interRegular, interBold] = await Promise.all([
-      fetch(new URL('/fonts/Inter-Regular.ttf', baseUrl)).then((res) => res.arrayBuffer()),
-      fetch(new URL('/fonts/Inter-Bold.ttf', baseUrl)).then((res) => res.arrayBuffer()),
-    ]);
+    // Load fonts dari file system
+    const fontPath = path.join(process.cwd(), 'public', 'fonts');
+    
+    let interRegular: Buffer;
+    let interBold: Buffer;
+    
+    try {
+      interRegular = fs.readFileSync(path.join(fontPath, 'Inter-Regular.ttf'));
+      interBold = fs.readFileSync(path.join(fontPath, 'Inter-Bold.ttf'));
+    } catch (error) {
+      throw new Error(`Failed to load fonts: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
     
     const imageResponse = new ImageResponse(
       React.createElement(InvoiceImageTemplate, { invoice, companyProfile }),
@@ -57,8 +63,18 @@ const generateImageFlow = ai.defineFlow(
         height: 630,
         format,
         fonts: [
-          { name: 'Inter', data: interRegular, weight: 400, style: 'normal' },
-          { name: 'Inter', data: interBold, weight: 700, style: 'normal' },
+          { 
+            name: 'Inter', 
+            data: interRegular, 
+            weight: 400, 
+            style: 'normal' as const
+          },
+          { 
+            name: 'Inter', 
+            data: interBold, 
+            weight: 700, 
+            style: 'normal' as const
+          },
         ],
       }
     );
