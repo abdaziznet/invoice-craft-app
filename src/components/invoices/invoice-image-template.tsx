@@ -68,7 +68,7 @@ export default function InvoiceImageTemplate({
 
       {/* Line Items Table */}
       <div style={{ display: 'flex', flexDirection: 'column', marginTop: '30px', flexGrow: 1 }}>
-        <div style={{ display: 'flex', backgroundColor: '#1d80a0', padding: '10px', fontSize: '14px', fontWeight: 900, color: '#f8f8f8' }}>
+        <div style={{ display: 'flex', backgroundColor: '#1d80a0', padding: '10px', fontSize: '14px', fontWeight: 900, color: '#FFFFFF' }}>
           <p style={{ flex: '1 1 50%', margin: 0 }}>{t('invoices.form.item')}</p>
           <p style={{ flex: '0 0 15%', textAlign: 'right', margin: 0 }}>{t('invoices.form.quantity')}</p>
           <p style={{ flex: '0 0 20%', textAlign: 'right', margin: 0 }}>{t('invoices.form.unitPrice')}</p>
