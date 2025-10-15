@@ -72,6 +72,7 @@ export default function AddCustomerDialog({ isOpen, onOpenChange, onCustomerAdde
     try {
       await createCustomer(data);
       toast({
+        variant: 'success',
         title: t('customers.toast.createdTitle'),
         description: t('customers.toast.createdDesc'),
       });

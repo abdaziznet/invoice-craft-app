@@ -80,6 +80,7 @@ export default function EditCustomerDialog({ customer, isOpen, onOpenChange, onC
     try {
       await updateCustomer(customer.id, data);
       toast({
+        variant: 'success',
         title: t('customers.toast.updatedTitle'),
         description: t('customers.toast.updatedDesc'),
       });

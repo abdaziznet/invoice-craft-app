@@ -182,6 +182,7 @@ export default function EditInvoicePage() {
       await updateInvoice(invoice.id, invoicePayload);
       
       toast({
+        variant: 'success',
         title: t('invoices.edit.toast.updatedTitle'),
         description: t('invoices.edit.toast.updatedDesc'),
       });

@@ -83,6 +83,7 @@ export default function SettingsPage() {
       await updateCompanyProfile(data);
       setLang(data.language);
       toast({
+        variant: 'success',
         title: t('settings.toast.savedTitle'),
         description: t('settings.toast.savedDesc'),
       });

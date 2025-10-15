@@ -66,6 +66,7 @@ export default function PaymentReminderModal({
   const handleCopyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     toast({
+      variant: 'success',
       title: 'Copied to clipboard!',
     });
   };

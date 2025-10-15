@@ -65,7 +65,7 @@ export default function CustomerTable({ customers, onCustomerUpdated, onCustomer
     }
     return name.substring(0, 2);
   }
-
+  
   const generateAvatarColor = (name: string) => {
     let hash = 0;
     for (let i = 0; i < name.length; i++) {
@@ -105,6 +105,7 @@ export default function CustomerTable({ customers, onCustomerUpdated, onCustomer
     try {
       await deleteCustomers(customersToDelete);
       toast({
+        variant: 'success',
         title: t('customers.toast.deletedTitle'),
         description: t('customers.toast.deletedDesc'),
       });

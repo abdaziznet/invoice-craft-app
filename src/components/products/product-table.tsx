@@ -68,6 +68,7 @@ export default function ProductTable({ products, onProductUpdated, onProductDele
     try {
       await deleteProducts(selectedProductIds);
       toast({
+        variant: 'success',
         title: t('products.toast.deletedTitle'),
         description: t('products.toast.deletedDesc'),
       });

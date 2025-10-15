@@ -83,7 +83,7 @@ export default function ExportShareDialog({ invoice, isOpen, onOpenChange }: Exp
     const invoiceUrl = `${window.location.origin}/invoices/${invoice.id}`;
     try {
       await navigator.clipboard.writeText(invoiceUrl);
-      toast({ title: t('invoices.shareDialog.copySuccess') });
+      toast({ variant: 'success', title: t('invoices.shareDialog.copySuccess') });
     } catch (err) {
       toast({ variant: 'destructive', title: t('invoices.shareDialog.copyError') });
     } finally {

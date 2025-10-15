@@ -94,6 +94,7 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
     try {
       await deleteInvoices(selectedInvoiceIds);
       toast({
+        variant: 'success',
         title: t('invoices.table.toast.deletedTitle'),
         description: t('invoices.table.toast.deletedDesc'),
       });

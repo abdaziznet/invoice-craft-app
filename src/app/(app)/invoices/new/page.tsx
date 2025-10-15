@@ -154,6 +154,7 @@ export default function NewInvoicePage() {
       await createInvoice(invoicePayload);
       
       toast({
+        variant: 'success',
         title: t('invoices.new.toast.createdTitle'),
         description: t('invoices.new.toast.createdDesc'),
       });

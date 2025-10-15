@@ -78,6 +78,7 @@ export default function EditProductDialog({ product, isOpen, onOpenChange, onPro
     try {
       await updateProduct(product.id, data);
       toast({
+        variant: 'success',
         title: t('products.toast.updatedTitle'),
         description: t('products.toast.updatedDesc'),
       });

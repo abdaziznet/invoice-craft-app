@@ -71,6 +71,7 @@ export default function AddProductDialog({ isOpen, onOpenChange, onProductAdded 
     try {
       await createProduct(data);
       toast({
+        variant: 'success',
         title: t('products.toast.createdTitle'),
         description: t('products.toast.createdDesc'),
       });
