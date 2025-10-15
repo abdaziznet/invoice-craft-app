@@ -44,8 +44,8 @@ const generateImageFlow = ai.defineFlow(
     const imageResponse = new ImageResponse(
       React.createElement(InvoiceImageTemplate, { invoice, companyProfile }),
       {
-        width: 1200,
-        height: 630,
+        width: 800,
+        height: 1131,
         format,
       }
     );

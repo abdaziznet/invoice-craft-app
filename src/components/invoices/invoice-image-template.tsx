@@ -71,7 +71,7 @@ export default function InvoiceImageTemplate({
           <p style={{ flex: '0 0 15%', textAlign: 'right', margin: 0 }}>TOTAL</p>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', fontSize: '14px', border: '1px solid #f3f4f6', borderTop: 'none' }}>
-          {lineItems.slice(0, 3).map((item, index) => (
+          {lineItems.map((item, index) => (
             <div key={item.id} style={{ display: 'flex', padding: '10px', borderTop: index === 0 ? 'none' : '1px solid #f3f4f6' }}>
               <p style={{ flex: '1 1 50%', margin: 0 }}>{item.product.name}</p>
               <p style={{ flex: '0 0 15%', textAlign: 'right', margin: 0 }}>{item.quantity}</p>
@@ -79,11 +79,6 @@ export default function InvoiceImageTemplate({
               <p style={{ flex: '0 0 15%', textAlign: 'right', margin: 0 }}>{formatCurrency(item.total)}</p>
             </div>
           ))}
-          {lineItems.length > 3 && (
-            <div style={{ display: 'flex', padding: '10px', borderTop: '1px solid #f3f4f6', color: '#6b7280', fontSize: '12px' }}>
-                <p style={{margin: 0}}>...and {lineItems.length - 3} more items</p>
-            </div>
-          )}
         </div>
       </div>
       
