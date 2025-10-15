@@ -119,7 +119,7 @@ export default function ExportShareDialog({ invoice, isOpen, onOpenChange }: Exp
     const format = 'jpeg';
     setLoadingAction(`image-${action}`);
     try {
-        const response = await generateImage({ invoiceId: invoice.id, format });
+        const response = await generateImage({ invoiceId: invoice.id, format, language: lang });
         const imageBlob = await fetch(response.imageUrl).then(res => res.blob());
         const fileName = `invoice-${invoice.invoiceNumber}.${format}`;
         if (action === 'download') {

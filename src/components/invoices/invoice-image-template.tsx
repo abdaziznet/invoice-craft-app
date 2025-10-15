@@ -5,11 +5,13 @@ import { format, parseISO } from 'date-fns';
 type InvoiceImageTemplateProps = {
   invoice: Invoice;
   companyProfile: CompanyProfile;
+  t: (key: string, options?: any) => string;
 };
 
 export default function InvoiceImageTemplate({
   invoice,
-  companyProfile
+  companyProfile,
+  t
 }: InvoiceImageTemplateProps) {
   const { customer, lineItems, subtotal, tax, total, dueDate, invoiceNumber, notes } = invoice;
 
@@ -38,7 +40,7 @@ export default function InvoiceImageTemplate({
           </div>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-          <p style={{ fontSize: '40px', fontWeight: 700, margin: 0, textTransform: 'uppercase' }}>Invoice</p>
+          <p style={{ fontSize: '40px', fontWeight: 700, margin: 0, textTransform: 'uppercase' }}>{t('invoices.pdf.title')}</p>
           <p style={{ fontSize: '16px', color: '#6b7280', margin: 0 }}>#{invoiceNumber}</p>
         </div>
       </div>
@@ -46,17 +48,17 @@ export default function InvoiceImageTemplate({
       {/* Bill To & Dates */}
       <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '30px' }}>
         <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <p style={{ fontSize: '14px', fontWeight: 700, color: '#6b7280', margin: 0 }}>BILL TO</p>
+          <p style={{ fontSize: '14px', fontWeight: 700, color: '#6b7280', margin: 0 }}>{t('invoices.pdf.billTo')}</p>
           <p style={{ fontSize: '20px', fontWeight: 600, margin: '4px 0 0 0' }}>{customer.name}</p>
           <p style={{ fontSize: '14px', color: '#6b7280', margin: 0, whiteSpace: 'pre-wrap', maxWidth: '300px' }}>{customer.address}</p>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', fontSize: '14px' }}>
             <div style={{ display: 'flex', flexDirection: 'row', width: '220px', justifyContent: 'space-between' }}>
-                <p style={{ fontWeight: 700, margin: 0 }}>Invoice Date:</p>
+                <p style={{ fontWeight: 700, margin: 0 }}>{t('invoices.pdf.invoiceDate')}:</p>
                 <p style={{ margin: 0 }}>{format(parseISO(invoice.createdAt), 'PPP')}</p>
             </div>
             <div style={{ display: 'flex', flexDirection: 'row', width: '220px', justifyContent: 'space-between', marginTop: '8px' }}>
-                <p style={{ fontWeight: 700, margin: 0 }}>Due Date:</p>
+                <p style={{ fontWeight: 700, margin: 0 }}>{t('invoices.pdf.dueDate')}:</p>
                 <p style={{ margin: 0 }}>{format(parseISO(dueDate), 'PPP')}</p>
             </div>
         </div>
@@ -65,10 +67,10 @@ export default function InvoiceImageTemplate({
       {/* Line Items Table */}
       <div style={{ display: 'flex', flexDirection: 'column', marginTop: '30px', flexGrow: 1 }}>
         <div style={{ display: 'flex', backgroundColor: '#1d80a0', padding: '10px', fontSize: '12px', fontWeight: 700, color: '#f8f8f8' }}>
-          <p style={{ flex: '1 1 50%', margin: 0 }}>ITEM</p>
-          <p style={{ flex: '0 0 15%', textAlign: 'right', margin: 0 }}>QTY</p>
-          <p style={{ flex: '0 0 20%', textAlign: 'right', margin: 0 }}>PRICE</p>
-          <p style={{ flex: '0 0 15%', textAlign: 'right', margin: 0 }}>TOTAL</p>
+          <p style={{ flex: '1 1 50%', margin: 0 }}>{t('invoices.form.item')}</p>
+          <p style={{ flex: '0 0 15%', textAlign: 'right', margin: 0 }}>{t('invoices.form.quantity')}</p>
+          <p style={{ flex: '0 0 20%', textAlign: 'right', margin: 0 }}>{t('invoices.form.unitPrice')}</p>
+          <p style={{ flex: '0 0 15%', textAlign: 'right', margin: 0 }}>{t('invoices.form.total')}</p>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', fontSize: '14px', border: '1px solid #f3f4f6', borderTop: 'none' }}>
           {lineItems.map((item, index) => (
@@ -88,7 +90,7 @@ export default function InvoiceImageTemplate({
         <div style={{ display: 'flex', flexDirection: 'column', maxWidth: '50%', fontSize: '12px' }}>
             {notes && (
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <p style={{ fontWeight: 700, margin: '0 0 4px 0' }}>Notes</p>
+                    <p style={{ fontWeight: 700, margin: '0 0 4px 0' }}>{t('invoices.form.notesTitle')}</p>
                     <p style={{ margin: 0, color: '#6b7280', whiteSpace: 'pre-wrap' }}>{notes}</p>
                 </div>
             )}
@@ -97,15 +99,15 @@ export default function InvoiceImageTemplate({
         {/* Summary Section */}
         <div style={{ display: 'flex', flexDirection: 'column', width: '280px', fontSize: '14px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0' }}>
-            <p style={{ margin: 0 }}>Subtotal</p>
+            <p style={{ margin: 0 }}>{t('invoices.form.subtotal')}</p>
             <p style={{ margin: 0 }}>{formatCurrency(subtotal)}</p>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0' }}>
-            <p style={{ margin: 0 }}>Tax ({tax}%)</p>
+            <p style={{ margin: 0 }}>{t('invoices.pdf.tax')} ({tax}%)</p>
             <p style={{ margin: 0 }}>{formatCurrency((subtotal * tax) / 100)}</p>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0', borderTop: '2px solid #e5e7eb', marginTop: '8px' }}>
-            <p style={{ margin: 0, fontSize: '18px', fontWeight: 700 }}>Total</p>
+            <p style={{ margin: 0, fontSize: '18px', fontWeight: 700 }}>{t('invoices.form.total')}</p>
             <p style={{ margin: 0, fontSize: '18px', fontWeight: 700 }}>{formatCurrency(total)}</p>
           </div>
         </div>
