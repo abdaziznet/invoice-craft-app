@@ -64,7 +64,7 @@ export default function InvoiceImageTemplate({
 
       {/* Line Items Table */}
       <div style={{ display: 'flex', flexDirection: 'column', marginTop: '30px', flexGrow: 1 }}>
-        <div style={{ display: 'flex', backgroundColor: '#f9fafb', padding: '10px', fontSize: '12px', fontWeight: 700, color: '#6b7280' }}>
+        <div style={{ display: 'flex', backgroundColor: '#f9fafb', padding: '10px', fontSize: '12px', fontWeight: 700, color: '#1d80a0' }}>
           <p style={{ flex: '1 1 50%', margin: 0 }}>ITEM</p>
           <p style={{ flex: '0 0 15%', textAlign: 'right', margin: 0 }}>QTY</p>
           <p style={{ flex: '0 0 20%', textAlign: 'right', margin: 0 }}>PRICE</p>
