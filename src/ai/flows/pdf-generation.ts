@@ -246,7 +246,7 @@ const generatePdfFlow = ai.defineFlow(
       y: tableTop - 20,
       width: contentWidth,
       height: 30,
-      color: rgb(0.95, 0.95, 0.95),
+      color: rgb(29 / 255, 128 / 255, 160 / 255),
     });
 
     const tableHeaders = [t('invoices.form.item'), t('invoices.form.quantity'), t('invoices.form.unitPrice'), t('invoices.form.total')];
@@ -270,6 +270,7 @@ const generatePdfFlow = ai.defineFlow(
         y: tableTop - 5,
         font: boldFont,
         size: fontSize,
+        color: rgb(1, 1, 1),
       });
       currentX += colWidths[i];
     });
@@ -399,3 +400,5 @@ const generatePdfFlow = ai.defineFlow(
     };
   }
 );
+
+    
