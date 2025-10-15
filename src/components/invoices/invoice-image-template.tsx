@@ -1,6 +1,6 @@
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency, formatDate } from '@/lib/utils';
 import type { CompanyProfile, Invoice } from '@/lib/types';
-import { format, parseISO } from 'date-fns';
+import { parseISO } from 'date-fns';
 
 type InvoiceImageTemplateProps = {
   invoice: Invoice;
@@ -14,6 +14,7 @@ export default function InvoiceImageTemplate({
   t
 }: InvoiceImageTemplateProps) {
   const { customer, lineItems, subtotal, tax, total, dueDate, invoiceNumber, notes } = invoice;
+  const lang = companyProfile.language;
 
   return (
     <div
@@ -56,18 +57,18 @@ export default function InvoiceImageTemplate({
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', fontSize: '14px', gap: '6px' }}>
           <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', gap: '12px', maxWidth: '250px' }}>
             <p style={{ fontWeight: 700, margin: 0, whiteSpace: 'nowrap' }}>{t('invoices.pdf.invoiceDate')}:</p>
-            <p style={{ margin: 0, textAlign: 'right', wordBreak: 'keep-all' }}>{format(parseISO(invoice.createdAt), 'dd-MM-yyyy')}</p>
+            <p style={{ margin: 0, textAlign: 'right', wordBreak: 'keep-all' }}>{formatDate(parseISO(invoice.createdAt), lang)}</p>
           </div>
           <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', gap: '12px', maxWidth: '250px' }}>
             <p style={{ fontWeight: 700, margin: 0, whiteSpace: 'nowrap' }}>{t('invoices.pdf.dueDate')}:</p>
-            <p style={{ margin: 0, textAlign: 'right', wordBreak: 'keep-all' }}>{format(parseISO(dueDate), 'dd-MM-yyyy')}</p>
+            <p style={{ margin: 0, textAlign: 'right', wordBreak: 'keep-all' }}>{formatDate(parseISO(dueDate), lang)}</p>
           </div>
         </div>
       </div>
 
       {/* Line Items Table */}
       <div style={{ display: 'flex', flexDirection: 'column', marginTop: '30px', flexGrow: 1 }}>
-        <div style={{ display: 'flex', backgroundColor: '#1d80a0', padding: '10px', fontSize: '14px', fontWeight: 900, color: '#FFFFFF' }}>
+        <div style={{ display: 'flex', backgroundColor: '#1d80a0', padding: '10px', fontSize: '14px', fontWeight: 900, color: '#f8f8f8' }}>
           <p style={{ flex: '1 1 50%', margin: 0 }}>{t('invoices.form.item')}</p>
           <p style={{ flex: '0 0 15%', textAlign: 'right', margin: 0 }}>{t('invoices.form.quantity')}</p>
           <p style={{ flex: '0 0 20%', textAlign: 'right', margin: 0 }}>{t('invoices.form.unitPrice')}</p>

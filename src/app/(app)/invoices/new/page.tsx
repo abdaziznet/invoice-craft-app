@@ -45,7 +45,7 @@ import {
   Trash2,
   ArrowLeft,
 } from 'lucide-react';
-import { cn, formatCurrency } from '@/lib/utils';
+import { cn, formatCurrency, formatDate } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { format, addDays } from 'date-fns';
 import { getCustomers, getProducts, createInvoice } from '@/lib/google-sheets';
@@ -81,7 +81,7 @@ type InvoiceFormValues = z.infer<typeof invoiceSchema>;
 export default function NewInvoicePage() {
   const router = useRouter();
   const { toast } = useToast();
-  const { t } = useLocale();
+  const { t, lang } = useLocale();
   const [customers, setCustomers] = React.useState<Customer[]>([]);
   const [products, setProducts] = React.useState<Product[]>([]);
   const [isSaving, setIsSaving] = React.useState(false);
@@ -238,7 +238,7 @@ export default function NewInvoicePage() {
                               )}
                             >
                               {field.value ? (
-                                format(field.value, 'PPP')
+                                formatDate(field.value, lang)
                               ) : (
                                 <span>{t('invoices.form.pickDate')}</span>
                               )}
@@ -277,7 +277,7 @@ export default function NewInvoicePage() {
                               )}
                             >
                               {field.value ? (
-                                format(field.value, 'PPP')
+                                formatDate(field.value, lang)
                               ) : (
                                 <span>{t('invoices.form.pickDate')}</span>
                               )}

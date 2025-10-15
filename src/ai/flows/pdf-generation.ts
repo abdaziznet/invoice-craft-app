@@ -13,8 +13,8 @@ import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import { getCompanyProfile, getInvoiceById } from '@/lib/google-sheets';
-import { formatCurrency } from '@/lib/utils';
-import { format, parseISO } from 'date-fns';
+import { formatCurrency, formatDate } from '@/lib/utils';
+import { parseISO } from 'date-fns';
 import en from '@/locales/en.json';
 import id from '@/locales/id.json';
 
@@ -161,8 +161,8 @@ const generatePdfFlow = ai.defineFlow(
     const statusText = t(`invoices.status.${invoice.status.toLowerCase()}`);
     const metaInfo = [
       { label: `${t('invoices.pdf.status')}:`, value: statusText },
-      { label: `${t('invoices.pdf.invoiceDate')}:`, value: format(parseISO(invoice.createdAt), 'PPP') },
-      { label: `${t('invoices.pdf.dueDate')}:`, value: format(parseISO(invoice.dueDate), 'PPP') },
+      { label: `${t('invoices.pdf.invoiceDate')}:`, value: formatDate(parseISO(invoice.createdAt), language) },
+      { label: `${t('invoices.pdf.dueDate')}:`, value: formatDate(parseISO(invoice.dueDate), language) },
     ];
 
     metaInfo.forEach(info => {

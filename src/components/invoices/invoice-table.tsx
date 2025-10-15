@@ -20,7 +20,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import type { Invoice, InvoiceStatus } from '@/lib/types';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency, formatDate } from '@/lib/utils';
 import { Checkbox } from '../ui/checkbox';
 import PaymentReminderModal from './payment-reminder-modal';
 import { cn } from '@/lib/utils';
@@ -33,6 +33,7 @@ import Spinner from '../ui/spinner';
 import DataTablePagination from '../data-table-pagination';
 import { useLocale } from '@/hooks/use-locale';
 import ExportShareDialog from './export-share-dialog';
+import { parseISO } from 'date-fns';
 
 
 type InvoiceTableProps = {
@@ -42,7 +43,7 @@ type InvoiceTableProps = {
 export default function InvoiceTable({ invoices }: InvoiceTableProps) {
   const { toast } = useToast();
   const router = useRouter();
-  const { t } = useLocale();
+  const { t, lang } = useLocale();
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [isReminderModalOpen, setIsReminderModalOpen] = useState(false);
   const [isExportShareDialogOpen, setIsExportShareDialogOpen] = useState(false);
@@ -190,7 +191,7 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
                 <TableCell>
                   <Badge className={cn(getStatusClass(invoice.status))} variant="outline">{t(`invoices.status.${invoice.status.toLowerCase()}`)}</Badge>
                 </TableCell>
-                <TableCell className="hidden md:table-cell">{invoice.dueDate}</TableCell>
+                <TableCell className="hidden md:table-cell">{formatDate(parseISO(invoice.dueDate), lang)}</TableCell>
                 <TableCell className="text-right text-xs md:text-sm">{formatCurrency(invoice.total)}</TableCell>
                 <TableCell className="text-right">
                   {isProcessing === invoice.id ? <Spinner/> : (

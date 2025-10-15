@@ -19,12 +19,12 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Separator } from '@/components/ui/separator';
-import { cn, formatCurrency } from '@/lib/utils';
+import { cn, formatCurrency, formatDate } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import type { CompanyProfile, InvoiceStatus } from '@/lib/types';
-import { format, parseISO } from 'date-fns';
+import { parseISO } from 'date-fns';
 import InvoiceActions from '@/components/invoices/invoice-actions';
 import { useEffect, useState } from 'react';
 import type { Invoice } from '@/lib/types';
@@ -47,7 +47,7 @@ const getStatusClass = (status: InvoiceStatus) => {
 
 export default function InvoiceDetailPage() {
   const params = useParams();
-  const { t } = useLocale();
+  const { t, lang } = useLocale();
   
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [companyProfile, setCompanyProfile] = useState<CompanyProfile | null>(null);
@@ -172,12 +172,12 @@ export default function InvoiceDetailPage() {
 
                 <span className="font-semibold">{t('invoices.pdf.invoiceDate')}:</span>
                 <span className="text-muted-foreground">
-                  {format(parseISO(invoice.createdAt), 'PPP')}
+                  {formatDate(parseISO(invoice.createdAt), lang)}
                 </span>
 
                 <span className="font-semibold">{t('invoices.pdf.dueDate')}:</span>
                 <span className="text-muted-foreground">
-                  {format(parseISO(invoice.dueDate), 'PPP')}
+                  {formatDate(parseISO(invoice.dueDate), lang)}
                 </span>
               </div>
             </div>
