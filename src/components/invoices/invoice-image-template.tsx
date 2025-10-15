@@ -52,15 +52,16 @@ export default function InvoiceImageTemplate({
           <p style={{ fontSize: '20px', fontWeight: 600, margin: '4px 0 0 0' }}>{customer.name}</p>
           <p style={{ fontSize: '14px', color: '#6b7280', margin: 0, whiteSpace: 'pre-wrap', maxWidth: '300px' }}>{customer.address}</p>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', fontSize: '14px' }}>
-            <div style={{ display: 'flex', flexDirection: 'row', width: '220px', justifyContent: 'space-between' }}>
-                <p style={{ fontWeight: 700, margin: 0 }}>{t('invoices.pdf.invoiceDate')}:</p>
-                <p style={{ margin: 0 }}>{format(parseISO(invoice.createdAt), 'PPP')}</p>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'row', width: '220px', justifyContent: 'space-between', marginTop: '8px' }}>
-                <p style={{ fontWeight: 700, margin: 0 }}>{t('invoices.pdf.dueDate')}:</p>
-                <p style={{ margin: 0 }}>{format(parseISO(dueDate), 'PPP')}</p>
-            </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', fontSize: '14px', gap: '6px' }}>
+          <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', gap: '12px', maxWidth: '250px' }}>
+            <p style={{ fontWeight: 700, margin: 0, whiteSpace: 'nowrap' }}>{t('invoices.pdf.invoiceDate')}:</p>
+            <p style={{ margin: 0, textAlign: 'right', wordBreak: 'keep-all' }}>{format(parseISO(invoice.createdAt), 'dd-MM-yyyy')}</p>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', gap: '12px', maxWidth: '250px' }}>
+            <p style={{ fontWeight: 700, margin: 0, whiteSpace: 'nowrap' }}>{t('invoices.pdf.dueDate')}:</p>
+            <p style={{ margin: 0, textAlign: 'right', wordBreak: 'keep-all' }}>{format(parseISO(dueDate), 'dd-MM-yyyy')}</p>
+          </div>
         </div>
       </div>
 
@@ -83,19 +84,19 @@ export default function InvoiceImageTemplate({
           ))}
         </div>
       </div>
-      
+
       {/* Footer: Notes & Summary */}
       <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginTop: '20px' }}>
         {/* Notes Section */}
         <div style={{ display: 'flex', flexDirection: 'column', maxWidth: '50%', fontSize: '12px' }}>
-            {notes && (
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <p style={{ fontWeight: 700, margin: '0 0 4px 0' }}>{t('invoices.form.notesTitle')}</p>
-                    <p style={{ margin: 0, color: '#6b7280', whiteSpace: 'pre-wrap' }}>{notes}</p>
-                </div>
-            )}
+          {notes && (
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <p style={{ fontWeight: 700, margin: '0 0 4px 0' }}>{t('invoices.form.notesTitle')}</p>
+              <p style={{ margin: 0, color: '#6b7280', whiteSpace: 'pre-wrap' }}>{notes}</p>
+            </div>
+          )}
         </div>
-        
+
         {/* Summary Section */}
         <div style={{ display: 'flex', flexDirection: 'column', width: '280px', fontSize: '14px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0' }}>
