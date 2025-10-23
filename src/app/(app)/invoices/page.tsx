@@ -27,7 +27,8 @@ export default function InvoicesPage() {
   useEffect(() => {
     async function fetchInvoices() {
       const invoicesData = await getInvoices();
-      setInvoices(invoicesData);
+      const uniqueInvoices = Array.from(new Map(invoicesData.map(inv => [inv.id, inv])).values());
+      setInvoices(uniqueInvoices);
     }
     fetchInvoices();
   }, []);
