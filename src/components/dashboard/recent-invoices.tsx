@@ -27,7 +27,9 @@ type RecentInvoicesProps = {
 export default function RecentInvoices({ invoices }: RecentInvoicesProps) {
   const { t } = useLocale();
 
-  const recentInvoices = invoices
+  const uniqueInvoices = Array.from(new Map(invoices.map(inv => [inv.id, inv])).values());
+
+  const recentInvoices = uniqueInvoices
     .filter(invoice => !!invoice.customer) // Filter out invoices without a customer
     .sort((a, b) => compareDesc(parseISO(a.createdAt), parseISO(b.createdAt)))
     .slice(0, 5);
