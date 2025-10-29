@@ -31,6 +31,7 @@ export type Invoice = {
   subtotal: number;
   tax: number; // percentage
   discount: number; // value
+  underpayment: number;
   total: number;
   status: InvoiceStatus;
   dueDate: string;

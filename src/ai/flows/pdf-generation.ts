@@ -318,14 +318,11 @@ const generatePdfFlow = ai.defineFlow(
       { label: t('invoices.form.subtotal'), value: formatCurrency(invoice.subtotal) },
     ];
     
-    if (invoice.tax > 0) {
+    if (invoice.underpayment > 0) {
         summaryItems.push({
-            label: `${t('invoices.pdf.tax')} (${invoice.tax}%)`,
-            value: formatCurrency((invoice.subtotal * invoice.tax) / 100),
+            label: 'Underpayment',
+            value: formatCurrency(invoice.underpayment),
         });
-    }
-    if (invoice.discount > 0) {
-      summaryItems.push({ label: t('invoices.pdf.discount'), value: `- ${formatCurrency(invoice.discount)}` });
     }
 
     summaryItems.forEach(item => {

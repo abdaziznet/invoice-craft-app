@@ -70,6 +70,7 @@ const invoiceSchema = z.object({
   status: z.enum(['Paid', 'Unpaid', 'Overdue']),
   lineItems: z.array(lineItemSchema).min(1, 'At least one item is required.'),
   notes: z.string().optional(),
+  underpayment: z.coerce.number().optional(),
 }).refine(data => data.dueDate >= data.invoiceDate, {
     message: "Due date cannot be earlier than invoice date.",
     path: ["dueDate"],
@@ -105,6 +106,7 @@ export default function NewInvoicePage() {
       status: 'Unpaid',
       lineItems: [],
       notes: `1. Barang/jasa yang telah dibayar tidak dapat dikembalikan, kecuali terdapat kesalahan dari pihak penjual.\n2. Pembayaran dapat dilakukan secara tunai atau transfer bank sesuai tanggal jatuh tempo.\n`,
+      underpayment: 0,
     },
   });
 
@@ -114,12 +116,14 @@ export default function NewInvoicePage() {
   });
 
   const watchLineItems = form.watch('lineItems');
+  const watchUnderpayment = form.watch('underpayment');
 
   const subtotal = React.useMemo(
     () => watchLineItems.reduce((acc, item) => acc + item.total, 0),
     [JSON.stringify(watchLineItems)]
   );
-  const total = subtotal;
+  
+  const total = subtotal + (watchUnderpayment || 0);
   
   const handleAddLineItem = (item: LineItemFormValues) => {
     const existingItemIndex = fields.findIndex(
@@ -151,6 +155,7 @@ export default function NewInvoicePage() {
           subtotal: subtotal,
           tax: 0,
           discount: 0, // Not implemented in form yet
+          underpayment: data.underpayment || 0,
           total: total,
           status: data.status,
           dueDate: format(data.dueDate, 'yyyy-MM-dd'),
@@ -438,6 +443,24 @@ export default function NewInvoicePage() {
                     <span>{t('invoices.form.subtotal')}</span>
                     <span>{formatCurrency(subtotal)}</span>
                   </div>
+                  <FormField
+                    control={form.control}
+                    name="underpayment"
+                    render={({ field }) => (
+                      <FormItem className="flex justify-between items-center">
+                        <FormLabel>Underpayment</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            className="w-32"
+                            placeholder="0"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                   <div className="flex justify-between font-semibold text-lg">
                     <span>{t('invoices.form.total')}</span>
                     <span>{formatCurrency(total)}</span>

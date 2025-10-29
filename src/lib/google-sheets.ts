@@ -45,7 +45,7 @@ async function getSheetData(range: string) {
             let headers: string[] = [];
             if (sheetTitle === 'Customers') headers = ['id', 'name', 'email', 'address', 'phone'];
             else if (sheetTitle === 'Products') headers = ['id', 'name', 'unit', 'unitPrice'];
-            else if (sheetTitle === 'Invoices') headers = ['id', 'invoiceNumber', 'customerId', 'subtotal', 'tax', 'discount', 'total', 'status', 'dueDate', 'createdAt', 'notes', 'customerRelationship', 'paymentHistory'];
+            else if (sheetTitle === 'Invoices') headers = ['id', 'invoiceNumber', 'customerId', 'subtotal', 'tax', 'discount', 'underpayment', 'total', 'status', 'dueDate', 'createdAt', 'notes', 'customerRelationship', 'paymentHistory'];
             else if (sheetTitle === 'InvoiceItems') headers = ['id', 'invoiceId', 'productId', 'quantity', 'unitPrice', 'total'];
             else if (sheetTitle === 'CompanyProfile') headers = ['key', 'value'];
 
@@ -397,7 +397,7 @@ export async function deleteProducts(productIds: string[]) {
 
 
 export async function getInvoices() {
-    const data = await getSheetData('Invoices!A:M');
+    const data = await getSheetData('Invoices!A:N');
     let invoices = mapToObjects(data) as Invoice[];
     const customers = await getCustomers();
     const products = await getProducts();
@@ -460,6 +460,7 @@ export async function getInvoices() {
             subtotal: parseFloat(inv.subtotal),
             tax: parseFloat(inv.tax),
             discount: parseFloat(inv.discount),
+            underpayment: parseFloat(inv.underpayment) || 0,
             total: parseFloat(inv.total),
         }
     });
@@ -468,7 +469,7 @@ export async function getInvoices() {
 export async function getInvoiceById(id: string): Promise<Invoice | null> {
     // We call getInvoices without the auto-update logic here to prevent cycles
     // and to get the raw data for a specific invoice.
-    const data = await getSheetData('Invoices!A:M');
+    const data = await getSheetData('Invoices!A:N');
     const invoices = mapToObjects(data);
     const targetInvoice = invoices.find(inv => inv.id === id);
 
@@ -502,6 +503,7 @@ export async function getInvoiceById(id: string): Promise<Invoice | null> {
         subtotal: parseFloat(targetInvoice.subtotal),
         tax: parseFloat(targetInvoice.tax),
         discount: parseFloat(targetInvoice.discount),
+        underpayment: parseFloat(targetInvoice.underpayment) || 0,
         total: parseFloat(targetInvoice.total),
     };
 
@@ -524,6 +526,7 @@ export async function createInvoice(invoiceData: Omit<Invoice, 'id' | 'invoiceNu
         invoiceData.subtotal,
         invoiceData.tax,
         invoiceData.discount,
+        invoiceData.underpayment,
         invoiceData.total,
         invoiceData.status,
         invoiceData.dueDate,
@@ -535,7 +538,7 @@ export async function createInvoice(invoiceData: Omit<Invoice, 'id' | 'invoiceNu
 
     await sheets.spreadsheets.values.append({
       spreadsheetId,
-      range: 'Invoices!A:M',
+      range: 'Invoices!A:N',
       valueInputOption: 'USER_ENTERED',
       requestBody: {
         values: [newInvoiceRow],
@@ -567,7 +570,7 @@ export async function createInvoice(invoiceData: Omit<Invoice, 'id' | 'invoiceNu
 
 export async function updateInvoice(invoiceId: string, invoiceData: Omit<Invoice, 'id' | 'invoiceNumber' | 'createdAt' | 'customer' | 'lineItems'> & { lineItems: Omit<InvoiceItem, 'id'|'product'>[], customerId: string}) {
     try {
-        const invoicesData = await getSheetData('Invoices!A:M');
+        const invoicesData = await getSheetData('Invoices!A:N');
         if (!invoicesData) {
             throw new Error('Could not fetch invoices data.');
         }
@@ -587,10 +590,11 @@ export async function updateInvoice(invoiceId: string, invoiceData: Omit<Invoice
             invoiceData.subtotal,
             invoiceData.tax,
             invoiceData.discount,
+            invoiceData.underpayment,
             invoiceData.total,
             invoiceData.status,
             invoiceData.dueDate,
-            originalData[9], // createdAt
+            originalData[10], // createdAt
             invoiceData.notes,
             invoiceData.customerRelationship,
             invoiceData.paymentHistory

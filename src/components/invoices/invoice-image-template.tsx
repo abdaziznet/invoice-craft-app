@@ -13,7 +13,7 @@ export default function InvoiceImageTemplate({
   companyProfile,
   t
 }: InvoiceImageTemplateProps) {
-  const { customer, lineItems, subtotal, tax, total, dueDate, invoiceNumber, notes } = invoice;
+  const { customer, lineItems, subtotal, tax, total, dueDate, invoiceNumber, notes, underpayment } = invoice;
   const lang = companyProfile.language;
 
   return (
@@ -68,7 +68,7 @@ export default function InvoiceImageTemplate({
 
       {/* Line Items Table */}
       <div style={{ display: 'flex', flexDirection: 'column', marginTop: '30px', flexGrow: 1 }}>
-        <div style={{ display: 'flex', backgroundColor: '#1d80a0', padding: '10px', fontSize: '14px', fontWeight: 900, color: '#FFFFFF' }}>
+        <div style={{ display: 'flex', backgroundColor: '#1d80a0', padding: '10px', fontSize: '14px', fontWeight: 900, color: '#f8f8f8' }}>
           <p style={{ flex: '1 1 50%', margin: 0 }}>{t('invoices.form.item')}</p>
           <p style={{ flex: '0 0 15%', textAlign: 'right', margin: 0 }}>{t('invoices.form.quantity')}</p>
           <p style={{ flex: '0 0 20%', textAlign: 'right', margin: 0 }}>{t('invoices.form.unitPrice')}</p>
@@ -104,10 +104,12 @@ export default function InvoiceImageTemplate({
             <p style={{ margin: 0 }}>{t('invoices.form.subtotal')}</p>
             <p style={{ margin: 0 }}>{formatCurrency(subtotal)}</p>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0' }}>
-            <p style={{ margin: 0 }}>{t('invoices.pdf.tax')} ({tax}%)</p>
-            <p style={{ margin: 0 }}>{formatCurrency((subtotal * tax) / 100)}</p>
-          </div>
+          {underpayment > 0 && (
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0' }}>
+                <p style={{ margin: 0 }}>Underpayment</p>
+                <p style={{ margin: 0 }}>{formatCurrency(underpayment)}</p>
+            </div>
+          )}
           <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0', borderTop: '2px solid #e5e7eb', marginTop: '8px' }}>
             <p style={{ margin: 0, fontSize: '18px', fontWeight: 700 }}>{t('invoices.form.total')}</p>
             <p style={{ margin: 0, fontSize: '18px', fontWeight: 700 }}>{formatCurrency(total)}</p>

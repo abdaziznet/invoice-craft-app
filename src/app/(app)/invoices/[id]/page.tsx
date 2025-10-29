@@ -227,15 +227,9 @@ export default function InvoiceDetailPage() {
                 <span>{formatCurrency(invoice.subtotal)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="font-medium">{t('invoices.pdf.tax')} ({invoice.tax}%)</span>
-                <span>{formatCurrency((invoice.subtotal * invoice.tax) / 100)}</span>
+                <span className="font-medium">Underpayment</span>
+                <span>{formatCurrency(invoice.underpayment)}</span>
               </div>
-               {invoice.discount > 0 && (
-                 <div className="flex justify-between">
-                    <span className="font-medium">{t('invoices.pdf.discount')}</span>
-                    <span>- {formatCurrency(invoice.discount)}</span>
-                 </div>
-               )}
               <Separator className="my-1" />
               <div className="flex justify-between font-bold text-lg">
                 <span>{t('invoices.form.total')}</span>
