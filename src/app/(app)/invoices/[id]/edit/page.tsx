@@ -156,7 +156,8 @@ export default function EditInvoicePage() {
   );
   
   const total = React.useMemo(() => {
-    return subtotal + (watchUnderpayment || 0);
+    const underpaymentValue = Number(watchUnderpayment) || 0;
+    return subtotal + underpaymentValue;
   }, [subtotal, watchUnderpayment]);
   
   const handleAddLineItem = (item: LineItemFormValues) => {

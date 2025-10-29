@@ -124,7 +124,8 @@ export default function NewInvoicePage() {
   );
   
   const total = React.useMemo(() => {
-    return subtotal + (watchUnderpayment || 0);
+    const underpaymentValue = Number(watchUnderpayment) || 0;
+    return subtotal + underpaymentValue;
   }, [subtotal, watchUnderpayment]);
   
   const handleAddLineItem = (item: LineItemFormValues) => {
@@ -155,8 +156,8 @@ export default function NewInvoicePage() {
       const invoicePayload = {
           customerId: data.customerId,
           subtotal: subtotal,
-          tax: 0, // Not implemented in form yet
-          discount: 0, // Not implemented in form yet
+          tax: 0, 
+          discount: 0,
           underpayment: data.underpayment || 0,
           total: total,
           status: data.status,
