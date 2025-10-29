@@ -155,7 +155,7 @@ export default function NewInvoicePage() {
       const invoicePayload = {
           customerId: data.customerId,
           subtotal: subtotal,
-          tax: 0,
+          tax: 0, // Not implemented in form yet
           discount: 0, // Not implemented in form yet
           underpayment: data.underpayment || 0,
           total: total,
