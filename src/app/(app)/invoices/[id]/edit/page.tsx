@@ -155,7 +155,9 @@ export default function EditInvoicePage() {
     [JSON.stringify(watchLineItems)]
   );
   
-  const total = subtotal + (watchUnderpayment || 0);
+  const total = React.useMemo(() => {
+    return subtotal + (watchUnderpayment || 0);
+  }, [subtotal, watchUnderpayment]);
   
   const handleAddLineItem = (item: LineItemFormValues) => {
     const existingItemIndex = fields.findIndex(
