@@ -263,3 +263,5 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
     </>
   );
 }
+
+    
