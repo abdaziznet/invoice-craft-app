@@ -33,6 +33,7 @@ import Spinner from '../ui/spinner';
 const addLineItemSchema = z.object({
   productId: z.string().min(1, 'Product is required.'),
   quantity: z.coerce.number().min(1, 'Quantity must be at least 1.'),
+  unitPrice: z.coerce.number().min(0, 'Unit price must be 0 or greater'),
 });
 
 type AddLineItemFormValues = z.infer<typeof addLineItemSchema>;
@@ -53,13 +54,13 @@ export default function AddLineItemDialog({
   const { t } = useLocale();
   const { toast } = useToast();
   const [isSaving, setIsSaving] = React.useState(false);
-  const [selectedProduct, setSelectedProduct] = React.useState<Product | null>(null);
 
   const form = useForm<AddLineItemFormValues>({
     resolver: zodResolver(addLineItemSchema),
     defaultValues: {
       productId: '',
       quantity: 1,
+      unitPrice: 0,
     },
   });
 
@@ -68,13 +69,14 @@ export default function AddLineItemDialog({
     onOpenChange(open);
     if (!open) {
       form.reset();
-      setSelectedProduct(null);
     }
   };
 
   const onSubmit = (data: AddLineItemFormValues) => {
     setIsSaving(true);
-    if (!selectedProduct) {
+    
+    const product = products.find((p) => p.id === data.productId);
+    if (!product) {
       toast({
         variant: 'destructive',
         title: 'Error',
@@ -87,8 +89,8 @@ export default function AddLineItemDialog({
     const newItem: LineItemFormValues = {
       productId: data.productId,
       quantity: data.quantity,
-      unitPrice: selectedProduct.unitPrice,
-      total: selectedProduct.unitPrice * data.quantity,
+      unitPrice: data.unitPrice,
+      total: data.unitPrice * data.quantity,
     };
 
     onAddItem(newItem);
@@ -99,7 +101,9 @@ export default function AddLineItemDialog({
   const handleProductChange = (productId: string) => {
     form.setValue('productId', productId);
     const product = products.find((p) => p.id === productId);
-    setSelectedProduct(product || null);
+    if (product) {
+      form.setValue('unitPrice', product.unitPrice);
+    }
   };
 
   return (
@@ -124,6 +128,19 @@ export default function AddLineItemDialog({
                     value={field.value}
                     onChange={handleProductChange}
                   />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="unitPrice"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('invoices.form.unitPrice')}</FormLabel>
+                  <FormControl>
+                    <Input type="number" step="any" {...field} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}

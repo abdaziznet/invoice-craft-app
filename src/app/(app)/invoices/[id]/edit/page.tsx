@@ -54,7 +54,7 @@ import Spinner from '@/components/ui/spinner';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useLocale } from '@/hooks/use-locale';
-import { ProductCombobox } from '@/components/invoices/product-combobox';
+import AddLineItemDialog from '@/components/invoices/add-line-item-dialog';
 
 const lineItemSchema = z.object({
   productId: z.string().min(1, 'Product is required.'),
@@ -76,6 +76,7 @@ const invoiceSchema = z.object({
 });
 
 type InvoiceFormValues = z.infer<typeof invoiceSchema>;
+export type LineItemFormValues = z.infer<typeof lineItemSchema>;
 
 export default function EditInvoicePage() {
   const router = useRouter();
@@ -90,6 +91,7 @@ export default function EditInvoicePage() {
   const [isLoading, setIsLoading] = React.useState(true);
   const [isSaving, setIsSaving] = React.useState(false);
   const [includeTax, setIncludeTax] = React.useState(true);
+  const [isAddLineItemDialogOpen, setIsAddLineItemDialogOpen] = React.useState(false);
 
   const form = useForm<InvoiceFormValues>({
     resolver: zodResolver(invoiceSchema),
@@ -141,7 +143,7 @@ export default function EditInvoicePage() {
   }, [id, form, toast, t]);
 
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, remove, update } = useFieldArray({
     control: form.control,
     name: 'lineItems',
   });
@@ -154,6 +156,28 @@ export default function EditInvoicePage() {
   );
   const tax = React.useMemo(() => includeTax ? subtotal * 0.11 : 0, [subtotal, includeTax]);
   const total = subtotal + tax;
+  
+  const handleAddLineItem = (item: LineItemFormValues) => {
+    const existingItemIndex = fields.findIndex(
+      (field) => field.productId === item.productId
+    );
+
+    if (existingItemIndex > -1) {
+      // Update existing item's quantity
+      const existingItem = fields[existingItemIndex];
+      const newQuantity = existingItem.quantity + item.quantity;
+      const newTotal = item.unitPrice * newQuantity;
+      update(existingItemIndex, {
+        ...existingItem,
+        quantity: newQuantity,
+        unitPrice: item.unitPrice, // Also update unit price in case it was changed
+        total: newTotal,
+      });
+    } else {
+      // Add new item
+      append(item);
+    }
+  };
 
   const onSubmit = async (data: InvoiceFormValues) => {
     setIsSaving(true);
@@ -208,6 +232,7 @@ export default function EditInvoicePage() {
   }
 
   return (
+    <>
     <div className="space-y-6">
       <div className="flex items-center gap-4">
         <Button variant="outline" size="icon" onClick={() => router.back()}>
@@ -381,78 +406,22 @@ export default function EditInvoicePage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
+                   {fields.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center text-muted-foreground">
+                          No items added yet.
+                        </TableCell>
+                      </TableRow>
+                    )}
                   {fields.map((item, index) => {
+                     const product = products.find(p => p.id === item.productId);
                     return (
                       <TableRow key={item.id}>
-                        <TableCell>
-                          <Controller
-                            control={form.control}
-                            name={`lineItems.${index}.productId`}
-                            render={({ field }) => (
-                              <ProductCombobox
-                                products={products}
-                                value={field.value}
-                                onChange={(productId) => {
-                                  const product = products.find(p => p.id === productId);
-                                  if (product) {
-                                    field.onChange(productId);
-                                    form.setValue(`lineItems.${index}.unitPrice`, product.unitPrice);
-                                    const quantity = form.getValues(`lineItems.${index}.quantity`);
-                                    form.setValue(`lineItems.${index}.total`, product.unitPrice * quantity);
-                                  }
-                                }}
-                              />
-                            )}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <Controller
-                            control={form.control}
-                            name={`lineItems.${index}.quantity`}
-                            render={({ field }) => (
-                              <Input
-                                type="number"
-                                {...field}
-                                onChange={(e) => {
-                                  const quantity = Number(e.target.value);
-                                  const unitPrice = form.getValues(
-                                    `lineItems.${index}.unitPrice`
-                                  );
-                                  field.onChange(quantity);
-                                  form.setValue(
-                                    `lineItems.${index}.total`,
-                                    unitPrice * quantity
-                                  );
-                                }}
-                              />
-                            )}
-                          />
-                        </TableCell>
-                        <TableCell>
-                           <Controller
-                            control={form.control}
-                            name={`lineItems.${index}.unitPrice`}
-                            render={({ field }) => (
-                              <Input
-                                type="number"
-                                {...field}
-                                onChange={(e) => {
-                                  const unitPrice = Number(e.target.value);
-                                  const quantity = form.getValues(
-                                    `lineItems.${index}.quantity`
-                                  );
-                                  field.onChange(unitPrice);
-                                  form.setValue(
-                                    `lineItems.${index}.total`,
-                                    unitPrice * quantity
-                                  );
-                                }}
-                              />
-                            )}
-                          />
-                        </TableCell>
+                        <TableCell>{product?.name || 'N/A'}</TableCell>
+                        <TableCell>{item.quantity}</TableCell>
+                        <TableCell>{formatCurrency(item.unitPrice)}</TableCell>
                         <TableCell className="text-right">
-                          {formatCurrency(watchLineItems[index]?.total || 0)}
+                          {formatCurrency(item.total)}
                         </TableCell>
                         <TableCell>
                           <Button
@@ -460,7 +429,6 @@ export default function EditInvoicePage() {
                             variant="ghost"
                             size="icon"
                             onClick={() => remove(index)}
-                            disabled={fields.length === 1}
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -475,14 +443,7 @@ export default function EditInvoicePage() {
                 variant="outline"
                 size="sm"
                 className="mt-4"
-                onClick={() =>
-                  append({
-                    productId: '',
-                    quantity: 1,
-                    unitPrice: 0,
-                    total: 0,
-                  })
-                }
+                onClick={() => setIsAddLineItemDialogOpen(true)}
               >
                 <PlusCircle className="mr-2 h-4 w-4" /> {t('invoices.form.addItem')}
               </Button>
@@ -555,5 +516,12 @@ export default function EditInvoicePage() {
         </form>
       </Form>
     </div>
+    <AddLineItemDialog
+        isOpen={isAddLineItemDialogOpen}
+        onOpenChange={setIsAddLineItemDialogOpen}
+        onAddItem={handleAddLineItem}
+        products={products}
+      />
+    </>
   );
 }
