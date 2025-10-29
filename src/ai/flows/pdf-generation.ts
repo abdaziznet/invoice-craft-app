@@ -320,7 +320,7 @@ const generatePdfFlow = ai.defineFlow(
     
     if (invoice.underpayment > 0) {
         summaryItems.push({
-            label: 'Underpayment',
+            label: 'Kurang Bayar',
             value: formatCurrency(invoice.underpayment),
         });
     }

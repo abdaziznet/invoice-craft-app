@@ -106,7 +106,7 @@ export default function InvoiceImageTemplate({
           </div>
           {underpayment > 0 && (
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0' }}>
-                <p style={{ margin: 0 }}>Underpayment</p>
+                <p style={{ margin: 0 }}>Kurang Bayar</p>
                 <p style={{ margin: 0 }}>{formatCurrency(underpayment)}</p>
             </div>
           )}

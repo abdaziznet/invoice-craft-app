@@ -491,7 +491,7 @@ export default function EditInvoicePage() {
                     name="underpayment"
                     render={({ field }) => (
                       <FormItem className="flex justify-between items-center">
-                        <FormLabel>Underpayment</FormLabel>
+                        <FormLabel>Kurang Bayar</FormLabel>
                         <FormControl>
                           <Input
                             type="number"

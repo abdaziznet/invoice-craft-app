@@ -227,7 +227,7 @@ export default function InvoiceDetailPage() {
                 <span>{formatCurrency(invoice.subtotal)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="font-medium">Underpayment</span>
+                <span className="font-medium">Kurang Bayar</span>
                 <span>{formatCurrency(invoice.underpayment)}</span>
               </div>
               <Separator className="my-1" />
