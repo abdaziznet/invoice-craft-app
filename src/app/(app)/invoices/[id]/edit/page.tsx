@@ -51,7 +51,6 @@ import { format, parseISO } from 'date-fns';
 import { getCustomers, getProducts, getInvoiceById, updateInvoice } from '@/lib/google-sheets';
 import type { Customer, Product, Invoice, InvoiceStatus } from '@/lib/types';
 import Spinner from '@/components/ui/spinner';
-import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useLocale } from '@/hooks/use-locale';
 import AddLineItemDialog from '@/components/invoices/add-line-item-dialog';
@@ -90,7 +89,6 @@ export default function EditInvoicePage() {
   const [products, setProducts] = React.useState<Product[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [isSaving, setIsSaving] = React.useState(false);
-  const [includeTax, setIncludeTax] = React.useState(true);
   const [isAddLineItemDialogOpen, setIsAddLineItemDialogOpen] = React.useState(false);
 
   const form = useForm<InvoiceFormValues>({
@@ -129,7 +127,6 @@ export default function EditInvoicePage() {
                 total: item.total,
             }))
         });
-        setIncludeTax(invoiceData.tax > 0);
 
       } catch (error) {
         console.error("Failed to fetch data:", error);
@@ -154,8 +151,7 @@ export default function EditInvoicePage() {
     () => watchLineItems?.reduce((acc, item) => acc + item.total, 0) || 0,
     [JSON.stringify(watchLineItems)]
   );
-  const tax = React.useMemo(() => includeTax ? subtotal * 0.11 : 0, [subtotal, includeTax]);
-  const total = subtotal + tax;
+  const total = subtotal;
   
   const handleAddLineItem = (item: LineItemFormValues) => {
     const existingItemIndex = fields.findIndex(
@@ -187,7 +183,7 @@ export default function EditInvoicePage() {
       const invoicePayload = {
           customerId: data.customerId,
           subtotal: subtotal,
-          tax: includeTax ? 11 : 0,
+          tax: 0,
           discount: invoice.discount, // Assuming discount is not editable for now
           total: total,
           status: data.status,
@@ -484,17 +480,6 @@ export default function EditInvoicePage() {
                 <div className="flex justify-between">
                   <span>{t('invoices.form.subtotal')}</span>
                   <span>{formatCurrency(subtotal)}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Label htmlFor="include-tax">{t('invoices.form.includeTax')}</Label>
-                    <Switch 
-                      id="include-tax" 
-                      checked={includeTax} 
-                      onCheckedChange={setIncludeTax}
-                    />
-                  </div>
-                  <span>{formatCurrency(tax)}</span>
                 </div>
                 <div className="flex justify-between font-semibold text-lg">
                   <span>{t('invoices.form.total')}</span>
