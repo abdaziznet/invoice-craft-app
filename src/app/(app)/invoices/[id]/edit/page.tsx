@@ -48,12 +48,13 @@ import {
 import { cn, formatCurrency, formatDate } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { format, parseISO } from 'date-fns';
-import { getCustomers, getProducts, getInvoiceById, updateInvoice } from '@/lib/google-sheets';
+import { getCustomers, getProducts, getInvoiceById, updateInvoice as updateInvoiceInSheet } from '@/lib/google-sheets';
 import type { Customer, Product, Invoice, InvoiceStatus } from '@/lib/types';
 import Spinner from '@/components/ui/spinner';
 import { Label } from '@/components/ui/label';
 import { useLocale } from '@/hooks/use-locale';
 import AddLineItemDialog from '@/components/invoices/add-line-item-dialog';
+import { useInvoices } from '@/hooks/use-invoices';
 
 const lineItemSchema = z.object({
   productId: z.string().min(1, 'Product is required.'),
@@ -84,6 +85,7 @@ export default function EditInvoicePage() {
   const { id } = params;
   const { toast } = useToast();
   const { t, lang } = useLocale();
+  const { refreshInvoices } = useInvoices();
   
   const [invoice, setInvoice] = React.useState<Invoice | null>(null);
   const [customers, setCustomers] = React.useState<Customer[]>([]);
@@ -121,7 +123,7 @@ export default function EditInvoicePage() {
             dueDate: parseISO(invoiceData.dueDate),
             status: invoiceData.status,
             notes: invoiceData.notes,
-            underPayment: invoiceData.underPayment,
+            underPayment: invoiceData.underpayment,
             lineItems: invoiceData.lineItems.map(item => ({
                 productId: item.product.id,
                 quantity: item.quantity,
@@ -192,7 +194,7 @@ export default function EditInvoicePage() {
           subtotal: subtotal,
           tax: 0,
           discount: 0,
-          underPayment: data.underPayment || 0,
+          underpayment: data.underPayment || 0,
           total: total,
           status: data.status,
           dueDate: format(data.dueDate, 'yyyy-MM-dd'),
@@ -207,13 +209,14 @@ export default function EditInvoicePage() {
           }))
       };
       
-      await updateInvoice(invoice.id, invoicePayload);
+      await updateInvoiceInSheet(invoice.id, invoicePayload);
       
       toast({
         variant: 'success',
         title: t('invoices.edit.toast.updatedTitle'),
         description: t('invoices.edit.toast.updatedDesc'),
       });
+      await refreshInvoices();
       router.push('/invoices');
     } catch (error) {
       console.error(error);
@@ -501,7 +504,10 @@ export default function EditInvoicePage() {
                             className="w-32"
                             placeholder="0"
                             {...field}
-                            onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                field.onChange(value === '' ? '' : parseFloat(value));
+                            }}
                           />
                         </FormControl>
                         <FormMessage />

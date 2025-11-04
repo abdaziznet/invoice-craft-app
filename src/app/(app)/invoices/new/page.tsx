@@ -54,6 +54,7 @@ import Spinner from '@/components/ui/spinner';
 import { Label } from '@/components/ui/label';
 import { useLocale } from '@/hooks/use-locale';
 import AddLineItemDialog from '@/components/invoices/add-line-item-dialog';
+import { useInvoices } from '@/hooks/use-invoices';
 
 
 const lineItemSchema = z.object({
@@ -87,6 +88,7 @@ export default function NewInvoicePage() {
   const [products, setProducts] = React.useState<Product[]>([]);
   const [isSaving, setIsSaving] = React.useState(false);
   const [isAddLineItemDialogOpen, setIsAddLineItemDialogOpen] = React.useState(false);
+  const { refreshInvoices } = useInvoices();
 
   React.useEffect(() => {
     async function fetchData() {
@@ -159,7 +161,7 @@ export default function NewInvoicePage() {
           subtotal: subtotal,
           tax: 0, 
           discount: 0,
-          underPayment: data.underPayment || 0,
+          underpayment: data.underPayment || 0,
           total: total,
           status: data.status,
           dueDate: format(data.dueDate, 'yyyy-MM-dd'),
@@ -181,6 +183,7 @@ export default function NewInvoicePage() {
         title: t('invoices.new.toast.createdTitle'),
         description: t('invoices.new.toast.createdDesc'),
       });
+      await refreshInvoices();
       router.push('/invoices');
     } catch (error) {
       console.error(error);
@@ -459,7 +462,10 @@ export default function NewInvoicePage() {
                             className="w-32"
                             placeholder="0"
                             {...field}
-                            onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                field.onChange(value === '' ? '' : parseFloat(value));
+                            }}
                           />
                         </FormControl>
                         <FormMessage />
