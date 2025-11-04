@@ -457,11 +457,11 @@ export async function getInvoices() {
             ...inv,
             customer,
             lineItems,
-            subtotal: parseFloat(inv.subtotal),
-            tax: parseFloat(inv.tax),
-            discount: parseFloat(inv.discount),
-            underpayment: parseFloat(inv.underpayment) || 0,
-            total: parseFloat(inv.total),
+            subtotal: parseFloat(inv.subtotal as any),
+            tax: parseFloat(inv.tax as any),
+            discount: parseFloat(inv.discount as any),
+            underpayment: parseFloat(inv.underpayment as any) || 0,
+            total: parseFloat(inv.total as any),
         }
     });
 }

@@ -152,7 +152,7 @@ export default function EditInvoicePage() {
 
   const subtotal = React.useMemo(
     () => watchLineItems?.reduce((acc, item) => acc + item.total, 0) || 0,
-    [JSON.stringify(watchLineItems)]
+    [watchLineItems]
   );
   
   const total = React.useMemo(() => {
@@ -191,7 +191,7 @@ export default function EditInvoicePage() {
           customerId: data.customerId,
           subtotal: subtotal,
           tax: 0,
-          discount: invoice.discount, // Assuming discount is not editable for now
+          discount: 0,
           underpayment: data.underpayment || 0,
           total: total,
           status: data.status,
@@ -501,6 +501,7 @@ export default function EditInvoicePage() {
                             className="w-32"
                             placeholder="0"
                             {...field}
+                            onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                           />
                         </FormControl>
                         <FormMessage />

@@ -120,7 +120,7 @@ export default function NewInvoicePage() {
 
   const subtotal = React.useMemo(
     () => watchLineItems.reduce((acc, item) => acc + item.total, 0),
-    [JSON.stringify(watchLineItems)]
+    [watchLineItems]
   );
   
   const total = React.useMemo(() => {
@@ -137,10 +137,11 @@ export default function NewInvoicePage() {
       // Update existing item's quantity
       const existingItem = fields[existingItemIndex];
       const newQuantity = existingItem.quantity + item.quantity;
-      const newTotal = existingItem.unitPrice * newQuantity;
+      const newTotal = item.unitPrice * newQuantity;
       update(existingItemIndex, {
         ...existingItem,
         quantity: newQuantity,
+        unitPrice: item.unitPrice, // Also update unit price in case it was changed
         total: newTotal,
       });
     } else {
@@ -458,6 +459,7 @@ export default function NewInvoicePage() {
                             className="w-32"
                             placeholder="0"
                             {...field}
+                            onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                           />
                         </FormControl>
                         <FormMessage />
