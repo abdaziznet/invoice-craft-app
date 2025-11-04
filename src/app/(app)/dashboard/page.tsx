@@ -1,3 +1,4 @@
+'use client';
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -5,11 +6,20 @@ import { PlusCircle } from 'lucide-react';
 import StatsCards from '@/components/dashboard/stats-cards';
 import RevenueChart from '@/components/dashboard/revenue-chart';
 import RecentInvoices from '@/components/dashboard/recent-invoices';
-import { getInvoices } from '@/lib/google-sheets';
+import { useInvoices } from '@/hooks/use-invoices';
 import { LocaleRedirect } from '@/components/locale-redirect';
+import Spinner from '@/components/ui/spinner';
 
-export default async function DashboardPage() {
-  const invoices = await getInvoices();
+export default function DashboardPage() {
+  const { invoices, loading } = useInvoices();
+
+  if (loading) {
+    return (
+      <div className="flex h-96 items-center justify-center">
+        <Spinner />
+      </div>
+    );
+  }
 
   return (
     <>

@@ -10,6 +10,7 @@ import { SearchProvider } from '@/context/search-context';
 import { LocaleProvider } from '@/context/locale-context';
 import { getCompanyProfile } from '@/lib/google-sheets';
 import type { CompanyProfile } from '@/lib/types';
+import { InvoiceProvider } from '@/context/invoice-context';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { user, loading, isWhitelisted } = useAuth();
@@ -51,14 +52,16 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <SearchProvider>
       <LocaleProvider lang={language}>
-        <div className="flex min-h-screen w-full flex-col bg-muted/40">
-          <div className="flex flex-col sm:gap-4 sm:py-4 sm:px-14">
-            <Header />
-            <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
-              {children}
-            </main>
+        <InvoiceProvider>
+          <div className="flex min-h-screen w-full flex-col bg-muted/40">
+            <div className="flex flex-col sm:gap-4 sm:py-4 sm:px-14">
+              <Header />
+              <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
+                {children}
+              </main>
+            </div>
           </div>
-        </div>
+        </InvoiceProvider>
       </LocaleProvider>
     </SearchProvider>
   );

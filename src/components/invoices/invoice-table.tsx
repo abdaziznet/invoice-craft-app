@@ -26,7 +26,7 @@ import PaymentReminderModal from './payment-reminder-modal';
 import { cn } from '@/lib/utils';
 import DeleteConfirmationDialog from '../customers/delete-confirmation-dialog';
 import { useToast } from '@/hooks/use-toast';
-import { deleteInvoices } from '@/lib/google-sheets';
+import { deleteInvoices as deleteInvoicesFromSheet } from '@/lib/google-sheets';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Spinner from '../ui/spinner';
@@ -34,6 +34,7 @@ import DataTablePagination from '../data-table-pagination';
 import { useLocale } from '@/hooks/use-locale';
 import ExportShareDialog from './export-share-dialog';
 import { parseISO } from 'date-fns';
+import { useInvoices } from '@/hooks/use-invoices';
 
 
 type InvoiceTableProps = {
@@ -44,6 +45,7 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
   const { toast } = useToast();
   const router = useRouter();
   const { t, lang } = useLocale();
+  const { deleteInvoices } = useInvoices();
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [isReminderModalOpen, setIsReminderModalOpen] = useState(false);
   const [isExportShareDialogOpen, setIsExportShareDialogOpen] = useState(false);
@@ -93,13 +95,13 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
   const confirmDelete = async () => {
     setIsDeleting(true);
     try {
-      await deleteInvoices(selectedInvoiceIds);
+      await deleteInvoicesFromSheet(selectedInvoiceIds);
+      deleteInvoices(selectedInvoiceIds);
       toast({
         variant: 'success',
         title: t('invoices.table.toast.deletedTitle'),
         description: t('invoices.table.toast.deletedDesc'),
       });
-      router.refresh();
       setSelectedInvoiceIds([]);
     } catch (error) {
       console.error(error);

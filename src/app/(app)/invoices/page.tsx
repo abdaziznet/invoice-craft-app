@@ -12,26 +12,18 @@ import {
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import InvoiceTable from '@/components/invoices/invoice-table';
-import { getInvoices } from '@/lib/google-sheets';
 import type { Invoice, InvoiceStatus } from '@/lib/types';
 import Link from 'next/link';
-import { useEffect, useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useSearch } from '@/hooks/use-search';
 import { useLocale } from '@/hooks/use-locale';
+import { useInvoices } from '@/hooks/use-invoices';
+import Spinner from '@/components/ui/spinner';
 
 export default function InvoicesPage() {
-  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const { invoices, loading: invoicesLoading } = useInvoices();
   const { searchTerm, setSearchTerm } = useSearch();
   const { t } = useLocale();
-  
-  useEffect(() => {
-    async function fetchInvoices() {
-      const invoicesData = await getInvoices();
-      const uniqueInvoices = Array.from(new Map(invoicesData.map(inv => [inv.id, inv])).values());
-      setInvoices(uniqueInvoices);
-    }
-    fetchInvoices();
-  }, []);
 
   const filteredInvoices = useMemo(() => {
     if (!searchTerm) return invoices;
@@ -85,6 +77,14 @@ export default function InvoicesPage() {
     link.click();
     document.body.removeChild(link);
   };
+  
+  if (invoicesLoading) {
+    return (
+      <div className="flex h-96 items-center justify-center">
+        <Spinner />
+      </div>
+    );
+  }
 
   return (
     <Tabs defaultValue="all">
