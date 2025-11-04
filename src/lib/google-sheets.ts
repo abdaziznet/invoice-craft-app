@@ -503,7 +503,7 @@ export async function getInvoiceById(id: string): Promise<Invoice | null> {
         subtotal: parseFloat(targetInvoice.subtotal),
         tax: parseFloat(targetInvoice.tax),
         discount: parseFloat(targetInvoice.discount),
-        underpayment: parseFloat(targetInvoice.underpayment) || 0,
+        underpayment: parseFloat(targetInvoice.underpayment),
         total: parseFloat(targetInvoice.total),
     };
 
