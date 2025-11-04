@@ -524,8 +524,8 @@ export async function createInvoice(invoiceData: Omit<Invoice, 'id' | 'invoiceNu
         newInvoiceNumber,
         invoiceData.customerId,
         invoiceData.subtotal,
-        invoiceData.tax,
-        invoiceData.discount,
+        0, // tax
+        0, // discount
         invoiceData.underpayment,
         invoiceData.total,
         invoiceData.status,
@@ -588,8 +588,8 @@ export async function updateInvoice(invoiceId: string, invoiceData: Omit<Invoice
             originalData[1], // invoiceNumber
             invoiceData.customerId,
             invoiceData.subtotal,
-            invoiceData.tax,
-            invoiceData.discount,
+            0, // tax
+            0, // discount
             invoiceData.underpayment,
             invoiceData.total,
             invoiceData.status,
@@ -755,3 +755,4 @@ export async function deleteInvoices(invoiceIds: string[]) {
     
 
     
+
