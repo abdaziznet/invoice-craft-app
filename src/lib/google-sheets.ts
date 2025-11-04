@@ -45,7 +45,7 @@ async function getSheetData(range: string) {
             let headers: string[] = [];
             if (sheetTitle === 'Customers') headers = ['id', 'name', 'email', 'address', 'phone'];
             else if (sheetTitle === 'Products') headers = ['id', 'name', 'unit', 'unitPrice'];
-            else if (sheetTitle === 'Invoices') headers = ['id', 'invoiceNumber', 'customerId', 'subtotal', 'tax', 'discount', 'underpayment', 'total', 'status', 'dueDate', 'createdAt', 'notes', 'customerRelationship', 'paymentHistory'];
+            else if (sheetTitle === 'Invoices') headers = ['id', 'invoiceNumber', 'customerId', 'subtotal', 'tax', 'discount', 'underPayment', 'total', 'status', 'dueDate', 'createdAt', 'notes', 'customerRelationship', 'paymentHistory'];
             else if (sheetTitle === 'InvoiceItems') headers = ['id', 'invoiceId', 'productId', 'quantity', 'unitPrice', 'total'];
             else if (sheetTitle === 'CompanyProfile') headers = ['key', 'value'];
 
@@ -460,7 +460,7 @@ export async function getInvoices() {
             subtotal: parseFloat(inv.subtotal as any),
             tax: parseFloat(inv.tax as any),
             discount: parseFloat(inv.discount as any),
-            underpayment: parseFloat(inv.underpayment as any) || 0,
+            underPayment: parseFloat(inv.underPayment as any) || 0,
             total: parseFloat(inv.total as any),
         }
     });
@@ -503,7 +503,7 @@ export async function getInvoiceById(id: string): Promise<Invoice | null> {
         subtotal: parseFloat(targetInvoice.subtotal),
         tax: parseFloat(targetInvoice.tax),
         discount: parseFloat(targetInvoice.discount),
-        underpayment: parseFloat(targetInvoice.underpayment),
+        underPayment: parseFloat(targetInvoice.underPayment),
         total: parseFloat(targetInvoice.total),
     };
 
@@ -526,7 +526,7 @@ export async function createInvoice(invoiceData: Omit<Invoice, 'id' | 'invoiceNu
         invoiceData.subtotal,
         0, // tax
         0, // discount
-        invoiceData.underpayment,
+        invoiceData.underPayment,
         invoiceData.total,
         invoiceData.status,
         invoiceData.dueDate,
@@ -590,7 +590,7 @@ export async function updateInvoice(invoiceId: string, invoiceData: Omit<Invoice
             invoiceData.subtotal,
             0, // tax
             0, // discount
-            invoiceData.underpayment,
+            invoiceData.underPayment,
             invoiceData.total,
             invoiceData.status,
             invoiceData.dueDate,

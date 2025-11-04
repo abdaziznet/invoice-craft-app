@@ -318,10 +318,10 @@ const generatePdfFlow = ai.defineFlow(
       { label: t('invoices.form.subtotal'), value: formatCurrency(invoice.subtotal) },
     ];
     
-    if (invoice.underpayment > 0) {
+    if (invoice.underPayment > 0) {
         summaryItems.push({
             label: 'Kurang Bayar',
-            value: formatCurrency(invoice.underpayment),
+            value: formatCurrency(invoice.underPayment),
         });
     }
 

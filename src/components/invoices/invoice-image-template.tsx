@@ -13,7 +13,7 @@ export default function InvoiceImageTemplate({
   companyProfile,
   t
 }: InvoiceImageTemplateProps) {
-  const { customer, lineItems, subtotal, tax, total, dueDate, invoiceNumber, notes, underpayment } = invoice;
+  const { customer, lineItems, subtotal, tax, total, dueDate, invoiceNumber, notes, underPayment } = invoice;
   const lang = companyProfile.language;
 
   return (
@@ -104,10 +104,10 @@ export default function InvoiceImageTemplate({
             <p style={{ margin: 0 }}>{t('invoices.form.subtotal')}</p>
             <p style={{ margin: 0 }}>{formatCurrency(subtotal)}</p>
           </div>
-          {underpayment > 0 && (
+          {underPayment > 0 && (
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0' }}>
                 <p style={{ margin: 0 }}>Kurang Bayar</p>
-                <p style={{ margin: 0 }}>{formatCurrency(underpayment)}</p>
+                <p style={{ margin: 0 }}>{formatCurrency(underPayment)}</p>
             </div>
           )}
           <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0', borderTop: '2px solid #e5e7eb', marginTop: '8px' }}>

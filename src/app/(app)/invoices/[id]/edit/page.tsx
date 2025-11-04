@@ -69,7 +69,7 @@ const invoiceSchema = z.object({
   status: z.enum(['Paid', 'Unpaid', 'Overdue']),
   lineItems: z.array(lineItemSchema).min(1, 'At least one item is required.'),
   notes: z.string().optional(),
-  underpayment: z.coerce.number().optional(),
+  underPayment: z.coerce.number().optional(),
 }).refine(data => data.dueDate >= data.invoiceDate, {
     message: "Due date cannot be earlier than invoice date.",
     path: ["dueDate"],
@@ -121,7 +121,7 @@ export default function EditInvoicePage() {
             dueDate: parseISO(invoiceData.dueDate),
             status: invoiceData.status,
             notes: invoiceData.notes,
-            underpayment: invoiceData.underpayment,
+            underPayment: invoiceData.underPayment,
             lineItems: invoiceData.lineItems.map(item => ({
                 productId: item.product.id,
                 quantity: item.quantity,
@@ -148,7 +148,7 @@ export default function EditInvoicePage() {
   });
 
   const watchLineItems = form.watch('lineItems');
-  const watchUnderpayment = form.watch('underpayment');
+  const watchUnderpayment = form.watch('underPayment');
 
   const subtotal = React.useMemo(
     () => watchLineItems?.reduce((acc, item) => acc + item.total, 0) || 0,
@@ -192,7 +192,7 @@ export default function EditInvoicePage() {
           subtotal: subtotal,
           tax: 0,
           discount: 0,
-          underpayment: data.underpayment || 0,
+          underPayment: data.underPayment || 0,
           total: total,
           status: data.status,
           dueDate: format(data.dueDate, 'yyyy-MM-dd'),
@@ -491,7 +491,7 @@ export default function EditInvoicePage() {
                 </div>
                  <FormField
                     control={form.control}
-                    name="underpayment"
+                    name="underPayment"
                     render={({ field }) => (
                       <FormItem className="flex justify-between items-center">
                         <FormLabel>Kurang Bayar</FormLabel>

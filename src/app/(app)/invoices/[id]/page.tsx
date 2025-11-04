@@ -66,6 +66,7 @@ export default function InvoiceDetailPage() {
         if (!fetchedInvoice) {
           notFound();
         } else {
+          console.log("Fetched invoice:", fetchedInvoice);
           setInvoice(fetchedInvoice);
           setCompanyProfile(fetchedProfile);
         }
@@ -91,6 +92,8 @@ export default function InvoiceDetailPage() {
   if (!invoice || !companyProfile) {
      return notFound();
   }
+
+  
 
   return (
     <div className="space-y-6">
@@ -227,7 +230,7 @@ export default function InvoiceDetailPage() {
               </div>
               <div className="flex justify-between">
                 <span className="font-medium">Kurang Bayar</span>
-                <span>{formatCurrency(invoice.underpayment)}</span>
+                <span>{formatCurrency(invoice.underPayment)}</span>
               </div>
               <Separator className="my-1" />
               <div className="flex justify-between font-bold text-lg">
