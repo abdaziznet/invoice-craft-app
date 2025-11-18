@@ -161,7 +161,7 @@ export default function NewInvoicePage() {
           subtotal: subtotal,
           tax: 0, 
           discount: 0,
-          underpayment: data.underPayment || 0,
+          underPayment: data.underPayment || 0,
           total: total,
           status: data.status,
           dueDate: format(data.dueDate, 'yyyy-MM-dd'),

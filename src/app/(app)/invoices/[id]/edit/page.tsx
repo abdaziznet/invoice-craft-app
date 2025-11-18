@@ -123,7 +123,7 @@ export default function EditInvoicePage() {
             dueDate: parseISO(invoiceData.dueDate),
             status: invoiceData.status,
             notes: invoiceData.notes,
-            underPayment: invoiceData.underpayment,
+            underPayment: invoiceData.underPayment,
             lineItems: invoiceData.lineItems.map(item => ({
                 productId: item.product.id,
                 quantity: item.quantity,
@@ -194,7 +194,7 @@ export default function EditInvoicePage() {
           subtotal: subtotal,
           tax: 0,
           discount: 0,
-          underpayment: data.underPayment || 0,
+          underPayment: data.underPayment || 0,
           total: total,
           status: data.status,
           dueDate: format(data.dueDate, 'yyyy-MM-dd'),
