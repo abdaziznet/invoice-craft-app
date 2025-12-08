@@ -48,7 +48,7 @@
     "google-auth-library": "^9.11.0",
     "googleapis": "^140.0.1",
     "lucide-react": "^0.475.0",
-    "next": "15.3.3",
+    "next": "15.3.6",
     "next-themes": "^0.3.0",
     "pdf-lib": "^1.17.1",
     "react": "^18.3.1",
