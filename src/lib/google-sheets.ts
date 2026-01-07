@@ -9,77 +9,77 @@ import { isPast, parseISO, startOfToday } from 'date-fns';
 const spreadsheetId = process.env.GOOGLE_SHEET_ID;
 
 const getClient = () => {
-  const client = new JWT({
-    email: process.env.GOOGLE_CLIENT_EMAIL,
-    key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-    scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-  });
-  return client;
+    const client = new JWT({
+        email: process.env.GOOGLE_CLIENT_EMAIL,
+        key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+        scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+    });
+    return client;
 };
 
 const sheets = google.sheets({ version: 'v4', auth: getClient() });
 
 async function getSheetData(range: string) {
-  try {
-    const response = await sheets.spreadsheets.values.get({
-      spreadsheetId,
-      range,
-    });
-    return response.data.values;
-  } catch (error: any) {
-    if (error.code === 400 && error.errors[0]?.message.includes('Unable to parse range')) {
-        // Find or create sheet 'Customers'
-        const sheetTitle = range.split('!')[0];
-        const spreadsheetInfo = await sheets.spreadsheets.get({ spreadsheetId });
-        const sheetExists = spreadsheetInfo.data.sheets?.some(s => s.properties?.title === sheetTitle);
+    try {
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range,
+        });
+        return response.data.values;
+    } catch (error: any) {
+        if (error.code === 400 && error.errors[0]?.message.includes('Unable to parse range')) {
+            // Find or create sheet 'Customers'
+            const sheetTitle = range.split('!')[0];
+            const spreadsheetInfo = await sheets.spreadsheets.get({ spreadsheetId });
+            const sheetExists = spreadsheetInfo.data.sheets?.some(s => s.properties?.title === sheetTitle);
 
-        if (!sheetExists) {
-            await sheets.spreadsheets.batchUpdate({
-                spreadsheetId,
-                requestBody: {
-                    requests: [
-                        { addSheet: { properties: { title: sheetTitle } } }
-                    ]
-                }
-            });
-            let headers: string[] = [];
-            if (sheetTitle === 'Customers') headers = ['id', 'name', 'email', 'address', 'phone'];
-            else if (sheetTitle === 'Products') headers = ['id', 'name', 'unit', 'unitPrice'];
-            else if (sheetTitle === 'Invoices') headers = ['id', 'invoiceNumber', 'customerId', 'subtotal', 'tax', 'discount', 'underPayment', 'total', 'status', 'dueDate', 'createdAt', 'notes', 'customerRelationship', 'paymentHistory'];
-            else if (sheetTitle === 'InvoiceItems') headers = ['id', 'invoiceId', 'productId', 'quantity', 'unitPrice', 'total'];
-            else if (sheetTitle === 'CompanyProfile') headers = ['key', 'value'];
-
-             if (headers.length > 0) {
-                await sheets.spreadsheets.values.update({
+            if (!sheetExists) {
+                await sheets.spreadsheets.batchUpdate({
                     spreadsheetId,
-                    range: `${sheetTitle}!A1`,
-                    valueInputOption: 'USER_ENTERED',
                     requestBody: {
-                        values: [headers]
+                        requests: [
+                            { addSheet: { properties: { title: sheetTitle } } }
+                        ]
                     }
                 });
+                let headers: string[] = [];
+                if (sheetTitle === 'Customers') headers = ['id', 'name', 'email', 'address', 'phone'];
+                else if (sheetTitle === 'Products') headers = ['id', 'name', 'unit', 'unitPrice'];
+                else if (sheetTitle === 'Invoices') headers = ['id', 'invoiceNumber', 'customerId', 'subtotal', 'tax', 'discount', 'underPayment', 'total', 'status', 'dueDate', 'createdAt', 'notes', 'customerRelationship', 'paymentHistory'];
+                else if (sheetTitle === 'InvoiceItems') headers = ['id', 'invoiceId', 'productId', 'quantity', 'unitPrice', 'total'];
+                else if (sheetTitle === 'CompanyProfile') headers = ['key', 'value'];
+
+                if (headers.length > 0) {
+                    await sheets.spreadsheets.values.update({
+                        spreadsheetId,
+                        range: `${sheetTitle}!A1`,
+                        valueInputOption: 'USER_ENTERED',
+                        requestBody: {
+                            values: [headers]
+                        }
+                    });
+                }
             }
+            return null;
         }
-        return null;
+        console.error('Error fetching sheet data:', error);
+        throw new Error('Could not fetch data from Google Sheets.');
     }
-    console.error('Error fetching sheet data:', error);
-    throw new Error('Could not fetch data from Google Sheets.');
-  }
 }
 
 function mapToObjects(data: any[][] | null | undefined) {
-  if (!data || data.length < 2) {
-    return [];
-  }
-  const headers = data[0];
-  const rows = data.slice(1);
-  return rows.map((row) => {
-    const obj: { [key: string]: any } = {};
-    headers.forEach((header, index) => {
-      obj[header] = row[index];
+    if (!data || data.length < 2) {
+        return [];
+    }
+    const headers = data[0];
+    const rows = data.slice(1);
+    return rows.map((row) => {
+        const obj: { [key: string]: any } = {};
+        headers.forEach((header, index) => {
+            obj[header] = row[index];
+        });
+        return obj;
     });
-    return obj;
-  });
 }
 
 export async function getCompanyProfile(): Promise<CompanyProfile> {
@@ -90,7 +90,7 @@ export async function getCompanyProfile(): Promise<CompanyProfile> {
         currency: 'IDR',
         language: 'id',
     };
-    
+
     const data = await getSheetData('CompanyProfile!A:B');
     if (!data) {
         return defaultProfile;
@@ -138,7 +138,7 @@ export async function updateCompanyProfile(profileData: CompanyProfile) {
                 }
             });
         }
-        
+
         const data = Object.entries(profileData);
         await sheets.spreadsheets.values.update({
             spreadsheetId,
@@ -155,8 +155,8 @@ export async function updateCompanyProfile(profileData: CompanyProfile) {
 }
 
 export async function getCustomers() {
-  const data = await getSheetData('Customers!A:E');
-  return mapToObjects(data);
+    const data = await getSheetData('Customers!A:E');
+    return mapToObjects(data);
 }
 
 export async function createCustomer(customerData: Omit<Customer, 'id'>) {
@@ -276,10 +276,10 @@ export async function deleteCustomers(customerIds: string[]) {
 
 
 export async function getProducts() {
-  const data = await getSheetData('Products!A:D');
-  const products = mapToObjects(data) as Product[];
-  const uniqueProducts = Array.from(new Map(products.map(p => [p.id, p])).values());
-  return uniqueProducts.map(p => ({...p, unitPrice: parseFloat(p.unitPrice as any) }));
+    const data = await getSheetData('Products!A:D');
+    const products = mapToObjects(data) as Product[];
+    const uniqueProducts = Array.from(new Map(products.map(p => [p.id, p])).values());
+    return uniqueProducts.map(p => ({ ...p, unitPrice: parseFloat(p.unitPrice as any) }));
 }
 
 export async function createProduct(productData: Omit<Product, 'id'>) {
@@ -404,7 +404,7 @@ export async function getInvoices() {
 
     const invoiceItemsData = await getSheetData('InvoiceItems!A:F');
     const invoiceItems = mapToObjects(invoiceItemsData);
-    
+
     const today = startOfToday();
 
     const updatePromises = invoices.map(async (inv) => {
@@ -416,7 +416,7 @@ export async function getInvoices() {
             try {
                 const fullInvoice = await getInvoiceById(inv.id);
                 if (fullInvoice) {
-                     await updateInvoice(inv.id, {
+                    await updateInvoice(inv.id, {
                         ...fullInvoice,
                         status: 'Overdue',
                         customerId: fullInvoice.customer.id,
@@ -436,6 +436,11 @@ export async function getInvoices() {
     });
 
     invoices = await Promise.all(updatePromises);
+
+    // Sort by createdAt descending
+    invoices.sort((a, b) => {
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
 
 
     return invoices.map(inv => {
@@ -476,7 +481,7 @@ export async function getInvoiceById(id: string): Promise<Invoice | null> {
     if (!targetInvoice) {
         return null;
     }
-    
+
     const customers = await getCustomers();
     const products = await getProducts();
     const invoiceItemsData = await getSheetData('InvoiceItems!A:F');
@@ -495,7 +500,7 @@ export async function getInvoiceById(id: string): Promise<Invoice | null> {
                 total: parseFloat(item.total),
             } as InvoiceItem;
         });
-        
+
     const fullInvoice: Invoice = {
         ...targetInvoice,
         customer: customer!,
@@ -511,64 +516,64 @@ export async function getInvoiceById(id: string): Promise<Invoice | null> {
 }
 
 
-export async function createInvoice(invoiceData: Omit<Invoice, 'id' | 'invoiceNumber' | 'createdAt' | 'customer' | 'lineItems'> & { lineItems: Omit<InvoiceItem, 'id'|'product'>[], customerId: string}) {
-  try {
-    const invoicesData = (await getSheetData('Invoices!A:A')) || [['id']];
-    const invoiceItemsData = (await getSheetData('InvoiceItems!A:A')) || [['id']];
+export async function createInvoice(invoiceData: Omit<Invoice, 'id' | 'invoiceNumber' | 'createdAt' | 'customer' | 'lineItems'> & { lineItems: Omit<InvoiceItem, 'id' | 'product'>[], customerId: string }) {
+    try {
+        const invoicesData = (await getSheetData('Invoices!A:A')) || [['id']];
+        const invoiceItemsData = (await getSheetData('InvoiceItems!A:A')) || [['id']];
 
-    const newInvoiceId = `inv-${invoicesData.length}`;
-    const newInvoiceNumber = `${new Date().getFullYear()}-${String(invoicesData.length).padStart(3, '0')}`;
+        const newInvoiceId = `inv-${invoicesData.length}`;
+        const newInvoiceNumber = `${new Date().getFullYear()}-${String(invoicesData.length).padStart(3, '0')}`;
 
-    const newInvoiceRow = [
-        newInvoiceId,
-        newInvoiceNumber,
-        invoiceData.customerId,
-        invoiceData.subtotal,
-        0, // tax
-        0, // discount
-        invoiceData.underPayment,
-        invoiceData.total,
-        invoiceData.status,
-        invoiceData.dueDate,
-        new Date().toISOString().split('T')[0],
-        invoiceData.notes || '',
-        invoiceData.customerRelationship || 'New customer',
-        invoiceData.paymentHistory || 'No payment history',
-    ];
+        const newInvoiceRow = [
+            newInvoiceId,
+            newInvoiceNumber,
+            invoiceData.customerId,
+            invoiceData.subtotal,
+            0, // tax
+            0, // discount
+            invoiceData.underPayment,
+            invoiceData.total,
+            invoiceData.status,
+            invoiceData.dueDate,
+            new Date().toISOString().split('T')[0],
+            invoiceData.notes || '',
+            invoiceData.customerRelationship || 'New customer',
+            invoiceData.paymentHistory || 'No payment history',
+        ];
 
-    await sheets.spreadsheets.values.append({
-      spreadsheetId,
-      range: 'Invoices!A:N',
-      valueInputOption: 'USER_ENTERED',
-      requestBody: {
-        values: [newInvoiceRow],
-      },
-    });
+        await sheets.spreadsheets.values.append({
+            spreadsheetId,
+            range: 'Invoices!A:N',
+            valueInputOption: 'USER_ENTERED',
+            requestBody: {
+                values: [newInvoiceRow],
+            },
+        });
 
-    const newInvoiceItemsRows = invoiceData.lineItems.map((item, index) => {
-        const newItemId = `item-${invoiceItemsData.length + index}`;
-        return [newItemId, newInvoiceId, item.productId, item.quantity, item.unitPrice, item.total];
-    });
+        const newInvoiceItemsRows = invoiceData.lineItems.map((item, index) => {
+            const newItemId = `item-${invoiceItemsData.length + index}`;
+            return [newItemId, newInvoiceId, item.productId, item.quantity, item.unitPrice, item.total];
+        });
 
-    if (newInvoiceItemsRows.length > 0) {
-      await sheets.spreadsheets.values.append({
-        spreadsheetId,
-        range: 'InvoiceItems!A:F',
-        valueInputOption: 'USER_ENTERED',
-        requestBody: {
-          values: newInvoiceItemsRows,
-        },
-      });
+        if (newInvoiceItemsRows.length > 0) {
+            await sheets.spreadsheets.values.append({
+                spreadsheetId,
+                range: 'InvoiceItems!A:F',
+                valueInputOption: 'USER_ENTERED',
+                requestBody: {
+                    values: newInvoiceItemsRows,
+                },
+            });
+        }
+
+        return { id: newInvoiceId, number: newInvoiceNumber };
+    } catch (error) {
+        console.error('Error creating invoice:', error);
+        throw new Error('Could not create invoice in Google Sheets.');
     }
-
-    return { id: newInvoiceId, number: newInvoiceNumber };
-  } catch (error) {
-    console.error('Error creating invoice:', error);
-    throw new Error('Could not create invoice in Google Sheets.');
-  }
 }
 
-export async function updateInvoice(invoiceId: string, invoiceData: Omit<Invoice, 'id' | 'invoiceNumber' | 'createdAt' | 'customer' | 'lineItems'> & { lineItems: Omit<InvoiceItem, 'id'|'product'>[], customerId: string}) {
+export async function updateInvoice(invoiceId: string, invoiceData: Omit<Invoice, 'id' | 'invoiceNumber' | 'createdAt' | 'customer' | 'lineItems'> & { lineItems: Omit<InvoiceItem, 'id' | 'product'>[], customerId: string }) {
     try {
         const invoicesData = await getSheetData('Invoices!A:N');
         if (!invoicesData) {
@@ -599,7 +604,7 @@ export async function updateInvoice(invoiceId: string, invoiceData: Omit<Invoice
             invoiceData.customerRelationship,
             invoiceData.paymentHistory
         ];
-        
+
         await sheets.spreadsheets.values.update({
             spreadsheetId,
             range: `Invoices!A${invoiceRowIndex + 1}:${String.fromCharCode(65 + headers.length - 1)}${invoiceRowIndex + 1}`,
@@ -618,32 +623,32 @@ export async function updateInvoice(invoiceId: string, invoiceData: Omit<Invoice
         if (invoiceItemsSheetId === undefined) {
             throw new Error(`Sheet "${invoiceItemsSheetTitle}" not found.`);
         }
-        
+
         const invoiceItemsData = await getSheetData('InvoiceItems!A:F');
         if (invoiceItemsData) {
-          const deleteRequests = [];
-          for (let i = invoiceItemsData.length - 1; i >= 1; i--) {
-            if (invoiceItemsData[i][1] === invoiceId) {
-              deleteRequests.push({
-                deleteDimension: {
-                  range: {
-                    sheetId: invoiceItemsSheetId,
-                    dimension: 'ROWS',
-                    startIndex: i,
-                    endIndex: i + 1,
-                  },
-                },
-              });
+            const deleteRequests = [];
+            for (let i = invoiceItemsData.length - 1; i >= 1; i--) {
+                if (invoiceItemsData[i][1] === invoiceId) {
+                    deleteRequests.push({
+                        deleteDimension: {
+                            range: {
+                                sheetId: invoiceItemsSheetId,
+                                dimension: 'ROWS',
+                                startIndex: i,
+                                endIndex: i + 1,
+                            },
+                        },
+                    });
+                }
             }
-          }
-          if(deleteRequests.length > 0) {
-            await sheets.spreadsheets.batchUpdate({
-                spreadsheetId,
-                requestBody: { requests: deleteRequests },
-            });
-          }
+            if (deleteRequests.length > 0) {
+                await sheets.spreadsheets.batchUpdate({
+                    spreadsheetId,
+                    requestBody: { requests: deleteRequests },
+                });
+            }
         }
-        
+
         // Then, add the updated line items
         const allInvoiceItems = (await getSheetData('InvoiceItems!A:A')) || [['id']];
         const newInvoiceItemsRows = invoiceData.lineItems.map((item, index) => {
@@ -652,14 +657,14 @@ export async function updateInvoice(invoiceId: string, invoiceData: Omit<Invoice
         });
 
         if (newInvoiceItemsRows.length > 0) {
-          await sheets.spreadsheets.values.append({
-            spreadsheetId,
-            range: 'InvoiceItems!A:F',
-            valueInputOption: 'USER_ENTERED',
-            requestBody: {
-              values: newInvoiceItemsRows,
-            },
-          });
+            await sheets.spreadsheets.values.append({
+                spreadsheetId,
+                range: 'InvoiceItems!A:F',
+                valueInputOption: 'USER_ENTERED',
+                requestBody: {
+                    values: newInvoiceItemsRows,
+                },
+            });
         }
 
 
@@ -681,13 +686,13 @@ export async function deleteInvoices(invoiceIds: string[]) {
         if (invoiceSheetId === undefined) {
             throw new Error(`Sheet "${invoiceSheetTitle}" not found.`);
         }
-        
+
         const invoiceItemsSheetTitle = 'InvoiceItems';
         const invoiceItemsSheet = sheetResponse.data.sheets?.find(s => s.properties?.title === invoiceItemsSheetTitle);
         const invoiceItemsSheetId = invoiceItemsSheet?.properties?.sheetId;
 
         if (invoiceItemsSheetId === undefined) {
-          throw new Error(`Sheet "${invoiceItemsSheetTitle}" not found.`);
+            throw new Error(`Sheet "${invoiceItemsSheetTitle}" not found.`);
         }
 
         const requests = [];
@@ -714,7 +719,7 @@ export async function deleteInvoices(invoiceIds: string[]) {
 
         // Prepare to delete invoice items rows
         const invoiceItemsData = await getSheetData('InvoiceItems!A:B');
-        if(invoiceItemsData){
+        if (invoiceItemsData) {
             for (let i = invoiceItemsData.length - 1; i >= 1; i--) {
                 const associatedInvoiceId = invoiceItemsData[i][1];
                 if (invoiceIds.includes(associatedInvoiceId)) {
@@ -746,16 +751,15 @@ export async function deleteInvoices(invoiceIds: string[]) {
         throw new Error('Could not delete invoices in Google Sheets.');
     }
 }
-    
 
 
 
 
 
-    
-
-    
 
 
 
-    
+
+
+
+
