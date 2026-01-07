@@ -73,8 +73,8 @@ const invoiceSchema = z.object({
   notes: z.string().optional(),
   underPayment: z.coerce.number().optional(),
 }).refine(data => data.dueDate >= data.invoiceDate, {
-    message: "Due date cannot be earlier than invoice date.",
-    path: ["dueDate"],
+  message: "Due date cannot be earlier than invoice date.",
+  path: ["dueDate"],
 });
 
 type InvoiceFormValues = z.infer<typeof invoiceSchema>;
@@ -107,7 +107,8 @@ export default function NewInvoicePage() {
       dueDate: addDays(new Date(), 7),
       status: 'Unpaid',
       lineItems: [],
-      notes: `1. Barang/jasa yang telah dibayar tidak dapat dikembalikan, kecuali terdapat kesalahan dari pihak penjual.\n2. Pembayaran dapat dilakukan secara tunai atau transfer bank sesuai tanggal jatuh tempo.\n`,
+      //notes: `1. Barang/jasa yang telah dibayar tidak dapat dikembalikan, kecuali terdapat kesalahan dari pihak penjual.\n2. Pembayaran dapat dilakukan secara tunai atau transfer bank sesuai tanggal jatuh tempo.\n`,
+      notes: `Terima kasih sudah belanja di Sumber Rejeki Frozen Foods!\n• Retur: Barang yang telah dibayar tidak dapat dikembalikan, kecuali terdapat kesalahan dari pihak penjual.\n• Pembayaran: Menerima Tunai, QRIS, dan Transfer Bank.\n• Info: Hubungi WhatsApp : [ 0857 1008 5544 ] untuk layanan pesan antar (Delivery).`,
       underPayment: 0,
     },
   });
@@ -124,12 +125,12 @@ export default function NewInvoicePage() {
     () => watchLineItems.reduce((acc, item) => acc + item.total, 0),
     [watchLineItems]
   );
-  
+
   const total = React.useMemo(() => {
     const underpaymentValue = Number(watchUnderpayment) || 0;
     return subtotal + underpaymentValue;
   }, [subtotal, watchUnderpayment]);
-  
+
   const handleAddLineItem = (item: LineItemFormValues) => {
     const existingItemIndex = fields.findIndex(
       (field) => field.productId === item.productId
@@ -157,27 +158,27 @@ export default function NewInvoicePage() {
     setIsSaving(true);
     try {
       const invoicePayload = {
-          customerId: data.customerId,
-          subtotal: subtotal,
-          tax: 0, 
-          discount: 0,
-          underPayment: data.underPayment || 0,
-          total: total,
-          status: data.status,
-          dueDate: format(data.dueDate, 'yyyy-MM-dd'),
-          notes: data.notes,
-          customerRelationship: '', // Will be populated by default in sheets service
-          paymentHistory: '', // Will be populated by default in sheets service
-          lineItems: data.lineItems.map(item => ({
-            productId: item.productId,
-            quantity: item.quantity,
-            unitPrice: item.unitPrice,
-            total: item.total
-          }))
+        customerId: data.customerId,
+        subtotal: subtotal,
+        tax: 0,
+        discount: 0,
+        underPayment: data.underPayment || 0,
+        total: total,
+        status: data.status,
+        dueDate: format(data.dueDate, 'yyyy-MM-dd'),
+        notes: data.notes,
+        customerRelationship: '', // Will be populated by default in sheets service
+        paymentHistory: '', // Will be populated by default in sheets service
+        lineItems: data.lineItems.map(item => ({
+          productId: item.productId,
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+          total: item.total
+        }))
       };
-      
+
       await createInvoice(invoicePayload);
-      
+
       toast({
         variant: 'success',
         title: t('invoices.new.toast.createdTitle'),
@@ -463,8 +464,8 @@ export default function NewInvoicePage() {
                             placeholder="0"
                             {...field}
                             onChange={(e) => {
-                                const value = e.target.value;
-                                field.onChange(value === '' ? '' : parseFloat(value));
+                              const value = e.target.value;
+                              field.onChange(value === '' ? '' : parseFloat(value));
                             }}
                           />
                         </FormControl>
