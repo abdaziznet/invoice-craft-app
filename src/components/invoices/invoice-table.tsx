@@ -57,7 +57,44 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
   const [page, setPage] = useState(1);
   const pageSize = parseInt(process.env.NEXT_PUBLIC_PAGE_SIZE || '10');
 
-  const paginatedInvoices = invoices.slice((page - 1) * pageSize, page * pageSize);
+  const [sortConfig, setSortConfig] = useState<{ key: keyof Invoice; direction: 'asc' | 'desc' } | null>(null);
+
+  const handleSort = (key: keyof Invoice) => {
+    setSortConfig((current) => {
+      if (current?.key === key) {
+        return { key, direction: current.direction === 'asc' ? 'desc' : 'asc' };
+      }
+      return { key, direction: 'asc' };
+    });
+  };
+
+  const sortedInvoices = [...invoices].sort((a, b) => {
+    if (!sortConfig) return 0;
+
+    const { key, direction } = sortConfig;
+
+    // Handle nested properties or specific types if needed
+    // For now we handle top-level properties. 
+    // If we want to sort by customer name, we'd need special handling since customer is an object.
+
+    let aValue: any = a[key];
+    let bValue: any = b[key];
+
+    if (key === 'dueDate') {
+      aValue = new Date(a.dueDate).getTime();
+      bValue = new Date(b.dueDate).getTime();
+    }
+
+    if (aValue < bValue) {
+      return direction === 'asc' ? -1 : 1;
+    }
+    if (aValue > bValue) {
+      return direction === 'asc' ? 1 : -1;
+    }
+    return 0;
+  });
+
+  const paginatedInvoices = sortedInvoices.slice((page - 1) * pageSize, page * pageSize);
 
 
   const getStatusClass = (status: InvoiceStatus) => {
@@ -82,12 +119,12 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
     setSelectedInvoice(invoice);
     setIsExportShareDialogOpen(true);
   };
-  
+
   const handleDeleteClick = (invoice: Invoice) => {
     setSelectedInvoiceIds([invoice.id]);
     setIsDeleteDialogOpen(true);
   }
-  
+
   const handleBulkDeleteClick = () => {
     setIsDeleteDialogOpen(true);
   }
@@ -139,10 +176,10 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
     <>
       <div className="mb-4 flex items-center gap-2 px-4 sm:px-0">
         {numSelected > 0 && (
-            <Button variant="destructive" size="sm" onClick={handleBulkDeleteClick}>
-                <Trash2 className="mr-2 h-4 w-4" />
-                {t('invoices.table.deleteSelected', { count: numSelected })}
-            </Button>
+          <Button variant="destructive" size="sm" onClick={handleBulkDeleteClick}>
+            <Trash2 className="mr-2 h-4 w-4" />
+            {t('invoices.table.deleteSelected', { count: numSelected })}
+          </Button>
         )}
       </div>
       <div className="rounded-md border">
@@ -155,19 +192,27 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
                   checked={rowCount > 0 && numSelected === rowCount}
                   aria-label="Select all"
                   className="border-primary-foreground data-[state=checked]:bg-primary-foreground data-[state=checked]:text-primary"
-                 />
+                />
               </TableHead>
               <TableHead className="hidden sm:table-cell text-primary-foreground">{t('invoices.table.header.invoice')}</TableHead>
               <TableHead className="text-primary-foreground">{t('invoices.table.header.customer')}</TableHead>
               <TableHead className="text-primary-foreground">{t('invoices.table.header.status')}</TableHead>
               <TableHead className="hidden md:table-cell text-primary-foreground">
-                <Button variant="ghost" className="p-0 hover:bg-transparent hover:text-primary-foreground/80 text-primary-foreground">
+                <Button
+                  variant="ghost"
+                  className="p-0 hover:bg-transparent hover:text-primary-foreground/80 text-primary-foreground"
+                  onClick={() => handleSort('dueDate')}
+                >
                   {t('invoices.table.header.dueDate')}
                   <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
               </TableHead>
               <TableHead className="text-right text-primary-foreground">
-                 <Button variant="ghost" className="p-0 hover:bg-transparent hover:text-primary-foreground/80 text-primary-foreground">
+                <Button
+                  variant="ghost"
+                  className="p-0 hover:bg-transparent hover:text-primary-foreground/80 text-primary-foreground"
+                  onClick={() => handleSort('total')}
+                >
                   {t('invoices.table.header.total')}
                   <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
@@ -177,12 +222,12 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
           </TableHeader>
           <TableBody>
             {paginatedInvoices.map((invoice) => (
-              <TableRow 
+              <TableRow
                 key={invoice.id}
                 data-state={selectedInvoiceIds.includes(invoice.id) && "selected"}
               >
                 <TableCell>
-                  <Checkbox 
+                  <Checkbox
                     onCheckedChange={(checked) => handleSelectRow(invoice.id, checked as boolean)}
                     checked={selectedInvoiceIds.includes(invoice.id)}
                     aria-label={`Select row ${invoice.id}`}
@@ -196,38 +241,38 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
                 <TableCell className="hidden md:table-cell">{formatDate(parseISO(invoice.dueDate), lang)}</TableCell>
                 <TableCell className="text-right text-xs md:text-sm">{formatCurrency(invoice.total)}</TableCell>
                 <TableCell className="text-right">
-                  {isProcessing === invoice.id ? <Spinner/> : (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <span className="sr-only">Open menu</span>
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>{t('invoices.table.actions.title')}</DropdownMenuLabel>
-                      <DropdownMenuItem asChild>
-                        <Link href={`/invoices/${invoice.id}`}>{t('invoices.table.actions.view')}</Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link href={`/invoices/${invoice.id}/edit`}>{t('invoices.table.actions.edit')}</Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleShareClick(invoice)}>
-                         <Share2 className="mr-2 h-4 w-4" /> {t('invoices.table.actions.shareExport')}
-                      </DropdownMenuItem>
-                      {invoice.status === 'Overdue' && (
-                        <DropdownMenuItem onClick={() => handleGenerateReminder(invoice)}>
-                          {t('invoices.table.actions.generateReminder')}
+                  {isProcessing === invoice.id ? <Spinner /> : (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                          <span className="sr-only">Open menu</span>
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>{t('invoices.table.actions.title')}</DropdownMenuLabel>
+                        <DropdownMenuItem asChild>
+                          <Link href={`/invoices/${invoice.id}`}>{t('invoices.table.actions.view')}</Link>
                         </DropdownMenuItem>
-                      )}
-                       <DropdownMenuItem
-                        className="text-destructive focus:bg-destructive/10 focus:text-destructive"
-                        onClick={() => handleDeleteClick(invoice)}
-                       >
-                        {t('common.delete')}
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                        <DropdownMenuItem asChild>
+                          <Link href={`/invoices/${invoice.id}/edit`}>{t('invoices.table.actions.edit')}</Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleShareClick(invoice)}>
+                          <Share2 className="mr-2 h-4 w-4" /> {t('invoices.table.actions.shareExport')}
+                        </DropdownMenuItem>
+                        {invoice.status === 'Overdue' && (
+                          <DropdownMenuItem onClick={() => handleGenerateReminder(invoice)}>
+                            {t('invoices.table.actions.generateReminder')}
+                          </DropdownMenuItem>
+                        )}
+                        <DropdownMenuItem
+                          className="text-destructive focus:bg-destructive/10 focus:text-destructive"
+                          onClick={() => handleDeleteClick(invoice)}
+                        >
+                          {t('common.delete')}
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   )}
                 </TableCell>
               </TableRow>
@@ -248,7 +293,7 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
           onClose={() => setIsReminderModalOpen(false)}
         />
       )}
-       {selectedInvoice && (
+      {selectedInvoice && (
         <ExportShareDialog
           invoice={selectedInvoice}
           isOpen={isExportShareDialogOpen}
@@ -266,4 +311,4 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
   );
 }
 
-    
+
